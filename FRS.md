@@ -921,4 +921,72 @@ Project Nightfall Version 2.0 represents a complete transformation from a deskto
 
 ---
 
-*Version 2.0 - Mobile-First Revenue Engine - Ready for Launch* 🚀
+*Version 2.0 - Mobile-First Revenue Engine - Ready for Launch* 🚀---
+
+
+## GitHub Repository & Deployment Setup
+
+### Repository Information
+**Repository URL**: https://github.com/abhishek9871/ProjectNightfall  
+**Repository Owner**: abhishek9871  
+**Branch Structure**: master (main branch)  
+**Access Control**: Private repository with collaborator access  
+
+### Repository Contents
+- **Complete Source Code**: All React components, TypeScript files, and assets
+- **Documentation**: FRS.md, README.md, and LICENSE files
+- **Configuration**: Environment files, setup scripts, and build configuration
+- **Development Tools**: VS Code settings and project configuration
+
+### Environment Configuration
+**Environment Files**:
+- `.env`: Template with placeholder values for all required environment variables
+- `.env.local`: Development environment configuration with placeholder API keys
+- `.gitignore`: Modified to include environment files for easier setup
+
+### Setup Scripts
+**Windows Setup**: `setup.bat`  
+**Unix/Mac Setup**: `setup.sh`  
+
+**Automated Setup Process**:
+1. Dependencies installation (`npm install`)
+2. Environment configuration (creates `.env.local` if missing)
+3. Development server startup (`npm run dev`)
+
+### Deployment-Ready Features
+- **Production Build**: Optimized bundle with minified assets
+- **Environment Variables**: Properly configured for production deployment
+- **Cross-Platform Support**: Windows and Unix/Mac compatibility
+- **One-Command Setup**: Simple setup process for new development environments
+
+### GitHub Integration Benefits
+- **Version Control**: Complete history of all code changes
+- **Collaboration**: Multiple developer support with branch protection
+- **CI/CD Ready**: Prepared for continuous integration/deployment pipelines
+- **Issue Tracking**: Bug and feature request management
+- **Documentation**: Comprehensive README and FRS documentation
+
+### Clone & Setup Instructions
+```bash
+# Clone the repository
+git clone https://github.com/abhishek9871/ProjectNightfall.git
+
+# Navigate to project directory
+cd ProjectNightfall
+
+# Run setup script (Windows)
+setup.bat
+
+# OR Run setup script (Mac/Linux)
+chmod +x setup.sh
+./setup.sh
+```
+
+### Production Deployment Process
+1. Clone the repository to deployment environment
+2. Configure production environment variables
+3. Build the production bundle: `npm run build`
+4. Deploy the `dist/` directory to web server or hosting service
+5. Configure web server for single-page application routing
+
+---
