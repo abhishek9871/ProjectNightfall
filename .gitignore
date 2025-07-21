@@ -10,11 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
+# Include .env files for easy setup
+# *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# Include .vscode settings for consistent development experience
+# .vscode/*
+# !.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
