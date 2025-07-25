@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { VideoCard } from './VideoCard';
 import { Categories } from './Categories';
 import { videos } from '../data/videos';
@@ -13,6 +13,35 @@ interface VideoGridProps {
 export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.ReactNode {
     // Log total video count for verification
     console.log(`Total videos loaded: ${videos.length}`);
+    
+    // Layout error detection for Opera/Edge
+    useEffect(() => {
+        const checkLayoutOverflow = () => {
+            if (document.documentElement.scrollWidth > window.innerWidth) {
+                // GA4 event tracking for layout error
+                if (typeof window !== 'undefined' && (window as any).gtag) {
+                    (window as any).gtag('event', 'layout_error', {
+                        browser: navigator.userAgent,
+                        path: location.pathname,
+                        viewport_width: window.innerWidth,
+                        scroll_width: document.documentElement.scrollWidth
+                    });
+                }
+                console.warn('Layout overflow detected - Opera/Edge compatibility issue');
+            }
+        };
+
+        // Check after render
+        const timeoutId = setTimeout(checkLayoutOverflow, 100);
+        
+        // Check on resize
+        window.addEventListener('resize', checkLayoutOverflow);
+        
+        return () => {
+            clearTimeout(timeoutId);
+            window.removeEventListener('resize', checkLayoutOverflow);
+        };
+    }, [currentPage, searchQuery]);
     
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
@@ -116,7 +145,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
     };
 
     return (
-        <div>
+        <section className="container mx-auto px-4 overflow-x-hidden">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">{getPageTitle()}</h2>
                 {!searchQuery.trim() && (
@@ -136,7 +165,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                     {/* Banner ad above video list */}
                     <AdSlot type="banner" network="trafficjunky" />
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                    <div className="grid gap-y-8 gap-x-4 overflow-x-hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 video-grid-container">
                         {filteredVideos.map((video, index) => (
                             <React.Fragment key={video.id}>
                                 <VideoCard video={video} />
@@ -151,6 +180,6 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                     </div>
                 </>
             )}
-        </div>
+        </section>
     );
 }

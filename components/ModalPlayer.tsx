@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import Plyr from 'plyr';
 import { Video } from '../types';
 import { getUserCountry } from '../utils/geoDetector';
+import { useLockBodyScroll } from '@custom-react-hooks/use-lock-body-scroll';
 
 interface ModalPlayerProps {
     video: Video;
@@ -17,10 +18,13 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     const [loadTimeout, setLoadTimeout] = useState<NodeJS.Timeout | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [sessionStartTime, setSessionStartTime] = useState<number>(0);
-    
+
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const plyrRef = useRef<Plyr | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Lock body scroll when modal is open (Opera/Edge fix)
+    useLockBodyScroll(isOpen);
 
     // Initialize geo-detection
     useEffect(() => {
@@ -40,7 +44,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                         controls: [
                             'play-large',
                             'play',
-                            'progress', 
+                            'progress',
                             'current-time',
                             'duration',
                             'mute',
@@ -58,7 +62,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
 
                     // Track session start time
                     setSessionStartTime(Date.now());
-                    
+
                     // GA4 event tracking for modal open
                     if (typeof window !== 'undefined' && (window as any).gtag) {
                         (window as any).gtag('event', 'video_modal_open', {
@@ -118,7 +122,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                         });
                     }
                 }
-                
+
                 plyrRef.current.destroy();
                 plyrRef.current = null;
             }
@@ -135,7 +139,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             setShowError(false);
             setIsLoading(true);
             video.validated = false;
-            
+
             // Set timeout guard for stalled loads
             const timeout = setTimeout(() => {
                 if (!video.validated) {
@@ -157,7 +161,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                         });
                     }
                 }
-                
+
                 plyrRef.current.destroy();
                 plyrRef.current = null;
             }
@@ -172,7 +176,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             clearTimeout(loadTimeout);
             setLoadTimeout(null);
         }
-        
+
         // GA4 event tracking for successful embed
         if (typeof window !== 'undefined' && (window as any).gtag) {
             (window as any).gtag('event', 'embed_success', {
@@ -189,14 +193,14 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             clearTimeout(loadTimeout);
             setLoadTimeout(null);
         }
-        
+
         console.log('Modal embed fallback triggered for video:', video.id, 'URL index:', currentIdx);
-        
+
         // Try next URL in array if available
         if (currentIdx + 1 < video.embedUrls.length) {
             setCurrentIdx(currentIdx + 1);
             setIsLoading(true);
-            
+
             // Destroy and recreate Plyr for new URL
             if (plyrRef.current) {
                 plyrRef.current.destroy();
@@ -206,7 +210,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             // All URLs failed, show error overlay
             setShowError(true);
             setIsLoading(false);
-            
+
             // GA4 event tracking for final failure
             if (typeof window !== 'undefined' && (window as any).gtag) {
                 (window as any).gtag('event', 'embed_failure', {
@@ -224,13 +228,13 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
         setShowError(false);
         setIsLoading(true);
         video.validated = false;
-        
+
         // Destroy existing Plyr instance
         if (plyrRef.current) {
             plyrRef.current.destroy();
             plyrRef.current = null;
         }
-        
+
         // Set timeout guard for retry
         const timeout = setTimeout(() => {
             if (!video.validated) {
@@ -257,12 +261,21 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
 
     // Generate current embed URL with geo-detection
     const currentEmbedUrl = video.embedUrls[currentIdx]?.replace(
-        'xvideos.com', 
+        'xvideos.com',
         country === 'IN' ? 'xvideos4.com' : 'xvideos.com'
     ) || video.embedUrls[0];
 
     return (
-        <Transition appear show={isOpen} as={Fragment}>
+        <Transition 
+            appear 
+            show={isOpen} 
+            as={Fragment}
+            beforeLeave={() => {
+                // Ensure body scroll is restored on modal close (Headless UI bug workaround)
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            }}
+        >
             <Dialog as="div" className="relative z-50" onClose={handleClose}>
                 <Transition.Child
                     as={Fragment}
@@ -330,7 +343,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                     <p className="text-slate-400 mb-6">
                                                         Try refreshing or using a different VPN location
                                                     </p>
-                                                    <button 
+                                                    <button
                                                         onClick={handleRetry}
                                                         className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-900"
                                                     >
@@ -348,13 +361,13 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                         </div>
                                                     </div>
                                                 )}
-                                                <iframe 
+                                                <iframe
                                                     ref={iframeRef}
                                                     key={currentIdx} // Force re-render on URL change
                                                     className="absolute top-0 left-0 w-full h-full"
                                                     src={currentEmbedUrl}
                                                     title={video.title}
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                     allowFullScreen
                                                     loading="eager"
                                                     onLoad={handleEmbedLoad}
@@ -380,11 +393,11 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                         const rating = video.rating;
                                                         const fullStars = Math.floor(rating);
                                                         const hasHalfStar = rating % 1 >= 0.5;
-                                                        
+
                                                         if (i < fullStars) {
                                                             return (
                                                                 <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                                                                 </svg>
                                                             );
                                                         } else if (i === fullStars && hasHalfStar) {
@@ -392,17 +405,17 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                                 <svg key={i} className="w-4 h-4 text-yellow-400" viewBox="0 0 20 20">
                                                                     <defs>
                                                                         <linearGradient id={`modal-half-${video.id}`}>
-                                                                            <stop offset="50%" stopColor="currentColor"/>
-                                                                            <stop offset="50%" stopColor="transparent"/>
+                                                                            <stop offset="50%" stopColor="currentColor" />
+                                                                            <stop offset="50%" stopColor="transparent" />
                                                                         </linearGradient>
                                                                     </defs>
-                                                                    <path fill={`url(#modal-half-${video.id})`} d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                                                    <path fill={`url(#modal-half-${video.id})`} d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                                                                 </svg>
                                                             );
                                                         } else {
                                                             return (
                                                                 <svg key={i} className="w-4 h-4 text-slate-600" viewBox="0 0 20 20">
-                                                                    <path fill="currentColor" d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                                                    <path fill="currentColor" d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                                                                 </svg>
                                                             );
                                                         }
@@ -411,9 +424,9 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                 <span className="text-sm text-slate-400">({video.rating})</span>
                                             </div>
                                         </div>
-                                        
+
                                         {/* Share Button */}
-                                        <button 
+                                        <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (navigator.share) {
@@ -431,7 +444,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                             title="Share video"
                                         >
                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
                                             </svg>
                                             <span className="text-sm">Share</span>
                                         </button>

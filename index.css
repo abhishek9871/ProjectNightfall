@@ -1,6 +1,9 @@
 /* Plyr.js styles for video player */
 @import url('https://cdn.plyr.io/3.7.8/plyr.css');
 
+/* Opera/Edge layout fixes */
+@import url('./src/styles/opera-edge.css');
+
 /* Basic styles for Live Server compatibility */
 * {
   margin: 0;

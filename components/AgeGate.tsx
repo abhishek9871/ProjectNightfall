@@ -11,7 +11,7 @@ export function AgeGate({ onVerified }: AgeGateProps): React.ReactNode {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm" data-testid="age-gate">
             <div 
                 role="dialog"
                 aria-modal="true"
@@ -30,7 +30,7 @@ export function AgeGate({ onVerified }: AgeGateProps): React.ReactNode {
                         onClick={onVerified}
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50"
                     >
-                        I am 18 or older - Enter
+                        Yes, I am 18+
                     </button>
                     <button
                         onClick={handleExit}

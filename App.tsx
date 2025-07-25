@@ -40,7 +40,7 @@ export default function App(): React.ReactNode {
                         onSearchChange={setSearchQuery}
                         onMobileMenuToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                     />
-                    <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="p-4 sm:p-6 lg:p-8" data-testid="video-grid">
                         <VideoGrid currentPage={currentPage} searchQuery={searchQuery} />
                     </div>
                     <Footer onLegalPageOpen={setLegalPage} />
