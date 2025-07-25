@@ -11,6 +11,11 @@ interface VideoGridProps {
 }
 
 export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.ReactNode {
+    // If we're on categories page, use the Categories component
+    if (currentPage === 'categories') {
+        return <Categories searchQuery={searchQuery} />;
+    }
+
     // Log total video count for verification
     console.log(`Total videos loaded: ${videos.length}`);
     
@@ -42,11 +47,6 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
             window.removeEventListener('resize', checkLayoutOverflow);
         };
     }, [currentPage, searchQuery]);
-    
-    // If we're on categories page, use the Categories component
-    if (currentPage === 'categories') {
-        return <Categories searchQuery={searchQuery} />;
-    }
 
     const filteredVideos = useMemo(() => {
         let filtered = [...videos];

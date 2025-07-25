@@ -10,10 +10,30 @@ interface CategoriesProps {
 export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-    // Simple test - just return basic content first
+    // Filter videos based on selected category and search
+    const filteredVideos = videos.filter(video => {
+        const matchesSearch = searchQuery.trim() === '' || 
+            video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        const matchesCategory = selectedCategory === null || 
+            video.category.toLowerCase() === selectedCategory.toLowerCase();
+        
+        return matchesSearch && matchesCategory;
+    });
+
+    const getTitle = () => {
+        if (searchQuery.trim()) {
+            return selectedCategory 
+                ? `Search Results in ${selectedCategory} for "${searchQuery}"`
+                : `Search Results for "${searchQuery}"`;
+        }
+        return selectedCategory ? `${selectedCategory} Videos` : 'All Categories';
+    };
+
     return (
         <div className="p-8">
-            <h1 className="text-3xl font-bold text-white mb-8">Categories Page</h1>
+            <h1 className="text-3xl font-bold text-white mb-8">{getTitle()}</h1>
             
             <div className="mb-8">
                 <h2 className="text-xl text-white mb-4">Category Filters</h2>
@@ -45,7 +65,7 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
             </div>
 
             {/* Show category overview when no category is selected */}
-            {!selectedCategory && (
+            {!selectedCategory && searchQuery.trim() === '' && (
                 <div className="mb-8">
                     <h2 className="text-xl text-white mb-4">Browse Categories</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -70,18 +90,20 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
                     {selectedCategory ? `${selectedCategory} Videos` : 'All Videos'}
                 </h2>
                 
-                <div className="continuous-video-grid">
-                    {videos
-                        .filter(video => !selectedCategory || video.category === selectedCategory)
-                        .filter(video => !searchQuery || 
-                            video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-                        )
-                        .map((video) => (
+                {filteredVideos.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-slate-400 text-lg">No videos found.</p>
+                        {(searchQuery || selectedCategory) && (
+                            <p className="text-slate-500 mt-2">Try adjusting your filters or search terms.</p>
+                        )}
+                    </div>
+                ) : (
+                    <div className="continuous-video-grid">
+                        {filteredVideos.map((video) => (
                             <VideoCard key={video.id} video={video} />
-                        ))
-                    }
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
