@@ -3,6 +3,7 @@ import { VideoCard } from './VideoCard';
 import { Categories } from './Categories';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
+import AdSlot from './AdSlot';
 
 interface VideoGridProps {
     currentPage: PageType;
@@ -128,11 +129,24 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                    {filteredVideos.map((video) => (
-                        <VideoCard key={video.id} video={video} />
-                    ))}
-                </div>
+                <>
+                    {/* Banner ad above video list */}
+                    <AdSlot type="banner" network="trafficjunky" />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                        {filteredVideos.map((video, index) => (
+                            <React.Fragment key={video.id}>
+                                <VideoCard video={video} />
+                                {/* Rectangle ad after every 5 videos */}
+                                {(index + 1) % 5 === 0 && (
+                                    <div className="col-span-full">
+                                        <AdSlot type="rectangle" network="hilltopads" />
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </>
             )}
         </div>
     );

@@ -14,6 +14,14 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
 
     const handleCardClick = () => {
         setShowPlayer(true);
+        // GA4 event tracking for video play
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'video_play', {
+                video_id: video.id,
+                video_title: video.title,
+                video_category: video.category
+            });
+        }
     };
 
     const renderStars = (rating: number) => {
@@ -51,8 +59,31 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
         return stars;
     };
 
+    // Generate VideoObject schema for SEO
+    const videoSchema = {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": video.title,
+        "description": `High-quality adult video in ${video.category} category`,
+        "thumbnailUrl": thumbnailUrl,
+        "uploadDate": video.uploadDate || new Date().toISOString(),
+        "duration": video.duration,
+        "contentUrl": video.embedUrl,
+        "embedUrl": video.embedUrl,
+        "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": { "@type": "WatchAction" },
+            "userInteractionCount": parseInt(video.views.replace('M', '000000').replace('K', '000').replace(',', ''))
+        }
+    };
+
     return (
-        <div className="group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
+        <>
+            <script 
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+            />
+            <div className="group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
             <div className="relative aspect-video bg-black" onClick={handleCardClick}>
                 {!showPlayer ? (
                     <>
@@ -107,9 +138,33 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 
                 <div className="flex justify-between items-center text-sm text-slate-400">
                     <span>{video.views}</span>
-                    <span className="text-purple-400">Click to play</span>
+                    <div className="flex items-center gap-2">
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (navigator.share) {
+                                    navigator.share({
+                                        title: video.title,
+                                        url: window.location.href
+                                    });
+                                } else {
+                                    // Fallback: copy to clipboard
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert('Link copied to clipboard!');
+                                }
+                            }}
+                            className="text-purple-400 hover:text-purple-300 transition-colors"
+                            title="Share video"
+                        >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                            </svg>
+                        </button>
+                        <span className="text-purple-400">Click to play</span>
+                    </div>
                 </div>
             </div>
         </div>
+        </>
     );
 }

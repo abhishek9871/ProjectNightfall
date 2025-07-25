@@ -60,7 +60,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                             Promotions
                         </h3>
                         {affiliateBanners.map((banner) => (
-                             <a href={banner.link} key={banner.id} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20">
+                             <a 
+                                href={banner.link} 
+                                key={banner.id} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="block rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                                onClick={() => {
+                                    // GA4 event tracking for affiliate clicks
+                                    if (typeof window !== 'undefined' && (window as any).gtag) {
+                                        (window as any).gtag('event', 'affiliate_click', {
+                                            affiliate_id: banner.id,
+                                            affiliate_name: banner.alt,
+                                            network: 'sidebar_banner'
+                                        });
+                                    }
+                                }}
+                             >
                                  <img src={banner.imageUrl} alt={banner.alt} className="w-full h-auto" />
                              </a>
                         ))}
@@ -104,7 +120,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                             Promotions
                         </h3>
                         {affiliateBanners.map((banner) => (
-                             <a href={banner.link} key={banner.id} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20">
+                             <a 
+                                href={banner.link} 
+                                key={banner.id} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="block rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                                onClick={() => {
+                                    // GA4 event tracking for affiliate clicks
+                                    if (typeof window !== 'undefined' && (window as any).gtag) {
+                                        (window as any).gtag('event', 'affiliate_click', {
+                                            affiliate_id: banner.id,
+                                            affiliate_name: banner.alt,
+                                            network: 'sidebar_banner'
+                                        });
+                                    }
+                                }}
+                             >
                                  <img src={banner.imageUrl} alt={banner.alt} className="w-full h-auto" />
                              </a>
                         ))}

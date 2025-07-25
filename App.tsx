@@ -7,6 +7,8 @@ import { Footer } from './components/Footer';
 import { PrivacyNotice } from './components/PrivacyNotice';
 import { LegalPages, LegalPageType } from './components/LegalPages';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import Analytics from './components/Analytics';
+import AdSlot from './components/AdSlot';
 
 export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
 
@@ -23,6 +25,8 @@ export default function App(): React.ReactNode {
 
     return (
         <div className="bg-slate-950 text-slate-300 min-h-screen">
+            <Analytics />
+            <AdSlot type="popunder" network="hilltopads" />
             <div className="flex">
                 <Sidebar 
                     currentPage={currentPage} 
