@@ -106,8 +106,8 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
             />
-            <div className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
-            <div className="relative aspect-video bg-slate-900/70" onClick={handleCardClick}>
+            <div className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer w-full">
+            <div className="relative aspect-video bg-slate-900/70 overflow-hidden" onClick={handleCardClick}>
                 <img 
                     src={thumbnailUrl}
                     alt={video.title}
@@ -119,8 +119,8 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 </div>
                 {/* Play button overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                        <svg className="w-6 h-6 text-white ml-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                        <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
@@ -130,22 +130,22 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                     {video.duration}
                 </div>
             </div>
-            <div className="p-4 flex-shrink-0">
+            <div className="p-4">
                 <h3 className="font-bold text-base text-white truncate group-hover:text-purple-400 transition-colors mb-2">
                     {video.title}
                 </h3>
                 
                 {/* Rating */}
-                <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1">
                         {renderStars(video.rating)}
                     </div>
-                    <span className="text-xs text-slate-400 flex-shrink-0">({video.rating})</span>
+                    <span className="text-xs text-slate-400">({video.rating})</span>
                 </div>
                 
                 <div className="flex justify-between items-center text-sm text-slate-400">
-                    <span className="flex-shrink-0">{video.views}</span>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <span>{video.views}</span>
+                    <div className="flex items-center gap-2">
                         <button 
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -160,14 +160,14 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                                     alert('Link copied to clipboard!');
                                 }
                             }}
-                            className="text-purple-400 hover:text-purple-300 transition-colors flex-shrink-0"
+                            className="text-purple-400 hover:text-purple-300 transition-colors"
                             title="Share video"
                         >
-                            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
                             </svg>
                         </button>
-                        <span className="text-purple-400 flex-shrink-0">Click for modal</span>
+                        <span className="text-purple-400">Click for modal</span>
                     </div>
                 </div>
             </div>
