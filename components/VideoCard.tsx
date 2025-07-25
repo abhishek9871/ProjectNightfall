@@ -106,8 +106,8 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
             />
-            <div className="flex-shrink-0 w-full video-card-container opera-fix edge-fix group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
-            <div className="relative aspect-video overflow-hidden rounded-lg bg-slate-900/70" onClick={handleCardClick}>
+            <div className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
+            <div className="relative aspect-video bg-slate-900/70" onClick={handleCardClick}>
                 <img 
                     src={thumbnailUrl}
                     alt={video.title}

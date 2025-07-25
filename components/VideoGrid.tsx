@@ -165,7 +165,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                     {/* Banner ad above video list */}
                     <AdSlot type="banner" network="trafficjunky" />
                     
-                    <div className="grid gap-y-8 gap-x-4 overflow-x-hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 video-grid-container">
+                    <div className="video-grid-container overflow-x-hidden">
                         {filteredVideos.map((video, index) => (
                             <React.Fragment key={video.id}>
                                 <VideoCard video={video} />
