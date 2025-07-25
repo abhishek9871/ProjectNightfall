@@ -1,58 +1,109 @@
-/* Opera/Edge specific layout fixes */
+/* Opera/Edge specific layout fixes - MINIMAL APPROACH */
 
-/* Fix for Opera GX and Edge flex-shrink issues */
-@supports (-webkit-touch-callout: none) and (not (translate: none)) {
-  .opera-fix, 
-  .edge-fix { 
-    flex-shrink: 0 !important; 
-  }
+/* Fix aspect-ratio issues in Opera/Edge only */
+@supports not (aspect-ratio: 16 / 9) {
+    .aspect-video {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%;
+        /* 16:9 aspect ratio fallback */
+    }
+
+    .aspect-video>* {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 
-/* Additional Opera-specific fixes */
-@supports (-webkit-appearance: none) and (not (-moz-appearance: none)) {
-  .video-card-container {
-    flex-shrink: 0 !important;
+/* Fix flex-shrink issues in Opera GX */
+@supports (-webkit-touch-callout: none) {
+    .video-card-container {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+}
+
+/* Fix Edge-specific grid issues */
+@supports (-ms-ime-align: auto) {
+    .video-card-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* Ensure no horizontal overflow */
+.overflow-x-hidden {
+    overflow-x: hidden;
+}
+
+/* Prevent card content from breaking layout */
+.video-card-container {
     min-width: 0;
-  }
-  
-  .aspect-video {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-  }
-  
-  .aspect-video > * {
-    position: absolute;
-    top: 0;
-    left: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Ensure images don't break aspect ratio */
+.aspect-video img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
+    display: block;
 }
 
-/* Edge-specific grid fixes */
-@supports (-ms-ime-align: auto) {
-  .video-grid-container {
+/* Continuous video grid layout - no line breaks */
+.continuous-video-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
-    width: 100%;
     overflow-x: hidden;
-  }
+    width: 100%;
 }
 
-/* Prevent horizontal overflow in all browsers */
-.overflow-x-hidden {
-  overflow-x: hidden !important;
+/* Responsive adjustments for continuous flow */
+@media (min-width: 640px) {
+    .continuous-video-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
 }
 
-/* Container query fallback for older browsers */
-@supports not (container-type: inline-size) {
-  .video-grid-fallback {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
+@media (min-width: 1024px) {
+    .continuous-video-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .continuous-video-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* Inline ad slots that don't break the flow */
+.ad-slot-inline {
+    grid-column: span 1;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px dashed rgba(148, 163, 184, 0.3);
+    border-radius: 0.75rem;
+}
+
+/* Ensure video cards fit properly in continuous grid */
+.continuous-video-grid .video-card-container {
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    max-width: 100%;
 }
