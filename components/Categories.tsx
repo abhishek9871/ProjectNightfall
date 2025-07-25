@@ -32,8 +32,10 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
     };
 
     return (
-        <div>
-            <h2 className="text-2xl font-bold text-white mb-6">{getTitle()}</h2>
+        <section className="container mx-auto px-4 overflow-x-hidden">
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">{getTitle()}</h2>
+            </div>
             
             {/* Category Filter Buttons */}
             <div className="mb-8">
@@ -93,12 +95,12 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                <div className="continuous-video-grid overflow-x-hidden">
                     {filteredVideos.map((video) => (
                         <VideoCard key={video.id} video={video} />
                     ))}
                 </div>
             )}
-        </div>
+        </section>
     );
 }
