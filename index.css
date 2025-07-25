@@ -1,3 +1,6 @@
+/* Plyr.js styles for video player */
+@import url('https://cdn.plyr.io/3.7.8/plyr.css');
+
 /* Basic styles for Live Server compatibility */
 * {
   margin: 0;
@@ -30,4 +33,46 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Custom Plyr theme for dark mode */
+.plyr {
+  --plyr-color-main: #a855f7;
+  --plyr-video-background: #000;
+  --plyr-menu-background: #1e293b;
+  --plyr-menu-color: #fff;
+  --plyr-control-icon-size: 18px;
+}
+
+.plyr--video {
+  background: #000;
+}
+
+.plyr__control--overlaid {
+  background: rgba(168, 85, 247, 0.9);
+}
+
+.plyr__control--overlaid:hover {
+  background: rgba(168, 85, 247, 1);
+}
+
+.plyr__progress__buffer {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.plyr__volume__input {
+  color: #a855f7;
+}
+
+.plyr__menu__container {
+  background: #1e293b;
+  border: 1px solid #374151;
+}
+
+.plyr__menu__container .plyr__control {
+  color: #fff;
+}
+
+.plyr__menu__container .plyr__control:hover {
+  background: #374151;
 }

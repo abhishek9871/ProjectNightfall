@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Video } from '../types';
+import { getUserCountry } from '../utils/geoDetector';
+import { ModalPlayer } from './ModalPlayer';
 
 interface VideoCardProps {
     video: Video;
 }
 
 export function VideoCard({ video }: VideoCardProps): React.ReactNode {
-    const [imageError, setImageError] = useState(false);
-    const [showPlayer, setShowPlayer] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [country, setCountry] = useState<string>('US');
 
-    // Generate a placeholder thumbnail URL based on video ID
-    const thumbnailUrl = `https://picsum.photos/seed/video${video.id}/400/225`;
+    // Use provided thumbnail or generate placeholder
+    const thumbnailUrl = video.thumbnailUrl || `https://picsum.photos/seed/video${video.id}/400/225`;
+
+    // Initialize geo-detection
+    useEffect(() => {
+        getUserCountry().then(detectedCountry => {
+            setCountry(detectedCountry);
+        });
+    }, []);
+
+
 
     const handleCardClick = () => {
-        setShowPlayer(true);
-        // GA4 event tracking for video play
+        setIsModalOpen(true);
+        
+        // GA4 event tracking for video play (preserved from original)
         if (typeof window !== 'undefined' && (window as any).gtag) {
             (window as any).gtag('event', 'video_play', {
                 video_id: video.id,
@@ -22,6 +34,11 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 video_category: video.category
             });
         }
+    };
+
+    // Modal handlers
+    const handleModalClose = () => {
+        setIsModalOpen(false);
     };
 
     const renderStars = (rating: number) => {
@@ -59,7 +76,8 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
         return stars;
     };
 
-    // Generate VideoObject schema for SEO
+    // Generate VideoObject schema for SEO (enhanced for modal)
+    const currentEmbedUrl = video.embedUrls[0]?.replace('xvideos.com', country === 'IN' ? 'xvideos4.com' : 'xvideos.com') || video.embedUrls[0];
     const videoSchema = {
         "@context": "https://schema.org",
         "@type": "VideoObject",
@@ -68,8 +86,8 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
         "thumbnailUrl": thumbnailUrl,
         "uploadDate": video.uploadDate || new Date().toISOString(),
         "duration": video.duration,
-        "contentUrl": video.embedUrl,
-        "embedUrl": video.embedUrl,
+        "contentUrl": currentEmbedUrl,
+        "embedUrl": window.location.href, // Page URL for modal context
         "interactionStatistic": {
             "@type": "InteractionCounter",
             "interactionType": { "@type": "WatchAction" },
@@ -83,45 +101,34 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
             />
+            <ModalPlayer 
+                video={video}
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+            />
             <div className="group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer">
             <div className="relative aspect-video bg-black" onClick={handleCardClick}>
-                {!showPlayer ? (
-                    <>
-                        <img 
-                            src={thumbnailUrl}
-                            alt={video.title}
-                            className="absolute top-0 left-0 w-full h-full object-cover"
-                            onError={() => setImageError(true)}
-                        />
-                        {/* Category badge */}
-                        <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
-                            {video.category}
-                        </div>
-                        {/* Play button overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        {/* Duration badge */}
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-                            {video.duration}
-                        </div>
-                    </>
-                ) : (
-                    <iframe 
-                        className="absolute top-0 left-0 w-full h-full"
-                        src={video.embedUrl}
-                        title={video.title}
-                        frameBorder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        allowFullScreen
-                        loading="lazy"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox">
-                    </iframe>
-                )}
+                <img 
+                    src={thumbnailUrl}
+                    alt={video.title}
+                    className="absolute top-0 left-0 w-full h-full object-cover"
+                />
+                {/* Category badge */}
+                <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
+                    {video.category}
+                </div>
+                {/* Play button overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                        <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                {/* Duration badge */}
+                <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                    {video.duration}
+                </div>
             </div>
             <div className="p-4">
                 <h3 className="font-bold text-base text-white truncate group-hover:text-purple-400 transition-colors mb-2">
@@ -160,7 +167,7 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                                 <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
                             </svg>
                         </button>
-                        <span className="text-purple-400">Click to play</span>
+                        <span className="text-purple-400">Click for modal</span>
                     </div>
                 </div>
             </div>

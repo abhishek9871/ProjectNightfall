@@ -2,7 +2,9 @@
 export interface Video {
     id: number;
     title: string;
-    embedUrl: string;
+    embedUrls: string[]; // Array for multiple sources/future expansion
+    thumbnailUrl?: string;
+    validated?: boolean; // set true after first successful load
     views: string;
     duration: string;
     category: string;

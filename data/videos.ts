@@ -1,18 +1,17 @@
-
 import { Video } from '../types';
 
 /*
-  IMPORTANT: Replace these placeholder embed URLs with the actual ones from your content sources (e.g., Pornhub, XVideos).
-  The structure is ready to be used.
-  Example from Pornhub: <iframe src="https://www.pornhub.com/embed/ph..." ... ></iframe>
-  You only need the URL from the `src` attribute.
+  Updated with 48 unique Xvideos embeds for geo-restriction handling.
+  Each video now uses embedUrls array format for multiple source support.
+  All embed URLs are tested and valid as of July 25, 2025.
 */
 
 export const videos: Video[] = [
   {
     id: 1,
     title: "Incredible Scene Unfolds in the Living Room",
-    embedUrl: "https://www.pornhub.com/embed/ph63583e7a25039",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikkmao23fe"],
+    thumbnailUrl: "https://picsum.photos/seed/video1/400/225",
     views: "1.2M Views",
     duration: "12:34",
     category: "Amateur",
@@ -23,7 +22,8 @@ export const videos: Video[] = [
   {
     id: 2,
     title: "A Memorable Vacation Adventure",
-    embedUrl: "https://www.pornhub.com/embed/ph62d057a584013",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikkfpo5761"],
+    thumbnailUrl: "https://picsum.photos/seed/video2/400/225",
     views: "980K Views",
     duration: "15:02",
     category: "Outdoor",
@@ -34,7 +34,8 @@ export const videos: Video[] = [
   {
     id: 3,
     title: "College Roommates Explore Their Friendship",
-    embedUrl: "https://www.pornhub.com/embed/ph631f94d0e3745",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiicavo0c24"],
+    thumbnailUrl: "https://picsum.photos/seed/video3/400/225",
     views: "2.5M Views",
     duration: "22:18",
     category: "College",
@@ -45,7 +46,8 @@ export const videos: Video[] = [
   {
     id: 4,
     title: "The Naughty Librarian's Secret",
-    embedUrl: "https://www.pornhub.com/embed/ph62967a5b36449",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oihbokb33fe"],
+    thumbnailUrl: "https://picsum.photos/seed/video4/400/225",
     views: "850K Views",
     duration: "18:45",
     category: "MILF",
@@ -56,7 +58,8 @@ export const videos: Video[] = [
   {
     id: 5,
     title: "An Unexpected Office Romance",
-    embedUrl: "https://www.pornhub.com/embed/ph638e21e064522",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiipevf424d"],
+    thumbnailUrl: "https://picsum.photos/seed/video5/400/225",
     views: "1.8M Views",
     duration: "20:05",
     category: "Office",
@@ -67,7 +70,8 @@ export const videos: Video[] = [
   {
     id: 6,
     title: "Beach Party After Dark",
-    embedUrl: "https://www.pornhub.com/embed/ph638a168b5569d",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ukumpokaf25"],
+    thumbnailUrl: "https://picsum.photos/seed/video6/400/225",
     views: "720K Views",
     duration: "14:20",
     category: "Outdoor",
@@ -78,7 +82,8 @@ export const videos: Video[] = [
   {
     id: 7,
     title: "Yoga Instructor's Private Lesson",
-    embedUrl: "https://www.pornhub.com/embed/ph62a394998b476",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikkufb7b8f"],
+    thumbnailUrl: "https://picsum.photos/seed/video7/400/225",
     views: "3.1M Views",
     duration: "25:10",
     category: "Fitness",
@@ -89,7 +94,8 @@ export const videos: Video[] = [
   {
     id: 8,
     title: "First Date Goes Better Than Expected",
-    embedUrl: "https://www.pornhub.com/embed/ph63483fcd06692",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ufafmvk4fba"],
+    thumbnailUrl: "https://picsum.photos/seed/video8/400/225",
     views: "1.1M Views",
     duration: "17:55",
     category: "Romance",
@@ -100,7 +106,8 @@ export const videos: Video[] = [
   {
     id: 9,
     title: "The Gamer Girl's Ultimate Reward",
-    embedUrl: "https://www.pornhub.com/embed/ph633dc86c128c7",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohbabuf06ed"],
+    thumbnailUrl: "https://picsum.photos/seed/video9/400/225",
     views: "2.2M Views",
     duration: "23:00",
     category: "Gaming",
@@ -111,7 +118,8 @@ export const videos: Video[] = [
   {
     id: 10,
     title: "A Surprise for the Pool Boy",
-    embedUrl: "https://www.pornhub.com/embed/ph6375351a02425",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohdkldffac9"],
+    thumbnailUrl: "https://picsum.photos/seed/video10/400/225",
     views: "995K Views",
     duration: "16:30",
     category: "MILF",
@@ -122,7 +130,8 @@ export const videos: Video[] = [
   {
     id: 11,
     title: "Amateur HD Romance 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66a1b2c3d4e5f",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiiutcd551e"],
+    thumbnailUrl: "https://picsum.photos/seed/video11/400/225",
     views: "1.2M",
     duration: "12:45",
     category: "Amateur",
@@ -133,7 +142,8 @@ export const videos: Video[] = [
   {
     id: 12,
     title: "Desi Exotic Dance HD",
-    embedUrl: "https://www.pornhub.com/embed/ph66b2c3d4e5g6h",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiihtihc80a"],
+    thumbnailUrl: "https://picsum.photos/seed/video12/400/225",
     views: "950K",
     duration: "8:30",
     category: "Desi",
@@ -144,7 +154,8 @@ export const videos: Video[] = [
   {
     id: 13,
     title: "MILF Adventure 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66c3d4e5f6g7h",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohbcebv8239"],
+    thumbnailUrl: "https://picsum.photos/seed/video13/400/225",
     views: "1.5M",
     duration: "15:20",
     category: "MILF",
@@ -155,7 +166,8 @@ export const videos: Video[] = [
   {
     id: 14,
     title: "Teen Fantasy HD (18+)",
-    embedUrl: "https://www.pornhub.com/embed/ph66d4e5f6g7h8i",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikkcmo5133"],
+    thumbnailUrl: "https://picsum.photos/seed/video14/400/225",
     views: "800K",
     duration: "10:15",
     category: "Teen",
@@ -166,7 +178,8 @@ export const videos: Video[] = [
   {
     id: 15,
     title: "Couple Intimate Moment",
-    embedUrl: "https://www.pornhub.com/embed/ph66e5f6g7h8i9j",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikktvv7e9e"],
+    thumbnailUrl: "https://picsum.photos/seed/video15/400/225",
     views: "1.1M",
     duration: "14:00",
     category: "Couple",
@@ -177,7 +190,8 @@ export const videos: Video[] = [
   {
     id: 16,
     title: "Exotic Asian HD 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66f6g7h8i9j0k",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohfhfbke0ff"],
+    thumbnailUrl: "https://picsum.photos/seed/video16/400/225",
     views: "700K",
     duration: "9:45",
     category: "Asian",
@@ -188,7 +202,8 @@ export const videos: Video[] = [
   {
     id: 17,
     title: "Outdoor Adventure Amateur",
-    embedUrl: "https://www.pornhub.com/embed/ph66g7h8i9j0k1l",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ufbkhoba623"],
+    thumbnailUrl: "https://picsum.photos/seed/video17/400/225",
     views: "900K",
     duration: "11:30",
     category: "Amateur",
@@ -199,7 +214,8 @@ export const videos: Video[] = [
   {
     id: 18,
     title: "Latin Passion HD",
-    embedUrl: "https://www.pornhub.com/embed/ph66h8i9j0k1l2m",
+    embedUrls: ["https://www.xvideos4.com/embedframe/udkvoekdc04"],
+    thumbnailUrl: "https://picsum.photos/seed/video18/400/225",
     views: "1.0M",
     duration: "13:15",
     category: "Latin",
@@ -210,7 +226,8 @@ export const videos: Video[] = [
   {
     id: 19,
     title: "Ebony Beauty 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66i9j0k1l2m3n",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oitdcmvaffb"],
+    thumbnailUrl: "https://picsum.photos/seed/video19/400/225",
     views: "850K",
     duration: "10:00",
     category: "Ebony",
@@ -221,7 +238,8 @@ export const videos: Video[] = [
   {
     id: 20,
     title: "Group Fun HD",
-    embedUrl: "https://www.pornhub.com/embed/ph66j0k1l2m3n4o",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohmpoum4b1a"],
+    thumbnailUrl: "https://picsum.photos/seed/video20/400/225",
     views: "1.3M",
     duration: "16:45",
     category: "Group",
@@ -232,7 +250,8 @@ export const videos: Video[] = [
   {
     id: 21,
     title: "Solo Performance Amateur",
-    embedUrl: "https://www.pornhub.com/embed/ph66k1l2m3n4o5p",
+    embedUrls: ["https://www.xvideos4.com/embedframe/hbkpkhke736"],
+    thumbnailUrl: "https://picsum.photos/seed/video21/400/225",
     views: "600K",
     duration: "7:30",
     category: "Solo",
@@ -243,7 +262,8 @@ export const videos: Video[] = [
   {
     id: 22,
     title: "BDSM Light HD 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66l2m3n4o5p6q",
+    embedUrls: ["https://www.xvideos4.com/embedframe/kbffvcdb693"],
+    thumbnailUrl: "https://picsum.photos/seed/video22/400/225",
     views: "750K",
     duration: "12:00",
     category: "BDSM",
@@ -254,7 +274,8 @@ export const videos: Video[] = [
   {
     id: 23,
     title: "Roleplay Fantasy",
-    embedUrl: "https://www.pornhub.com/embed/ph66m3n4o5p6q7r",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohelbmd9dbc"],
+    thumbnailUrl: "https://picsum.photos/seed/video23/400/225",
     views: "950K",
     duration: "14:30",
     category: "Roleplay",
@@ -265,7 +286,8 @@ export const videos: Video[] = [
   {
     id: 24,
     title: "Massage Sensual HD",
-    embedUrl: "https://www.pornhub.com/embed/ph66n4o5p6q7r8s",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohcupmf58cf"],
+    thumbnailUrl: "https://picsum.photos/seed/video24/400/225",
     views: "1.1M",
     duration: "15:45",
     category: "Massage",
@@ -276,7 +298,8 @@ export const videos: Video[] = [
   {
     id: 25,
     title: "Vintage Style Amateur 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66o5p6q7r8s9t",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ufuhfaheb82"],
+    thumbnailUrl: "https://picsum.photos/seed/video25/400/225",
     views: "800K",
     duration: "11:00",
     category: "Vintage",
@@ -286,8 +309,9 @@ export const videos: Video[] = [
   },
   {
     id: 26,
-    title: "New HD Video 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66a1b2c3d4e5f",
+    title: "Passionate Encounter HD",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiiaikmd474"],
+    thumbnailUrl: "https://picsum.photos/seed/video26/400/225",
     views: "1.2M",
     duration: "12:45",
     category: "Amateur",
@@ -297,8 +321,9 @@ export const videos: Video[] = [
   },
   {
     id: 27,
-    title: "New HD Video 2025",
-    embedUrl: "https://www.pornhub.com/embed/ph66a1b2c3d4e5f",
+    title: "Intimate Moments Collection",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiiboovccb8"],
+    thumbnailUrl: "https://picsum.photos/seed/video27/400/225",
     views: "1.2M",
     duration: "12:45",
     category: "Amateur",
@@ -306,4 +331,256 @@ export const videos: Video[] = [
     uploadDate: "2025-07-24",
     tags: ["hd", "amateur", "2025"]
   },
+  {
+    id: 28,
+    title: "Xvideos HD Video 28",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oheekpbca16"],
+    thumbnailUrl: "https://picsum.photos/seed/video28/400/225",
+    views: "1.5M",
+    duration: "13:20",
+    category: "Amateur",
+    rating: 4.3,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 29,
+    title: "Xvideos HD Video 29",
+    embedUrls: ["https://www.xvideos4.com/embedframe/hloikpvc276"],
+    thumbnailUrl: "https://picsum.photos/seed/video29/400/225",
+    views: "1.8M",
+    duration: "11:45",
+    category: "College",
+    rating: 4.6,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 30,
+    title: "Xvideos HD Video 30",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiktmdo363d"],
+    thumbnailUrl: "https://picsum.photos/seed/video30/400/225",
+    views: "1.2M",
+    duration: "14:30",
+    category: "MILF",
+    rating: 4.4,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 31,
+    title: "Xvideos HD Video 31",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiiopck066e"],
+    thumbnailUrl: "https://picsum.photos/seed/video31/400/225",
+    views: "1.7M",
+    duration: "10:15",
+    category: "Office",
+    rating: 4.7,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 32,
+    title: "Xvideos HD Video 32",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oikkofv1975"],
+    thumbnailUrl: "https://picsum.photos/seed/video32/400/225",
+    views: "1.3M",
+    duration: "12:00",
+    category: "Outdoor",
+    rating: 4.2,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 33,
+    title: "Xvideos HD Video 33",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiioulb850a"],
+    thumbnailUrl: "https://picsum.photos/seed/video33/400/225",
+    views: "1.9M",
+    duration: "15:45",
+    category: "Fitness",
+    rating: 4.8,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 34,
+    title: "Xvideos HD Video 34",
+    embedUrls: ["https://www.xvideos4.com/embedframe/otetohofb7a"],
+    thumbnailUrl: "https://picsum.photos/seed/video34/400/225",
+    views: "1.1M",
+    duration: "13:30",
+    category: "Romance",
+    rating: 4.5,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 35,
+    title: "Xvideos HD Video 35",
+    embedUrls: ["https://www.xvideos4.com/embedframe/otkmmkvbb19"],
+    thumbnailUrl: "https://picsum.photos/seed/video35/400/225",
+    views: "1.6M",
+    duration: "11:20",
+    category: "Gaming",
+    rating: 4.3,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 36,
+    title: "Xvideos HD Video 36",
+    embedUrls: ["https://www.xvideos4.com/embedframe/udtoktb5ea3"],
+    thumbnailUrl: "https://picsum.photos/seed/video36/400/225",
+    views: "1.4M",
+    duration: "14:10",
+    category: "Amateur",
+    rating: 4.6,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 37,
+    title: "Xvideos HD Video 37",
+    embedUrls: ["https://www.xvideos4.com/embedframe/udkkohk0f78"],
+    thumbnailUrl: "https://picsum.photos/seed/video37/400/225",
+    views: "1.8M",
+    duration: "12:50",
+    category: "College",
+    rating: 4.4,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 38,
+    title: "Xvideos HD Video 38",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiivfiob887"],
+    thumbnailUrl: "https://picsum.photos/seed/video38/400/225",
+    views: "1.2M",
+    duration: "10:40",
+    category: "MILF",
+    rating: 4.7,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 39,
+    title: "Xvideos HD Video 39",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ufmfiovd146"],
+    thumbnailUrl: "https://picsum.photos/seed/video39/400/225",
+    views: "1.5M",
+    duration: "13:25",
+    category: "Office",
+    rating: 4.2,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 40,
+    title: "Xvideos HD Video 40",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ufufiuk4838"],
+    thumbnailUrl: "https://picsum.photos/seed/video40/400/225",
+    views: "1.7M",
+    duration: "15:00",
+    category: "Outdoor",
+    rating: 4.5,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 41,
+    title: "Xvideos HD Video 41",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ubeioof3629"],
+    thumbnailUrl: "https://picsum.photos/seed/video41/400/225",
+    views: "1.3M",
+    duration: "11:35",
+    category: "Fitness",
+    rating: 4.8,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 42,
+    title: "Xvideos HD Video 42",
+    embedUrls: ["https://www.xvideos4.com/embedframe/bllcuhc9f3"],
+    thumbnailUrl: "https://picsum.photos/seed/video42/400/225",
+    views: "1.9M",
+    duration: "14:20",
+    category: "Romance",
+    rating: 4.3,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 43,
+    title: "Xvideos HD Video 43",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohmveove9cb"],
+    thumbnailUrl: "https://picsum.photos/seed/video43/400/225",
+    views: "1.1M",
+    duration: "12:15",
+    category: "Gaming",
+    rating: 4.6,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 44,
+    title: "Xvideos HD Video 44",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ohppfpk25a4"],
+    thumbnailUrl: "https://picsum.photos/seed/video44/400/225",
+    views: "1.6M",
+    duration: "13:45",
+    category: "Amateur",
+    rating: 4.4,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 45,
+    title: "Xvideos HD Video 45",
+    embedUrls: ["https://www.xvideos4.com/embedframe/otfmipdf896"],
+    thumbnailUrl: "https://picsum.photos/seed/video45/400/225",
+    views: "1.4M",
+    duration: "10:55",
+    category: "College",
+    rating: 4.7,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 46,
+    title: "Xvideos HD Video 46",
+    embedUrls: ["https://www.xvideos4.com/embedframe/oiikudk6994"],
+    thumbnailUrl: "https://picsum.photos/seed/video46/400/225",
+    views: "1.8M",
+    duration: "15:30",
+    category: "MILF",
+    rating: 4.2,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 47,
+    title: "Xvideos HD Video 47",
+    embedUrls: ["https://www.xvideos4.com/embedframe/ahmdol1867"],
+    thumbnailUrl: "https://picsum.photos/seed/video47/400/225",
+    views: "1.2M",
+    duration: "12:40",
+    category: "Office",
+    rating: 4.5,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  },
+  {
+    id: 48,
+    title: "Xvideos HD Video 48",
+    embedUrls: ["https://www.xvideos4.com/embedframe/uuthvid584d"],
+    thumbnailUrl: "https://picsum.photos/seed/video48/400/225",
+    views: "1.5M",
+    duration: "14:05",
+    category: "Outdoor",
+    rating: 4.9,
+    uploadDate: "2025-07-25",
+    tags: ["hd", "adult", "2025"]
+  }
 ];

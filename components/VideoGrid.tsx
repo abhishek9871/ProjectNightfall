@@ -11,6 +11,9 @@ interface VideoGridProps {
 }
 
 export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.ReactNode {
+    // Log total video count for verification
+    console.log(`Total videos loaded: ${videos.length}`);
+    
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
         return <Categories searchQuery={searchQuery} />;
