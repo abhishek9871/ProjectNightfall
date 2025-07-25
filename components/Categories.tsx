@@ -10,6 +10,13 @@ interface CategoriesProps {
 export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+    // Debug logging
+    console.log('Categories component rendered');
+    console.log('Videos count:', videos.length);
+    console.log('Categories count:', categories.length);
+    console.log('Search query:', searchQuery);
+    console.log('Selected category:', selectedCategory);
+
     // Filter videos based on selected category and search
     const filteredVideos = videos.filter(video => {
         const matchesSearch = searchQuery.trim() === '' || 
@@ -22,6 +29,8 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
         return matchesSearch && matchesCategory;
     });
 
+    console.log('Filtered videos count:', filteredVideos.length);
+
     const getTitle = () => {
         if (searchQuery.trim()) {
             return selectedCategory 
@@ -31,10 +40,38 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
         return selectedCategory ? `${selectedCategory} Videos` : 'All Categories';
     };
 
+    // Safety check for data
+    if (!videos || videos.length === 0) {
+        return (
+            <section className="container mx-auto px-4 overflow-x-hidden">
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-white mb-2">Categories</h2>
+                </div>
+                <div className="text-center py-12">
+                    <p className="text-slate-400 text-lg">Loading videos...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (!categories || categories.length === 0) {
+        return (
+            <section className="container mx-auto px-4 overflow-x-hidden">
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-white mb-2">Categories</h2>
+                </div>
+                <div className="text-center py-12">
+                    <p className="text-slate-400 text-lg">Loading categories...</p>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="container mx-auto px-4 overflow-x-hidden">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">{getTitle()}</h2>
+                <p className="text-slate-400">Categories component is rendering</p>
             </div>
             
             {/* Category Filter Buttons */}
@@ -87,20 +124,25 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
             )}
 
             {/* Videos Grid */}
-            {filteredVideos.length === 0 ? (
-                <div className="text-center py-12">
-                    <p className="text-slate-400 text-lg">No videos found.</p>
-                    {(searchQuery || selectedCategory) && (
-                        <p className="text-slate-500 mt-2">Try adjusting your filters or search terms.</p>
-                    )}
-                </div>
-            ) : (
-                <div className="continuous-video-grid overflow-x-hidden">
-                    {filteredVideos.map((video) => (
-                        <VideoCard key={video.id} video={video} />
-                    ))}
-                </div>
-            )}
+            <div className="mt-8">
+                {filteredVideos.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-slate-400 text-lg">No videos found.</p>
+                        {(searchQuery || selectedCategory) && (
+                            <p className="text-slate-500 mt-2">Try adjusting your filters or search terms.</p>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        <p className="text-slate-400 mb-4">Showing {filteredVideos.length} videos</p>
+                        <div className="continuous-video-grid overflow-x-hidden">
+                            {filteredVideos.map((video) => (
+                                <VideoCard key={video.id} video={video} />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
         </section>
     );
 }
