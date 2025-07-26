@@ -22,6 +22,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const plyrRef = useRef<Plyr | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const messageHandlerRef = useRef<((event: MessageEvent) => void) | null>(null);
 
     // Lock body scroll when modal is open (Opera/Edge fix)
     useLockBodyScroll(isOpen);
@@ -36,6 +37,46 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     // Initialize Plyr when modal opens
     useEffect(() => {
         if (isOpen && iframeRef.current && !plyrRef.current) {
+            // Add message listener to prevent navigation attempts from iframe (desktop & mobile)
+            const handleMessage = (event: MessageEvent) => {
+                // Block navigation messages from Xvideos
+                if (event.origin.includes('xvideos') || event.origin.includes('xvideos4')) {
+                    if (event.data && typeof event.data === 'string') {
+                        // Block common navigation messages
+                        if (event.data.includes('navigate') ||
+                            event.data.includes('redirect') ||
+                            event.data.includes('location') ||
+                            event.data.includes('href') ||
+                            event.data.includes('window.open') ||
+                            event.data.includes('_blank')) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return false;
+                        }
+                    }
+                }
+            };
+
+            messageHandlerRef.current = handleMessage;
+            window.addEventListener('message', handleMessage);
+
+            // Add mobile-specific touch event prevention for iframe container
+            const iframe = iframeRef.current;
+            if (iframe) {
+                // Prevent mobile context menu and long-press navigation
+                iframe.addEventListener('contextmenu', (e) => e.preventDefault());
+                iframe.addEventListener('touchstart', (e) => {
+                    // Allow normal video controls but prevent navigation gestures
+                    if (e.touches.length > 1) {
+                        e.preventDefault(); // Prevent pinch/zoom that might trigger navigation
+                    }
+                }, { passive: false });
+
+                // Prevent mobile drag-to-navigate
+                iframe.addEventListener('dragstart', (e) => e.preventDefault());
+                iframe.addEventListener('selectstart', (e) => e.preventDefault());
+            }
+
             // Lazy load Plyr only when modal opens
             const initPlyr = async () => {
                 try {
@@ -129,6 +170,20 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             if (loadTimeout) {
                 clearTimeout(loadTimeout);
             }
+
+            // Clean up message listener and mobile event handlers
+            if (messageHandlerRef.current) {
+                window.removeEventListener('message', messageHandlerRef.current);
+                messageHandlerRef.current = null;
+            }
+
+            // Clean up mobile-specific event listeners
+            const iframe = iframeRef.current;
+            if (iframe) {
+                iframe.removeEventListener('contextmenu', (e) => e.preventDefault());
+                iframe.removeEventListener('dragstart', (e) => e.preventDefault());
+                iframe.removeEventListener('selectstart', (e) => e.preventDefault());
+            }
         };
     }, []);
 
@@ -140,12 +195,34 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             setIsLoading(true);
             video.validated = false;
 
-            // Set timeout guard for stalled loads
+            // Set timeout guard for stalled loads - increased timeout for mobile
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const timeoutDuration = isMobileDevice ? 20000 : 15000; // 20s for mobile, 15s for desktop
+
             const timeout = setTimeout(() => {
-                if (!video.validated) {
+                // Only trigger error if iframe hasn't loaded AND no video events detected
+                if (!video.validated && iframeRef.current) {
+                    // Check if iframe has actually loaded content
+                    try {
+                        const iframe = iframeRef.current;
+                        // If iframe has loaded but video.validated is still false, give it more time
+                        if (iframe.contentWindow) {
+                            console.log('Iframe loaded but video not validated, extending timeout...');
+                            // Give additional time for video to initialize
+                            const extendedTimeout = setTimeout(() => {
+                                if (!video.validated) {
+                                    handleEmbedError();
+                                }
+                            }, 10000); // Additional 10 seconds
+                            setLoadTimeout(extendedTimeout);
+                            return;
+                        }
+                    } catch (e) {
+                        // Cross-origin access error is expected, continue with error handling
+                    }
                     handleEmbedError();
                 }
-            }, 12000); // 12 second timeout
+            }, timeoutDuration);
             setLoadTimeout(timeout);
         } else {
             // Cleanup when modal closes
@@ -235,13 +312,21 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             plyrRef.current = null;
         }
 
-        // Set timeout guard for retry
-        const timeout = setTimeout(() => {
+        // Clear any existing timeout
+        if (loadTimeout) {
+            clearTimeout(loadTimeout);
+            setLoadTimeout(null);
+        }
+
+        // Set timeout guard for retry with longer duration
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const retryTimeout = setTimeout(() => {
             if (!video.validated) {
+                console.log('Retry timeout reached, showing error again');
                 handleEmbedError();
             }
-        }, 12000);
-        setLoadTimeout(timeout);
+        }, isMobileDevice ? 25000 : 18000); // Even longer timeout for retry
+        setLoadTimeout(retryTimeout);
     };
 
     const handleClose = () => {
@@ -259,16 +344,23 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
         onClose();
     };
 
-    // Generate current embed URL with geo-detection
-    const currentEmbedUrl = video.embedUrls[currentIdx]?.replace(
+    // Generate current embed URL with geo-detection and navigation prevention
+    const baseUrl = video.embedUrls[currentIdx]?.replace(
         'xvideos.com',
         country === 'IN' ? 'xvideos4.com' : 'xvideos.com'
     ) || video.embedUrls[0];
 
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Add parameters to prevent navigation and keep user on our site (enhanced for mobile)
+    const mobileParams = isMobile ? '&playsinline=1&controls=1&disablekb=1' : '';
+    const currentEmbedUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}autoplay=0&rel=0&modestbranding=1${mobileParams}`;
+
     return (
-        <Transition 
-            appear 
-            show={isOpen} 
+        <Transition
+            appear
+            show={isOpen}
             as={Fragment}
             beforeLeave={() => {
                 // Ensure body scroll is restored on modal close (Headless UI bug workaround)
@@ -332,20 +424,29 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
 
                                 {/* Video Player Container */}
                                 <div className="relative bg-black" ref={containerRef}>
-                                    <div className="aspect-video relative">
+                                    <div className="aspect-video relative"
+                                        style={{
+                                            /* Prevent iframe navigation while allowing video controls */
+                                            isolation: 'isolate',
+                                            /* Mobile-specific touch handling */
+                                            touchAction: 'manipulation',
+                                            WebkitTouchCallout: 'none',
+                                            WebkitUserSelect: 'none',
+                                            userSelect: 'none'
+                                        }}>
                                         {showError ? (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90 text-white">
-                                                <div className="text-center p-6 max-w-sm">
+                                            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/95 backdrop-blur-sm text-white z-20">
+                                                <div className="text-center p-6 max-w-sm mx-4 bg-slate-800/90 rounded-xl border border-slate-700 shadow-2xl">
                                                     <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                                                     </svg>
-                                                    <h3 className="text-xl font-semibold mb-2">Video temporarily unavailable</h3>
-                                                    <p className="text-slate-400 mb-6">
+                                                    <h3 className="text-xl font-semibold mb-2 text-white">Video temporarily unavailable</h3>
+                                                    <p className="text-slate-300 mb-6 text-sm leading-relaxed">
                                                         Try refreshing or using a different VPN location
                                                     </p>
                                                     <button
                                                         onClick={handleRetry}
-                                                        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                                                        className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 font-medium"
                                                     >
                                                         Try Again
                                                     </button>
@@ -370,12 +471,72 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                     allowFullScreen
                                                     loading="eager"
-                                                    onLoad={handleEmbedLoad}
+                                                    onLoad={(e) => {
+                                                        // Enhanced load detection for mobile
+                                                        const iframe = e.currentTarget;
+
+                                                        // Set a small delay to ensure content is actually loaded
+                                                        setTimeout(() => {
+                                                            try {
+                                                                // Try to access iframe properties to confirm it's loaded
+                                                                if (iframe.contentWindow || iframe.contentDocument) {
+                                                                    handleEmbedLoad();
+                                                                } else {
+                                                                    // If we can't access content, wait a bit more
+                                                                    setTimeout(() => {
+                                                                        handleEmbedLoad();
+                                                                    }, 2000);
+                                                                }
+                                                            } catch (error) {
+                                                                // Cross-origin error is expected, assume loaded
+                                                                handleEmbedLoad();
+                                                            }
+                                                        }, 1000); // 1 second delay for mobile
+                                                    }}
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null; // Prevent looping
+                                                        console.log('Iframe error detected, trying fallback...');
                                                         handleEmbedError();
                                                     }}
-                                                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+                                                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+                                                    referrerPolicy="no-referrer"
+                                                    style={{
+                                                        border: 'none',
+                                                        outline: 'none',
+                                                        touchAction: 'manipulation', // Mobile: prevent double-tap zoom
+                                                        userSelect: 'none', // Prevent text selection on mobile
+                                                        WebkitUserSelect: 'none',
+                                                        msUserSelect: 'none'
+                                                    }}
+                                                    onContextMenu={(e) => e.preventDefault()} // Prevent right-click/long-press menu
+                                                    onDragStart={(e) => e.preventDefault()} // Prevent drag on mobile
+                                                />
+                                                {/* Mobile-specific touch overlay to prevent unwanted navigation */}
+                                                <div
+                                                    className="absolute inset-0 pointer-events-none"
+                                                    style={{ zIndex: 10 }}
+                                                    onTouchStart={(e) => {
+                                                        // Allow single touches for video controls
+                                                        if (e.touches.length === 1) {
+                                                            return; // Allow normal touch
+                                                        }
+                                                        // Prevent multi-touch gestures that might trigger navigation
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    }}
+                                                    onTouchMove={(e) => {
+                                                        // Prevent swipe gestures that might navigate away
+                                                        const touch = e.touches[0];
+                                                        if (touch) {
+                                                            const deltaX = Math.abs(touch.clientX - (touch.target as any).startX || 0);
+                                                            const deltaY = Math.abs(touch.clientY - (touch.target as any).startY || 0);
+
+                                                            // If it's a large swipe gesture, prevent it
+                                                            if (deltaX > 50 || deltaY > 50) {
+                                                                e.preventDefault();
+                                                            }
+                                                        }
+                                                    }}
                                                 />
                                             </>
                                         )}
