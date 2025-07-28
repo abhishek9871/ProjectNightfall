@@ -1,22 +1,34 @@
 # Deployment Guide
 
 ## Overview
-Project Nightfall is configured for deployment on both Netlify and Cloudflare Pages with support for continuous deployment via GitHub Actions.
+Project Nightfall is configured for deployment on both Netlify and Cloudflare Pages with support for both CLI and continuous deployment via GitHub Actions.
 
-## Current Deployment Methods
+## Deployment Methods
 
-### 1. CLI-Based Deployment (Current Method)
+### 1. Enhanced CLI Deployment (Recommended)
 ```bash
-# Netlify
-npm run build
-npm run deploy:netlify
+# Deploy to all available platforms
+npm run deploy
 
-# Cloudflare Pages
-npm run build
-npm run deploy:pages
+# Deploy to specific platform
+npm run deploy:netlify
+npm run deploy:cloudflare
+
+# Deploy to all platforms explicitly
+npm run deploy:all
+
+# Verify deployment readiness only
+npm run verify
 ```
 
-### 2. Continuous Deployment via GitHub (Ready to Use)
+### 2. Legacy CLI Commands (Still Supported)
+```bash
+# Build and deploy manually
+npm run build
+npm run deploy:pages  # Cloudflare only
+```
+
+### 3. Continuous Deployment via GitHub (Optional)
 
 #### GitHub Secrets Required
 For automatic deployment, add these secrets to your GitHub repository:
@@ -32,6 +44,7 @@ For automatic deployment, add these secrets to your GitHub repository:
 #### Workflow Triggers
 - **Production Deployment**: Triggered on push to `master` or `main` branch
 - **Development Preview**: Triggered on push to `dev` branch
+- **Manual Deployment**: Can be triggered manually from GitHub Actions tab
 
 ## Configuration Files
 
@@ -54,21 +67,68 @@ compatibility_date = "2025-01-27"
 pages_build_output_dir = "dist"
 ```
 
+## Smart Deployment Features
+
+### Automatic Verification
+All deployment commands now include pre-deployment verification:
+- ✅ Build file integrity check
+- ✅ Configuration file validation
+- ✅ HTML content verification
+- ✅ PWA manifest and service worker validation
+- ✅ Asset reference verification
+
+### Intelligent Credential Detection
+The deployment system automatically detects available credentials:
+- **CLI Mode**: Uses local CLI authentication (netlify-cli, wrangler)
+- **CI/CD Mode**: Uses GitHub secrets when available
+- **Hybrid Mode**: Deploys to platforms with available credentials, skips others
+
+### Deployment Scenarios
+
+#### Scenario 1: CLI Only (Current Setup)
+```bash
+# Authenticate with platforms locally
+netlify login
+wrangler login
+
+# Deploy using CLI credentials
+npm run deploy
+```
+
+#### Scenario 2: GitHub Actions Only
+- Add required secrets to GitHub repository
+- Push to master branch
+- Automatic deployment to both platforms
+
+#### Scenario 3: Hybrid (Recommended)
+- Keep CLI authentication for manual deployments
+- Add GitHub secrets for automated deployments
+- Use both methods as needed
+
 ## Build Process
 1. **Install Dependencies**: `npm ci`
 2. **Build Project**: `npm run build`
-3. **Output Directory**: `dist/`
+3. **Verify Build**: `npm run verify`
+4. **Deploy**: `npm run deploy`
 
 ## Environment Variables
 - No environment variables required for basic deployment
 - Optional: `GEMINI_API_KEY` for enhanced features
+- Deployment credentials handled automatically
 
 ## Branch Strategy
 - `dev`: Development branch with preview deployments
 - `master`/`main`: Production branch with live deployments
 
 ## Deployment Verification
-After deployment, verify:
+The automated verification checks:
+- [ ] Build files exist and are properly sized
+- [ ] Configuration files are present
+- [ ] HTML contains required elements
+- [ ] PWA features are configured
+- [ ] Assets are properly referenced
+
+After deployment, manually verify:
 - [ ] Age gate functionality
 - [ ] Video playback
 - [ ] Mobile navigation
@@ -84,11 +144,32 @@ After deployment, verify:
 2. **Missing Dependencies**: Run `npm ci` instead of `npm install`
 3. **Routing Issues**: Ensure SPA redirects are configured
 4. **Mobile Issues**: Test on actual devices, not just browser dev tools
+5. **Verification Failures**: Run `npm run verify` to see specific issues
+6. **Credential Issues**: Check CLI authentication or GitHub secrets
+
+### Deployment-Specific Issues
+
+#### CLI Deployment Issues
+```bash
+# Re-authenticate if needed
+netlify login
+wrangler login
+
+# Check authentication status
+netlify status
+wrangler whoami
+```
+
+#### GitHub Actions Issues
+- Verify secrets are correctly set in repository settings
+- Check workflow logs for specific error messages
+- Ensure branch names match workflow configuration
 
 ### Support
-- Netlify: Check build logs in Netlify dashboard
-- Cloudflare: Check deployment logs in Cloudflare Pages dashboard
-- GitHub Actions: Check workflow runs in GitHub Actions tab
+- **Local Issues**: Run `npm run verify` for detailed diagnostics
+- **Netlify**: Check build logs in Netlify dashboard
+- **Cloudflare**: Check deployment logs in Cloudflare Pages dashboard
+- **GitHub Actions**: Check workflow runs in GitHub Actions tab
 
 ## Performance Optimization
 - Vite build optimization enabled
