@@ -15,6 +15,7 @@ project-nightfall-revenue-engine/
 │   ├── PrivacyNotice.tsx # Cookie consent system
 │   ├── Analytics.tsx    # Google Analytics 4 integration
 │   ├── AdSlot.tsx       # Ad network integration component
+│   ├── ModalPlayer.tsx  # Enhanced video player with network detection
 │   └── icons/           # Icon components
 │       └── NavIcons.tsx # Navigation & UI icons
 ├── data/                # Static data and content management
@@ -25,15 +26,31 @@ project-nightfall-revenue-engine/
 │   └── useLocalStorage.tsx # Persistent storage management
 ├── utils/               # Utility functions
 │   └── geoDetector.ts   # Geo-restriction handling
+├── src/utils/           # Enhanced utility functions
+│   └── networkDetection.ts # Jio network detection & smart routing
+├── functions/           # Cloudflare Pages Functions
+│   └── proxy.js         # Proxy function for blocked networks
 ├── scripts/             # Build and utility scripts
-│   └── addVideo.js      # Video content management script
+│   ├── addVideo.js      # Video content management script
+│   ├── deploy.js        # Universal deployment script
+│   └── verify-deployment.js # Pre-deployment verification
+├── .github/             # GitHub Actions workflows
+│   ├── workflows/       # CI/CD automation
+│   │   └── deploy.yml   # Production deployment workflow
+│   └── SETUP.md         # GitHub secrets setup guide
+├── .kiro/steering/      # Kiro IDE steering documents
+│   ├── tech.md          # Technology stack documentation
+│   └── structure.md     # Project structure documentation
 ├── public/              # Static assets and legal pages
-├── plans/               # Project documentation
 ├── App.tsx              # Main application container
 ├── types.ts             # Global TypeScript definitions
 ├── index.tsx            # React application entry point
 ├── index.html           # HTML entry point
 ├── vite.config.ts       # Build configuration
+├── wrangler.toml        # Cloudflare Pages configuration
+├── .env                 # Environment variables
+├── DEPLOY.md            # Simple deployment guide
+├── FRS.md               # Functional Requirements Specification
 └── dist/                # Production build output
 ```
 
@@ -53,14 +70,16 @@ project-nightfall-revenue-engine/
 - **VideoGrid.tsx**: Content filtering, sorting algorithms, page-specific logic
 - **VideoCard.tsx**: Video presentation, rating system, click-to-play
 - **Categories.tsx**: Category filtering, video count management
+- **ModalPlayer.tsx**: Enhanced video player with network detection and smart routing
 
 ## Data Layer Architecture
 
 ### Video Data Structure (data/videos.ts)
 - 48 videos with real Xvideos embed URLs
-- Geo-restriction handling (xvideos.com → xvideos4.com for India)
+- Network-aware URL generation (Jio proxy, Airtel direct, Global direct)
 - Complete metadata: ratings, views, duration, categories, tags
 - Upload dates for trending algorithm
+- Dynamic proxy routing for blocked networks
 
 ### Category System (data/categories.ts)
 - 8 distinct categories: Amateur, College, MILF, Office, Outdoor, Fitness, Romance, Gaming
@@ -158,5 +177,41 @@ interface SidebarProps {
 ## Revenue Integration Points
 - **Ad Slots**: Prepared in Footer and AdSlot components
 - **Affiliate Links**: Sidebar banner placement with target="_blank"
-- **Analytics**: Google Analytics 4 event tracking
+- **Analytics**: Google Analytics 4 event tracking with network-specific metrics
 - **Conversion Tracking**: Ready for ad network pixel integration
+- **Performance Analytics**: Network type tracking (Jio/Airtel/Global)
+- **Enhanced Tracking**: Video load times, fallback usage, proxy performance
+
+## Network Architecture (Version 2.1)
+
+### Smart Routing System
+```typescript
+// Network Detection Flow
+1. User clicks video → isJio() tests xvideos.com accessibility
+2. Jio Network → Cloudflare proxy route
+3. Airtel/Other → Direct mirror domains
+4. Global → Direct xvideos.com
+5. Fallback chain for error handling
+```
+
+### Cloudflare Functions Integration
+- **Proxy Endpoint**: `/proxy/[VIDEO_ID]`
+- **Mirror Selection**: Random selection between xvideos4.com and xvv1deos.com
+- **CORS Headers**: Properly configured for cross-origin access
+- **Error Handling**: Graceful degradation with 503 status
+- **Performance**: <500ms additional latency
+
+### Network Detection Architecture
+```typescript
+// Core Detection Logic
+export async function isJio(): Promise<boolean>
+export async function getEmbedUrl(videoId: string): Promise<string>
+export function getFallbackUrl(videoId: string, currentUrl: string): string
+```
+
+### Deployment Architecture
+- **Platform**: Cloudflare Pages (migrated from Netlify)
+- **Build Output**: dist/ directory
+- **Functions**: Automatic routing via functions/ directory
+- **Environment**: Dynamic URL detection for proxy routing
+- **CI/CD**: GitHub Actions with optional automation
