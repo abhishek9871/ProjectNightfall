@@ -1,78 +1,112 @@
 /**
  * Detects user country using client-side browser APIs only.
  * No external API calls, completely CORS-free and error-free.
+ * Synchronous function to prevent race conditions.
  * 
- * @returns Promise<string> - Country code ('IN' for India, 'US' as default)
+ * @returns string - Country code ('IN' for India, 'US' as default)
  */
-export async function getUserCountry(): Promise<string> {
+export const detectCountry = (): string => {
   try {
-    // Primary detection: Use browser's timezone information
+    // Use browser's built-in timezone detection
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
-    // Check for Indian timezones
-    if (timezone === 'Asia/Kolkata' || 
-        timezone === 'Asia/Calcutta' ||
-        timezone.includes('Asia/Kolkata') || 
-        timezone.includes('Asia/Calcutta')) {
+
+    // India-specific timezone detection for Xvideos geo-restriction
+    if (timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta')) {
+      return 'IN'; // India
+    }
+
+    // Fallback to language detection
+    const language = navigator.language || 'en-US';
+    if (language.startsWith('hi') || language.includes('IN')) {
       return 'IN';
     }
-    
-    // Secondary detection: Use browser language/locale settings
-    const language = navigator.language || navigator.languages?.[0] || '';
-    const languages = navigator.languages || [language];
-    
-    // Check for Indian language codes
-    const indianLanguageCodes = [
-      'hi',      // Hindi
-      'hi-IN',   // Hindi (India)
-      'en-IN',   // English (India)
-      'bn-IN',   // Bengali (India)
-      'te-IN',   // Telugu (India)
-      'mr-IN',   // Marathi (India)
-      'ta-IN',   // Tamil (India)
-      'gu-IN',   // Gujarati (India)
-      'kn-IN',   // Kannada (India)
-      'ml-IN',   // Malayalam (India)
-      'or-IN',   // Odia (India)
-      'pa-IN',   // Punjabi (India)
-      'as-IN',   // Assamese (India)
-      'ur-IN'    // Urdu (India)
-    ];
-    
-    // Check primary language
-    if (indianLanguageCodes.some(code => 
-        language.toLowerCase().startsWith(code.toLowerCase()))) {
-      return 'IN';
-    }
-    
-    // Check all languages in preference list
-    for (const lang of languages) {
-      if (indianLanguageCodes.some(code => 
-          lang.toLowerCase().startsWith(code.toLowerCase()))) {
-        return 'IN';
-      }
-    }
-    
-    // Tertiary detection: Check for Indian timezone patterns in resolved options
-    try {
-      const dateTimeFormat = new Intl.DateTimeFormat('en', { timeZone: timezone });
-      const resolvedOptions = dateTimeFormat.resolvedOptions();
-      
-      // Additional timezone checks
-      if (resolvedOptions.timeZone && 
-          (resolvedOptions.timeZone.includes('Kolkata') || 
-           resolvedOptions.timeZone.includes('Calcutta'))) {
-        return 'IN';
-      }
-    } catch {
-      // Silently continue if timezone resolution fails
-    }
-    
-    // Default fallback - no console logs, no errors
-    return 'US';
-    
-  } catch {
-    // Silent fallback - never log errors to console
+
+    return 'US'; // Default fallback
+  } catch (error) {
+    console.log('Geo-detection fallback to US');
     return 'US';
   }
+};
+
+/**
+ * Actual working Xvideos domains for India (verified working)
+ * Only using domains that actually exist and work
+ */
+const XVIDEOS_MIRROR_DOMAINS = [
+  'xvideos4.com',
+  'xvv1deos.com',
+  'xvideos.com' // Global fallback
+];
+
+/**
+ * Processes video URL based on user's geographic location with multiple domain fallback.
+ * For India users, cycles through multiple Xvideos mirror domains to bypass geo-restrictions.
+ * 
+ * @param originalUrl - The original video embed URL
+ * @param attemptIndex - Current attempt index for domain rotation (default: 0)
+ * @returns string - Processed URL appropriate for user's location
+ */
+export const getVideoUrl = (originalUrl: string, attemptIndex: number = 0): string => {
+  const country = detectCountry();
+  let processedUrl = originalUrl;
+
+  // For India, use multiple mirror domains with rotation
+  if (country === 'IN') {
+    try {
+      const url = new URL(originalUrl);
+      const hostname = url.hostname;
+      
+      // Check if the hostname is one of the Xvideos mirrors
+      if (XVIDEOS_MIRROR_DOMAINS.includes(hostname)) {
+        const domainIndex = attemptIndex % XVIDEOS_MIRROR_DOMAINS.length;
+        const targetDomain = XVIDEOS_MIRROR_DOMAINS[domainIndex];
+        
+        // Replace the hostname in the original URL with the target domain
+        processedUrl = originalUrl.replace(hostname, targetDomain);
+      }
+    } catch (e) {
+      console.error('Error parsing URL in getVideoUrl:', e);
+      // Fallback to original logic if URL parsing fails
+      if (originalUrl.includes('xvideos.com')) {
+        const domainIndex = attemptIndex % XVIDEOS_MIRROR_DOMAINS.length;
+        const targetDomain = XVIDEOS_MIRROR_DOMAINS[domainIndex];
+        processedUrl = originalUrl.replace(/xvideos\d*\.com/g, targetDomain);
+      }
+    }
+  }
+
+  // Let Xvideos handle mobile optimization natively - no additional parameters needed
+
+  return processedUrl;
+};
+
+/**
+ * Get the next available mirror domain for fallback attempts
+ * @param currentAttempt - Current attempt number
+ * @returns string - Next mirror domain to try
+ */
+export const getNextMirrorDomain = (currentAttempt: number): string => {
+  const country = detectCountry();
+  if (country === 'IN') {
+    const domainIndex = currentAttempt % XVIDEOS_MIRROR_DOMAINS.length;
+    return XVIDEOS_MIRROR_DOMAINS[domainIndex];
+  }
+  return 'xvideos.com';
+};
+
+/**
+ * Check if more mirror domains are available for fallback
+ * @param currentAttempt - Current attempt number
+ * @returns boolean - Whether more domains are available
+ */
+export const hasMoreMirrorDomains = (currentAttempt: number): boolean => {
+  return currentAttempt < XVIDEOS_MIRROR_DOMAINS.length;
+};
+
+/**
+ * Legacy async function for backward compatibility.
+ * @deprecated Use detectCountry() instead for better performance and no race conditions.
+ */
+export async function getUserCountry(): Promise<string> {
+  return detectCountry();
 }

@@ -19,6 +19,20 @@ export default function App(): React.ReactNode {
     const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+    // DNS prefetching for Xvideos domains to reduce connection time
+    React.useEffect(() => {
+        const dnsPrefetch = (domains: string[]) => {
+            domains.forEach(domain => {
+                const link = document.createElement('link');
+                link.rel = 'dns-prefetch';
+                link.href = `https://${domain}`;
+                document.head.appendChild(link);
+            });
+        };
+
+        dnsPrefetch(['xvideos4.com', 'xvv1deos.com', 'xvideos.com']);
+    }, []);
+
     if (!isVerified) {
         return <AgeGate onVerified={() => setIsVerified(true)} />;
     }

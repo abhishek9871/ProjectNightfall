@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "add-video": "node scripts/addVideo.js"
+    "add-video": "node scripts/addVideo.js",
+    "deploy:netlify": "netlify deploy --prod --dir=dist",
+    "deploy:pages": "wrangler pages deploy dist --project-name=project-nightfall --branch=master"
   },
   "dependencies": {
     "@custom-react-hooks/use-lock-body-scroll": "^1.5.1",
@@ -26,6 +28,7 @@
     "vite": "^6.2.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^0.21.1",
-    "vite-plugin-sitemap": "^0.6.1"
+    "vite-plugin-sitemap": "^0.6.1",
+    "wrangler": "^4.26.0"
   }
 }

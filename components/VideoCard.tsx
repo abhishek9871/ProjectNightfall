@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Video } from '../types';
-import { getUserCountry } from '../utils/geoDetector';
+import { getUserCountry, getVideoUrl } from '../utils/geoDetector';
 import { ModalPlayer } from './ModalPlayer';
 
 interface VideoCardProps {
     video: Video;
 }
 
-export function VideoCard({ video }: VideoCardProps): React.ReactNode {
+export const VideoCard = React.memo(({ video }: VideoCardProps): React.ReactNode => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [country, setCountry] = useState<string>('US');
+    const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
     // Use provided thumbnail or generate placeholder
     const thumbnailUrl = video.thumbnailUrl || `https://picsum.photos/seed/video${video.id}/400/225`;
@@ -19,6 +20,30 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
         getUserCountry().then(detectedCountry => {
             setCountry(detectedCountry);
         });
+    }, []);
+
+    // Simple preloading - just prefetch the URL without creating iframe
+    const handleVideoHover = () => {
+        const videoUrl = getVideoUrl(video.embedUrls[0] || '', 0);
+        
+        // Simple URL prefetch without iframe creation to avoid conflicts
+        if (!preloadIframeRef.current) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = videoUrl;
+            document.head.appendChild(link);
+            preloadIframeRef.current = link as any; // Mark as preloaded
+        }
+    };
+
+    // Cleanup preload link on unmount
+    useEffect(() => {
+        return () => {
+            if (preloadIframeRef.current && preloadIframeRef.current.parentNode) {
+                preloadIframeRef.current.parentNode.removeChild(preloadIframeRef.current);
+                preloadIframeRef.current = null;
+            }
+        };
     }, []);
 
 
@@ -106,7 +131,11 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
             />
-            <div className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer w-full">
+            <div 
+                className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer w-full"
+                onMouseEnter={handleVideoHover}
+                onTouchStart={handleVideoHover}
+            >
             <div className="relative aspect-video bg-slate-900/70 overflow-hidden" onClick={handleCardClick}>
                 <img 
                     src={thumbnailUrl}
@@ -174,4 +203,4 @@ export function VideoCard({ video }: VideoCardProps): React.ReactNode {
         </div>
         </>
     );
-}
+});

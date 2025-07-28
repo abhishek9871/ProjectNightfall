@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import Plyr from 'plyr';
 import { Video } from '../types';
-import { getUserCountry } from '../utils/geoDetector';
+import { getVideoUrl, detectCountry, hasMoreMirrorDomains } from '../utils/geoDetector';
+import { getEmbedUrl, getFallbackUrl, isJio } from '../src/utils/networkDetection';
 import { useLockBodyScroll } from '@custom-react-hooks/use-lock-body-scroll';
 
 interface ModalPlayerProps {
@@ -14,175 +14,60 @@ interface ModalPlayerProps {
 export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React.ReactNode {
     const [currentIdx, setCurrentIdx] = useState(0);
     const [showError, setShowError] = useState(false);
-    const [country, setCountry] = useState<string>('US');
     const [loadTimeout, setLoadTimeout] = useState<NodeJS.Timeout | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [sessionStartTime, setSessionStartTime] = useState<number>(0);
+    const [domainAttempt, setDomainAttempt] = useState(0);
+    const [currentSrc, setCurrentSrc] = useState<string>('');
+    const [useNetworkDetection, setUseNetworkDetection] = useState(false);
+    const [networkType, setNetworkType] = useState<'jio' | 'airtel' | 'global' | 'unknown'>('unknown');
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const plyrRef = useRef<Plyr | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const messageHandlerRef = useRef<((event: MessageEvent) => void) | null>(null);
 
     // Lock body scroll when modal is open (Opera/Edge fix)
     useLockBodyScroll(isOpen);
 
-    // Initialize geo-detection
+    // Get country synchronously to prevent race conditions
+    const country = detectCountry();
+
+    // Debug logging for Indian users with network detection status
+    if (country === 'IN') {
+        const originalUrl = video.embedUrls[currentIdx] || video.embedUrls[0];
+        console.log('🇮🇳 Indian user detected');
+        console.log('📍 Domain attempt:', domainAttempt);
+        console.log('🔗 Original URL:', originalUrl);
+        console.log('🌐 Network type:', networkType);
+        console.log('🔍 Using network detection:', useNetworkDetection);
+        console.log('📱 Current src:', currentSrc);
+    }
+
+
+
+    // Initialize modal when it opens
     useEffect(() => {
-        getUserCountry().then(detectedCountry => {
-            setCountry(detectedCountry);
-        });
-    }, []);
+        if (isOpen) {
+            // Track session start time
+            setSessionStartTime(Date.now());
 
-    // Initialize Plyr when modal opens
-    useEffect(() => {
-        if (isOpen && iframeRef.current && !plyrRef.current) {
-            // Add message listener to prevent navigation attempts from iframe (desktop & mobile)
-            const handleMessage = (event: MessageEvent) => {
-                // Block navigation messages from Xvideos
-                if (event.origin.includes('xvideos') || event.origin.includes('xvideos4')) {
-                    if (event.data && typeof event.data === 'string') {
-                        // Block common navigation messages
-                        if (event.data.includes('navigate') ||
-                            event.data.includes('redirect') ||
-                            event.data.includes('location') ||
-                            event.data.includes('href') ||
-                            event.data.includes('window.open') ||
-                            event.data.includes('_blank')) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            return false;
-                        }
-                    }
-                }
-            };
-
-            messageHandlerRef.current = handleMessage;
-            window.addEventListener('message', handleMessage);
-
-            // Add mobile-specific touch event prevention for iframe container
-            const iframe = iframeRef.current;
-            if (iframe) {
-                // Prevent mobile context menu and long-press navigation
-                iframe.addEventListener('contextmenu', (e) => e.preventDefault());
-                iframe.addEventListener('touchstart', (e) => {
-                    // Allow normal video controls but prevent navigation gestures
-                    if (e.touches.length > 1) {
-                        e.preventDefault(); // Prevent pinch/zoom that might trigger navigation
-                    }
-                }, { passive: false });
-
-                // Prevent mobile drag-to-navigate
-                iframe.addEventListener('dragstart', (e) => e.preventDefault());
-                iframe.addEventListener('selectstart', (e) => e.preventDefault());
+            // GA4 event tracking for modal open
+            if (typeof window !== 'undefined' && (window as any).gtag) {
+                (window as any).gtag('event', 'video_modal_open', {
+                    video_id: video.id,
+                    video_title: video.title,
+                    video_category: video.category,
+                    country: country,
+                    network_type: networkType
+                });
             }
-
-            // Lazy load Plyr only when modal opens
-            const initPlyr = async () => {
-                try {
-                    // Initialize Plyr with iframe
-                    plyrRef.current = new Plyr(iframeRef.current!, {
-                        controls: [
-                            'play-large',
-                            'play',
-                            'progress',
-                            'current-time',
-                            'duration',
-                            'mute',
-                            'volume',
-                            'fullscreen'
-                        ],
-                        settings: ['quality', 'speed'],
-                        keyboard: { focused: true, global: false },
-                        tooltips: { controls: true, seek: true },
-                        captions: { active: false },
-                        hideControls: false,
-                        clickToPlay: true,
-                        disableContextMenu: true
-                    });
-
-                    // Track session start time
-                    setSessionStartTime(Date.now());
-
-                    // GA4 event tracking for modal open
-                    if (typeof window !== 'undefined' && (window as any).gtag) {
-                        (window as any).gtag('event', 'video_modal_open', {
-                            video_id: video.id,
-                            video_title: video.title,
-                            video_category: video.category,
-                            country: country
-                        });
-                    }
-
-                    // Set up Plyr event listeners
-                    plyrRef.current.on('ready', () => {
-                        setIsLoading(false);
-                        handleEmbedLoad();
-                    });
-
-                    plyrRef.current.on('error', () => {
-                        handleEmbedError();
-                    });
-
-                    plyrRef.current.on('timeupdate', () => {
-                        // Track watch time periodically
-                        const currentTime = plyrRef.current?.currentTime || 0;
-                        if (currentTime > 0 && currentTime % 30 === 0) { // Every 30 seconds
-                            if (typeof window !== 'undefined' && (window as any).gtag) {
-                                (window as any).gtag('event', 'video_watch_time', {
-                                    video_id: video.id,
-                                    watch_duration: currentTime,
-                                    country: country
-                                });
-                            }
-                        }
-                    });
-
-                } catch (error) {
-                    console.error('Plyr initialization failed:', error);
-                    setIsLoading(false);
-                }
-            };
-
-            initPlyr();
         }
     }, [isOpen, currentIdx]);
 
     // Cleanup on modal close or unmount
     useEffect(() => {
         return () => {
-            if (plyrRef.current) {
-                // Track total session duration before cleanup
-                if (sessionStartTime > 0) {
-                    const sessionDuration = (Date.now() - sessionStartTime) / 1000;
-                    if (typeof window !== 'undefined' && (window as any).gtag) {
-                        (window as any).gtag('event', 'video_session_duration', {
-                            video_id: video.id,
-                            session_duration: sessionDuration,
-                            country: country
-                        });
-                    }
-                }
-
-                plyrRef.current.destroy();
-                plyrRef.current = null;
-            }
             if (loadTimeout) {
                 clearTimeout(loadTimeout);
-            }
-
-            // Clean up message listener and mobile event handlers
-            if (messageHandlerRef.current) {
-                window.removeEventListener('message', messageHandlerRef.current);
-                messageHandlerRef.current = null;
-            }
-
-            // Clean up mobile-specific event listeners
-            const iframe = iframeRef.current;
-            if (iframe) {
-                iframe.removeEventListener('contextmenu', (e) => e.preventDefault());
-                iframe.removeEventListener('dragstart', (e) => e.preventDefault());
-                iframe.removeEventListener('selectstart', (e) => e.preventDefault());
             }
         };
     }, []);
@@ -191,56 +76,29 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     useEffect(() => {
         if (isOpen) {
             setCurrentIdx(0);
+            setDomainAttempt(0);
             setShowError(false);
             setIsLoading(true);
             video.validated = false;
 
-            // Set timeout guard for stalled loads - increased timeout for mobile
-            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const timeoutDuration = isMobileDevice ? 20000 : 15000; // 20s for mobile, 15s for desktop
-
+            // Simple timeout for iframe loading - same for mobile and desktop
             const timeout = setTimeout(() => {
-                // Only trigger error if iframe hasn't loaded AND no video events detected
-                if (!video.validated && iframeRef.current) {
-                    // Check if iframe has actually loaded content
-                    try {
-                        const iframe = iframeRef.current;
-                        // If iframe has loaded but video.validated is still false, give it more time
-                        if (iframe.contentWindow) {
-                            console.log('Iframe loaded but video not validated, extending timeout...');
-                            // Give additional time for video to initialize
-                            const extendedTimeout = setTimeout(() => {
-                                if (!video.validated) {
-                                    handleEmbedError();
-                                }
-                            }, 10000); // Additional 10 seconds
-                            setLoadTimeout(extendedTimeout);
-                            return;
-                        }
-                    } catch (e) {
-                        // Cross-origin access error is expected, continue with error handling
-                    }
+                if (!video.validated) {
                     handleEmbedError();
                 }
-            }, timeoutDuration);
+            }, 10000); // 10 second timeout
             setLoadTimeout(timeout);
         } else {
-            // Cleanup when modal closes
-            if (plyrRef.current) {
-                // Track session duration
-                if (sessionStartTime > 0) {
-                    const sessionDuration = (Date.now() - sessionStartTime) / 1000;
-                    if (typeof window !== 'undefined' && (window as any).gtag) {
-                        (window as any).gtag('event', 'video_session_duration', {
-                            video_id: video.id,
-                            session_duration: sessionDuration,
-                            country: country
-                        });
-                    }
+            // Track session duration when modal closes
+            if (sessionStartTime > 0) {
+                const sessionDuration = (Date.now() - sessionStartTime) / 1000;
+                if (typeof window !== 'undefined' && (window as any).gtag) {
+                    (window as any).gtag('event', 'video_session_duration', {
+                        video_id: video.id,
+                        session_duration: sessionDuration,
+                        country: country
+                    });
                 }
-
-                plyrRef.current.destroy();
-                plyrRef.current = null;
             }
             setSessionStartTime(0);
         }
@@ -259,32 +117,49 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             (window as any).gtag('event', 'embed_success', {
                 video_id: video.id,
                 country: country,
+                network_type: networkType,
                 url_index: currentIdx,
-                modal_context: true
+                modal_context: true,
+                used_network_detection: useNetworkDetection
             });
         }
     };
 
-    const handleEmbedError = () => {
+    const handleEmbedError = async () => {
         if (loadTimeout) {
             clearTimeout(loadTimeout);
             setLoadTimeout(null);
         }
 
-        console.log('Modal embed fallback triggered for video:', video.id, 'URL index:', currentIdx);
+        console.log('🚨 Modal embed fallback triggered for video:', video.id, 'URL index:', currentIdx, 'Domain attempt:', domainAttempt, 'Network type:', networkType);
 
-        // Try next URL in array if available
-        if (currentIdx + 1 < video.embedUrls.length) {
-            setCurrentIdx(currentIdx + 1);
+        // If network detection was used and failed, fall back to geo-detection system
+        if (useNetworkDetection && domainAttempt === 0) {
+            console.log('🔄 Network detection failed - Falling back to geo-detection system');
+            setUseNetworkDetection(false);
+            setDomainAttempt(0);
             setIsLoading(true);
+            return;
+        }
 
-            // Destroy and recreate Plyr for new URL
-            if (plyrRef.current) {
-                plyrRef.current.destroy();
-                plyrRef.current = null;
-            }
+        // For Indian users using geo-detection, try different mirror domains
+        if (country === 'IN' && !useNetworkDetection && hasMoreMirrorDomains(domainAttempt + 1)) {
+            console.log('🔄 Trying next mirror domain for Indian user...');
+            setDomainAttempt(domainAttempt + 1);
+            setIsLoading(true);
+            return;
+        }
+
+        // Reset domain attempt and try next URL in array if available
+        if (currentIdx + 1 < video.embedUrls.length) {
+            console.log('🔄 Trying next video URL...');
+            setCurrentIdx(currentIdx + 1);
+            setDomainAttempt(0);
+            setUseNetworkDetection(false); // Reset network detection for new URL
+            setIsLoading(true);
         } else {
-            // All URLs failed, show error overlay
+            // All URLs and domains failed, show error overlay
+            console.log('❌ All fallback options exhausted');
             setShowError(true);
             setIsLoading(false);
 
@@ -293,7 +168,9 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                 (window as any).gtag('event', 'embed_failure', {
                     video_id: video.id,
                     country: country,
+                    network_type: networkType,
                     total_attempts: video.embedUrls.length,
+                    domain_attempts: domainAttempt + 1,
                     modal_context: true
                 });
             }
@@ -301,16 +178,14 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     };
 
     const handleRetry = () => {
+        console.log('🔄 User initiated retry');
         setCurrentIdx(0);
+        setDomainAttempt(0);
         setShowError(false);
         setIsLoading(true);
+        setUseNetworkDetection(false); // Reset network detection on retry
+        setNetworkType('unknown');
         video.validated = false;
-
-        // Destroy existing Plyr instance
-        if (plyrRef.current) {
-            plyrRef.current.destroy();
-            plyrRef.current = null;
-        }
 
         // Clear any existing timeout
         if (loadTimeout) {
@@ -318,14 +193,13 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             setLoadTimeout(null);
         }
 
-        // Set timeout guard for retry with longer duration
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // Set timeout guard for retry
         const retryTimeout = setTimeout(() => {
             if (!video.validated) {
-                console.log('Retry timeout reached, showing error again');
+                console.log('⏰ Retry timeout reached, showing error again');
                 handleEmbedError();
             }
-        }, isMobileDevice ? 25000 : 18000); // Even longer timeout for retry
+        }, 12000); // 12 second timeout for retry
         setLoadTimeout(retryTimeout);
     };
 
@@ -341,21 +215,70 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                 });
             }
         }
+
+        // Reset iframe to blank to stop video and free resources
+        setCurrentSrc('about:blank');
+
         onClose();
     };
 
-    // Generate current embed URL with geo-detection and navigation prevention
-    const baseUrl = video.embedUrls[currentIdx]?.replace(
-        'xvideos.com',
-        country === 'IN' ? 'xvideos4.com' : 'xvideos.com'
-    ) || video.embedUrls[0];
+    // Smart URL generation: Network detection for Indian users, geo-detection fallback
+    React.useEffect(() => {
+        if (isOpen) {
+            const setupVideoUrl = async () => {
+                const originalUrl = video.embedUrls[currentIdx] || video.embedUrls[0];
+                const videoId = originalUrl.split('/').pop();
+                
+                console.log('🎬 Setting up video for currentIdx:', currentIdx, 'domainAttempt:', domainAttempt);
+                console.log('📹 Original URL:', originalUrl);
+                
+                // For Indian users, try network detection first
+                if (country === 'IN' && domainAttempt === 0 && !useNetworkDetection) {
+                    try {
+                        console.log('🇮🇳 Indian user - Attempting network detection...');
+                        const networkUrl = await getEmbedUrl(videoId || '');
+                        
+                        // Determine network type for analytics
+                        if (networkUrl.includes('proxy')) {
+                            setNetworkType('jio');
+                            console.log('📡 Jio network detected - Using proxy routing');
+                        } else if (networkUrl.includes('xvideos4.com')) {
+                            setNetworkType('airtel');
+                            console.log('📶 Airtel/other network - Using direct mirror');
+                        }
+                        
+                        setUseNetworkDetection(true);
+                        setCurrentSrc(networkUrl);
+                        return;
+                    } catch (error) {
+                        console.log('⚠️ Network detection failed, falling back to geo-detection:', error);
+                        setNetworkType('unknown');
+                    }
+                }
+                
+                // Fallback to existing geo-detection system (maintains current functionality)
+                const processedUrl = getVideoUrl(originalUrl, domainAttempt);
+                console.log('🌍 Using geo-detection URL:', processedUrl);
+                
+                if (country !== 'IN') {
+                    setNetworkType('global');
+                }
+                
+                setCurrentSrc(processedUrl);
+            };
+            
+            setupVideoUrl();
+        } else {
+            setCurrentSrc('about:blank');
+            setUseNetworkDetection(false);
+            setNetworkType('unknown');
+        }
+    }, [isOpen, currentIdx, domainAttempt, country, useNetworkDetection]);
 
-    // Detect mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Add parameters to prevent navigation and keep user on our site (enhanced for mobile)
-    const mobileParams = isMobile ? '&playsinline=1&controls=1&disablekb=1' : '';
-    const currentEmbedUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}autoplay=0&rel=0&modestbranding=1${mobileParams}`;
+
+    // Use clean embed URL without potentially conflicting parameters
+    const currentEmbedUrl = currentSrc;
 
     return (
         <Transition
@@ -440,9 +363,14 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                     <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                                                     </svg>
-                                                    <h3 className="text-xl font-semibold mb-2 text-white">Video temporarily unavailable</h3>
+                                                    <h3 className="text-xl font-semibold mb-2 text-white">
+                                                        {country === 'IN' ? 'Content Restricted in Your Region' : 'Video temporarily unavailable'}
+                                                    </h3>
                                                     <p className="text-slate-300 mb-6 text-sm leading-relaxed">
-                                                        Try refreshing or using a different VPN location
+                                                        {country === 'IN'
+                                                            ? 'This content may be restricted by your network provider. Try using a VPN or different network connection.'
+                                                            : 'Try refreshing or using a different VPN location'
+                                                        }
                                                     </p>
                                                     <button
                                                         onClick={handleRetry}
@@ -464,78 +392,36 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                 )}
                                                 <iframe
                                                     ref={iframeRef}
-                                                    key={currentIdx} // Force re-render on URL change
+                                                    key={`${currentIdx}-${domainAttempt}`} // Force re-render on URL or domain change
                                                     className="absolute top-0 left-0 w-full h-full"
                                                     src={currentEmbedUrl}
                                                     title={video.title}
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                                                     allowFullScreen
                                                     loading="eager"
-                                                    onLoad={(e) => {
-                                                        // Enhanced load detection for mobile
-                                                        const iframe = e.currentTarget;
-
-                                                        // Set a small delay to ensure content is actually loaded
+                                                    referrerPolicy="no-referrer-when-downgrade"
+                                                    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals allow-forms allow-presentation allow-top-navigation-by-user-activation"
+                                                    onLoad={() => {
+                                                        console.log('Iframe loaded for video:', video.id, 'URL:', currentEmbedUrl);
+                                                        // Simple loading detection - just mark as loaded when iframe loads
                                                         setTimeout(() => {
-                                                            try {
-                                                                // Try to access iframe properties to confirm it's loaded
-                                                                if (iframe.contentWindow || iframe.contentDocument) {
-                                                                    handleEmbedLoad();
-                                                                } else {
-                                                                    // If we can't access content, wait a bit more
-                                                                    setTimeout(() => {
-                                                                        handleEmbedLoad();
-                                                                    }, 2000);
-                                                                }
-                                                            } catch (error) {
-                                                                // Cross-origin error is expected, assume loaded
-                                                                handleEmbedLoad();
-                                                            }
-                                                        }, 1000); // 1 second delay for mobile
+                                                            handleEmbedLoad();
+                                                        }, 2000); // Give Xvideos player 2 seconds to initialize
                                                     }}
-                                                    onError={(e) => {
-                                                        e.currentTarget.onerror = null; // Prevent looping
+                                                    onError={() => {
                                                         console.log('Iframe error detected, trying fallback...');
-                                                        handleEmbedError();
+                                                        // Use smart fallback based on current URL
+                                                        const videoId = video.embedUrls[currentIdx]?.split('/').pop() || video.embedUrls[0]?.split('/').pop();
+                                                        if (videoId) {
+                                                            const fallbackUrl = getFallbackUrl(videoId, currentSrc);
+                                                            setCurrentSrc(fallbackUrl);
+                                                        } else {
+                                                            handleEmbedError();
+                                                        }
                                                     }}
-                                                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-                                                    referrerPolicy="no-referrer"
                                                     style={{
                                                         border: 'none',
-                                                        outline: 'none',
-                                                        touchAction: 'manipulation', // Mobile: prevent double-tap zoom
-                                                        userSelect: 'none', // Prevent text selection on mobile
-                                                        WebkitUserSelect: 'none',
-                                                        msUserSelect: 'none'
-                                                    }}
-                                                    onContextMenu={(e) => e.preventDefault()} // Prevent right-click/long-press menu
-                                                    onDragStart={(e) => e.preventDefault()} // Prevent drag on mobile
-                                                />
-                                                {/* Mobile-specific touch overlay to prevent unwanted navigation */}
-                                                <div
-                                                    className="absolute inset-0 pointer-events-none"
-                                                    style={{ zIndex: 10 }}
-                                                    onTouchStart={(e) => {
-                                                        // Allow single touches for video controls
-                                                        if (e.touches.length === 1) {
-                                                            return; // Allow normal touch
-                                                        }
-                                                        // Prevent multi-touch gestures that might trigger navigation
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                    }}
-                                                    onTouchMove={(e) => {
-                                                        // Prevent swipe gestures that might navigate away
-                                                        const touch = e.touches[0];
-                                                        if (touch) {
-                                                            const deltaX = Math.abs(touch.clientX - (touch.target as any).startX || 0);
-                                                            const deltaY = Math.abs(touch.clientY - (touch.target as any).startY || 0);
-
-                                                            // If it's a large swipe gesture, prevent it
-                                                            if (deltaX > 50 || deltaY > 50) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }
+                                                        outline: 'none'
                                                     }}
                                                 />
                                             </>
