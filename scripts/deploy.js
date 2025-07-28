@@ -12,12 +12,12 @@ import { join } from 'path';
 const DEPLOYMENT_TARGETS = {
   netlify: {
     command: 'netlify deploy --prod --dir=dist',
-    envCheck: ['NETLIFY_AUTH_TOKEN', 'NETLIFY_SITE_ID'],
+    envCheck: [], // CLI authentication used
     description: 'Netlify Production'
   },
   cloudflare: {
     command: 'wrangler pages deploy dist --project-name=project-nightfall --branch=master',
-    envCheck: ['CLOUDFLARE_API_TOKEN'],
+    envCheck: [], // CLI authentication used
     description: 'Cloudflare Pages'
   }
 };
@@ -57,11 +57,19 @@ function checkEnvironment() {
 
 function checkCredentials(target) {
   const config = DEPLOYMENT_TARGETS[target];
+  
+  // If no environment variables required, assume CLI authentication
+  if (config.envCheck.length === 0) {
+    log(`Using CLI authentication for ${config.description}`, 'info');
+    return true;
+  }
+  
   const missing = config.envCheck.filter(env => !process.env[env]);
   
   if (missing.length > 0) {
     log(`Missing environment variables for ${config.description}: ${missing.join(', ')}`, 'warning');
-    return false;
+    log(`Falling back to CLI authentication`, 'info');
+    return true; // Still try CLI authentication
   }
   
   return true;

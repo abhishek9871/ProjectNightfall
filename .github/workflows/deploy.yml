@@ -53,9 +53,7 @@ jobs:
         path: dist/
         
     - name: Deploy to Netlify
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --prod --dir=dist
+      run: npm run deploy:netlify
       env:
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -76,8 +74,7 @@ jobs:
         path: dist/
         
     - name: Deploy to Cloudflare Pages
-      uses: cloudflare/wrangler-action@v3
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        command: pages deploy dist --project-name=project-nightfall --branch=master
+      run: npm run deploy:cloudflare
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

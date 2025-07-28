@@ -5,27 +5,30 @@ Project Nightfall is configured for deployment on both Netlify and Cloudflare Pa
 
 ## Deployment Methods
 
-### 1. Enhanced CLI Deployment (Recommended)
+### 1. Direct CLI Deployment (Your Working Commands)
 ```bash
-# Deploy to all available platforms
-npm run deploy
+# Build first
+npm run build
 
-# Deploy to specific platform
+# Deploy to Netlify (your working command)
 npm run deploy:netlify
-npm run deploy:cloudflare
 
-# Deploy to all platforms explicitly
+# Deploy to Cloudflare (your working command)  
+npm run deploy:cloudflare
+# OR
+npm run deploy:pages
+
+# Deploy to both platforms
 npm run deploy:all
+```
+
+### 2. Enhanced Deployment (Optional)
+```bash
+# Smart deployment with verification
+npm run deploy:smart
 
 # Verify deployment readiness only
 npm run verify
-```
-
-### 2. Legacy CLI Commands (Still Supported)
-```bash
-# Build and deploy manually
-npm run build
-npm run deploy:pages  # Cloudflare only
 ```
 
 ### 3. Continuous Deployment via GitHub (Optional)
@@ -85,14 +88,19 @@ The deployment system automatically detects available credentials:
 
 ### Deployment Scenarios
 
-#### Scenario 1: CLI Only (Current Setup)
+#### Scenario 1: CLI Only (Your Current Working Setup)
 ```bash
-# Authenticate with platforms locally
+# Authenticate with platforms locally (if not already done)
 netlify login
 wrangler login
 
-# Deploy using CLI credentials
-npm run deploy
+# Build and deploy (your exact working commands)
+npm run build
+npm run deploy:netlify  # Deploys to Netlify
+npm run deploy:cloudflare  # Deploys to Cloudflare
+
+# Or deploy to both
+npm run deploy:all
 ```
 
 #### Scenario 2: GitHub Actions Only

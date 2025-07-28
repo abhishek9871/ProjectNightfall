@@ -9,11 +9,12 @@
     "preview": "vite preview",
     "add-video": "node scripts/addVideo.js",
     "verify": "node scripts/verify-deployment.js",
-    "deploy": "npm run verify && node scripts/deploy.js",
-    "deploy:netlify": "npm run verify && node scripts/deploy.js netlify",
-    "deploy:cloudflare": "npm run verify && node scripts/deploy.js cloudflare",
-    "deploy:all": "npm run verify && node scripts/deploy.js all",
-    "deploy:pages": "wrangler pages deploy dist --project-name=project-nightfall --branch=master"
+    "deploy": "node scripts/deploy.js",
+    "deploy:netlify": "netlify deploy --prod --dir=dist",
+    "deploy:cloudflare": "wrangler pages deploy dist --project-name=project-nightfall --branch=master",
+    "deploy:pages": "wrangler pages deploy dist --project-name=project-nightfall --branch=master",
+    "deploy:all": "npm run deploy:netlify && npm run deploy:cloudflare",
+    "deploy:smart": "node scripts/deploy.js all"
   },
   "dependencies": {
     "@custom-react-hooks/use-lock-body-scroll": "^1.5.1",
