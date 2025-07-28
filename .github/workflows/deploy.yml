@@ -5,6 +5,7 @@ on:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   build-and-test:
@@ -26,6 +27,9 @@ jobs:
     - name: Build project
       run: npm run build
       
+    - name: Verify deployment readiness
+      run: npm run verify
+      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -36,7 +40,7 @@ jobs:
   deploy-netlify:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && github.event_name == 'push' && secrets.NETLIFY_AUTH_TOKEN != ''
     
     steps:
     - name: Checkout code
@@ -59,7 +63,7 @@ jobs:
   deploy-cloudflare:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && github.event_name == 'push' && secrets.CLOUDFLARE_API_TOKEN != ''
     
     steps:
     - name: Checkout code

@@ -8,7 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "add-video": "node scripts/addVideo.js",
-    "deploy:netlify": "netlify deploy --prod --dir=dist",
+    "verify": "node scripts/verify-deployment.js",
+    "deploy": "npm run verify && node scripts/deploy.js",
+    "deploy:netlify": "npm run verify && node scripts/deploy.js netlify",
+    "deploy:cloudflare": "npm run verify && node scripts/deploy.js cloudflare",
+    "deploy:all": "npm run verify && node scripts/deploy.js all",
     "deploy:pages": "wrangler pages deploy dist --project-name=project-nightfall --branch=master"
   },
   "dependencies": {
