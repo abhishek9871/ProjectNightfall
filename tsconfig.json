@@ -26,5 +26,6 @@
     "paths": {
       "@/*" :  ["./*"]
     }
-  }
+  },
+  "exclude": ["public/_headers"]
 }

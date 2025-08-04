@@ -1,6 +1,9 @@
 /* Plyr.js styles for video player */
 @import url('https://cdn.plyr.io/3.7.8/plyr.css');
 
+/* Video.js styles for pre-roll ads */
+@import url('https://vjs.zencdn.net/8.6.1/video-js.css');
+
 /* Opera/Edge layout fixes */
 @import url('./src/styles/opera-edge.css');
 
@@ -78,4 +81,35 @@ body {
 
 .plyr__menu__container .plyr__control:hover {
   background: #374151;
+}
+
+/* Video.js dark theme for pre-roll ads */
+.video-js {
+  background-color: #000;
+}
+
+.video-js .vjs-big-play-button {
+  background-color: rgba(168, 85, 247, 0.9);
+  border-color: rgba(168, 85, 247, 0.9);
+  border-radius: 50%;
+}
+
+.video-js .vjs-big-play-button:hover {
+  background-color: rgba(168, 85, 247, 1);
+}
+
+.video-js .vjs-control-bar {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+}
+
+.video-js .vjs-progress-control .vjs-progress-holder {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.video-js .vjs-progress-control .vjs-play-progress {
+  background-color: #a855f7;
+}
+
+.video-js .vjs-volume-level {
+  background-color: #a855f7;
 }

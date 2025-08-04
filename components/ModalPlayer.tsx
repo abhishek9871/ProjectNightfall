@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Video } from '../types';
 import { getVideoUrl, detectCountry, hasMoreMirrorDomains } from '../utils/geoDetector';
-import { getEmbedUrl, getFallbackUrl, isJio } from '../src/utils/networkDetection';
+import { getEmbedUrl, getFallbackUrl } from '../src/utils/networkDetection';
 import { useLockBodyScroll } from '@custom-react-hooks/use-lock-body-scroll';
+import { VideoOverlayAd } from '../src/components/VideoOverlayAd';
 
 interface ModalPlayerProps {
     video: Video;
@@ -12,6 +13,10 @@ interface ModalPlayerProps {
 }
 
 export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React.ReactNode {
+    // Early return if no video is provided
+    if (!video) {
+        return null;
+    }
     const [currentIdx, setCurrentIdx] = useState(0);
     const [showError, setShowError] = useState(false);
     const [loadTimeout, setLoadTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -21,9 +26,13 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     const [currentSrc, setCurrentSrc] = useState<string>('');
     const [useNetworkDetection, setUseNetworkDetection] = useState(false);
     const [networkType, setNetworkType] = useState<'jio' | 'airtel' | 'global' | 'unknown'>('unknown');
+    const [urlReady, setUrlReady] = useState(false);
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Define the ad code from Adsterra here
+    const adsterraOverlayCode = `<!-- YOUR 468x60 ADSTERRA AD CODE HERE -->`;
 
     // Lock body scroll when modal is open (Opera/Edge fix)
     useLockBodyScroll(isOpen);
@@ -79,6 +88,8 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             setDomainAttempt(0);
             setShowError(false);
             setIsLoading(true);
+            setUrlReady(false);
+            setCurrentSrc('');
             video.validated = false;
 
             // Simple timeout for iframe loading - same for mobile and desktop
@@ -101,6 +112,8 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                 }
             }
             setSessionStartTime(0);
+            setUrlReady(false);
+            setCurrentSrc('');
         }
     }, [isOpen]);
 
@@ -183,6 +196,8 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
         setDomainAttempt(0);
         setShowError(false);
         setIsLoading(true);
+        setUrlReady(false);
+        setCurrentSrc('');
         setUseNetworkDetection(false); // Reset network detection on retry
         setNetworkType('unknown');
         video.validated = false;
@@ -217,15 +232,17 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
         }
 
         // Reset iframe to blank to stop video and free resources
-        setCurrentSrc('about:blank');
+        setCurrentSrc('');
+        setUrlReady(false);
 
         onClose();
     };
 
     // Smart URL generation: Network detection for Indian users, geo-detection fallback
     React.useEffect(() => {
-        if (isOpen) {
-            const setupVideoUrl = async () => {
+        if (isOpen && video) {
+            // Add a small delay to ensure modal is fully rendered before setting up video
+            const setupTimer = setTimeout(async () => {
                 const originalUrl = video.embedUrls[currentIdx] || video.embedUrls[0];
                 const videoId = originalUrl.split('/').pop();
                 
@@ -249,6 +266,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                         
                         setUseNetworkDetection(true);
                         setCurrentSrc(networkUrl);
+                        setUrlReady(true);
                         return;
                     } catch (error) {
                         console.log('⚠️ Network detection failed, falling back to geo-detection:', error);
@@ -265,15 +283,17 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                 }
                 
                 setCurrentSrc(processedUrl);
-            };
+                setUrlReady(true);
+            }, 100); // Small delay to ensure modal is ready
             
-            setupVideoUrl();
+            return () => clearTimeout(setupTimer);
         } else {
-            setCurrentSrc('about:blank');
+            setCurrentSrc('');
+            setUrlReady(false);
             setUseNetworkDetection(false);
             setNetworkType('unknown');
         }
-    }, [isOpen, currentIdx, domainAttempt, country, useNetworkDetection]);
+    }, [isOpen, video, currentIdx, domainAttempt, country, useNetworkDetection]);
 
 
 
@@ -301,7 +321,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+                    <div className="fixed inset-0 bg-black backdrop-blur-sm" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
@@ -315,7 +335,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl transition-all">
+                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl transition-all relative">
                                 {/* Modal Header */}
                                 <div className="flex items-center justify-between p-4 border-b border-slate-700">
                                     <div className="flex-1">
@@ -381,50 +401,63 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                 </div>
                                             </div>
                                         ) : (
-                                            <>
-                                                {isLoading && (
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                                            <div className="relative w-full h-full">
+                                                {(!urlReady || isLoading) && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
                                                         <div className="flex flex-col items-center">
                                                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-                                                            <p className="text-white text-sm">Loading video...</p>
+                                                            <p className="text-white text-sm">
+                                                                {!urlReady ? 'Preparing video...' : 'Loading video...'}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 )}
-                                                <iframe
-                                                    ref={iframeRef}
-                                                    key={`${currentIdx}-${domainAttempt}`} // Force re-render on URL or domain change
-                                                    className="absolute top-0 left-0 w-full h-full"
-                                                    src={currentEmbedUrl}
-                                                    title={video.title}
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                                                    allowFullScreen
-                                                    loading="eager"
-                                                    referrerPolicy="no-referrer-when-downgrade"
-                                                    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals allow-forms allow-presentation allow-top-navigation-by-user-activation"
-                                                    onLoad={() => {
-                                                        console.log('Iframe loaded for video:', video.id, 'URL:', currentEmbedUrl);
-                                                        // Simple loading detection - just mark as loaded when iframe loads
-                                                        setTimeout(() => {
-                                                            handleEmbedLoad();
-                                                        }, 2000); // Give Xvideos player 2 seconds to initialize
-                                                    }}
-                                                    onError={() => {
-                                                        console.log('Iframe error detected, trying fallback...');
-                                                        // Use smart fallback based on current URL
-                                                        const videoId = video.embedUrls[currentIdx]?.split('/').pop() || video.embedUrls[0]?.split('/').pop();
-                                                        if (videoId) {
-                                                            const fallbackUrl = getFallbackUrl(videoId, currentSrc);
-                                                            setCurrentSrc(fallbackUrl);
-                                                        } else {
-                                                            handleEmbedError();
-                                                        }
-                                                    }}
-                                                    style={{
-                                                        border: 'none',
-                                                        outline: 'none'
-                                                    }}
-                                                />
-                                            </>
+                                                {urlReady && currentSrc && (
+                                                    <iframe
+                                                        ref={iframeRef}
+                                                        key={`${currentIdx}-${domainAttempt}`} // Force re-render on URL or domain change
+                                                        className="absolute top-0 left-0 w-full h-full"
+                                                        src={currentEmbedUrl}
+                                                        title={video.title}
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                                                        allowFullScreen
+                                                        loading="eager"
+                                                        referrerPolicy="no-referrer-when-downgrade"
+                                                        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals allow-forms allow-presentation allow-top-navigation-by-user-activation"
+                                                        onLoad={() => {
+                                                            console.log('Iframe loaded for video:', video.id, 'URL:', currentEmbedUrl);
+                                                            // Simple loading detection - just mark as loaded when iframe loads
+                                                            setTimeout(() => {
+                                                                handleEmbedLoad();
+                                                            }, 2000); // Give Xvideos player 2 seconds to initialize
+                                                        }}
+                                                        onError={() => {
+                                                            console.log('Iframe error detected, trying fallback...');
+                                                            // Reset URL ready state to show loading
+                                                            setUrlReady(false);
+                                                            setIsLoading(true);
+                                                            
+                                                            // Use smart fallback based on current URL
+                                                            const videoId = video.embedUrls[currentIdx]?.split('/').pop() || video.embedUrls[0]?.split('/').pop();
+                                                            if (videoId) {
+                                                                const fallbackUrl = getFallbackUrl(videoId, currentSrc);
+                                                                setTimeout(() => {
+                                                                    setCurrentSrc(fallbackUrl);
+                                                                    setUrlReady(true);
+                                                                }, 500); // Small delay before retry
+                                                            } else {
+                                                                handleEmbedError();
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            border: 'none',
+                                                            outline: 'none'
+                                                        }}
+                                                    />
+                                                )}
+                                                {/* Our new Overlay Ad component is placed here, as a sibling to the iframe */}
+                                                {urlReady && <VideoOverlayAd adHtml={adsterraOverlayCode} />}
+                                            </div>
                                         )}
                                     </div>
                                 </div>

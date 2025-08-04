@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Video } from '../types';
 import { getUserCountry, getVideoUrl } from '../utils/geoDetector';
-import { ModalPlayer } from './ModalPlayer';
 
 interface VideoCardProps {
     video: Video;
+    onVideoCardClick: (video: Video) => void;
 }
 
-export const VideoCard = React.memo(({ video }: VideoCardProps): React.ReactNode => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps): React.ReactNode => {
     const [country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -49,8 +48,6 @@ export const VideoCard = React.memo(({ video }: VideoCardProps): React.ReactNode
 
 
     const handleCardClick = () => {
-        setIsModalOpen(true);
-        
         // GA4 event tracking for video play (preserved from original)
         if (typeof window !== 'undefined' && (window as any).gtag) {
             (window as any).gtag('event', 'video_play', {
@@ -59,11 +56,15 @@ export const VideoCard = React.memo(({ video }: VideoCardProps): React.ReactNode
                 video_category: video.category
             });
         }
-    };
-
-    // Modal handlers
-    const handleModalClose = () => {
-        setIsModalOpen(false);
+        
+        // AGGRESSIVE MONETIZATION: Trigger ad on video interaction
+        const videoInteractionEvent = new CustomEvent('video_modal_open', {
+            detail: { videoId: video.id, videoTitle: video.title }
+        });
+        window.dispatchEvent(videoInteractionEvent);
+        
+        // Use the new global flow handler
+        onVideoCardClick(video);
     };
 
     const renderStars = (rating: number) => {
@@ -125,11 +126,6 @@ export const VideoCard = React.memo(({ video }: VideoCardProps): React.ReactNode
             <script 
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-            />
-            <ModalPlayer 
-                video={video}
-                isOpen={isModalOpen}
-                onClose={handleModalClose}
             />
             <div 
                 className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer w-full"

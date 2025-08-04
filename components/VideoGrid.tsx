@@ -3,22 +3,25 @@ import { VideoCard } from './VideoCard';
 import { Categories } from './Categories';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
-import AdSlot from './AdSlot';
+import { Video } from '../types';
+import { AdSlot } from './AdSlot';
+import { NativeAdCard } from './NativeAdCard';
 
 interface VideoGridProps {
     currentPage: PageType;
     searchQuery: string;
+    onVideoCardClick: (video: Video) => void;
 }
 
-export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.ReactNode {
+export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoGridProps): React.ReactNode {
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
-        return <Categories searchQuery={searchQuery} />;
+        return <Categories searchQuery={searchQuery} onVideoCardClick={onVideoCardClick} />;
     }
 
     // Log total video count for verification
     console.log(`Total videos loaded: ${videos.length}`);
-    
+
     // Layout error detection for Opera/Edge
     useEffect(() => {
         const checkLayoutOverflow = () => {
@@ -38,10 +41,10 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
 
         // Check after render
         const timeoutId = setTimeout(checkLayoutOverflow, 100);
-        
+
         // Check on resize
         window.addEventListener('resize', checkLayoutOverflow);
-        
+
         return () => {
             clearTimeout(timeoutId);
             window.removeEventListener('resize', checkLayoutOverflow);
@@ -74,7 +77,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                         const unit = match[2];
                         return unit === 'M' ? num * 1000000 : num * 1000;
                     };
-                    
+
                     // Combine recency and popularity for trending score
                     const scoreA = (dateA / 1000000) + getViews(a.views);
                     const scoreB = (dateB / 1000000) + getViews(b.views);
@@ -107,7 +110,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                         const unit = match[2];
                         return unit === 'M' ? num * 1000000 : num * 1000;
                     };
-                    
+
                     // Combine rating and views for featured score
                     const scoreA = (a.rating * 500000) + getViews(a.views);
                     const scoreB = (b.rating * 500000) + getViews(b.views);
@@ -152,7 +155,7 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
                     <p className="text-slate-400">{getPageDescription()}</p>
                 )}
             </div>
-            
+
             {filteredVideos.length === 0 ? (
                 <div className="text-center py-12">
                     <p className="text-slate-400 text-lg">No videos found matching your criteria.</p>
@@ -163,17 +166,37 @@ export function VideoGrid({ currentPage, searchQuery }: VideoGridProps): React.R
             ) : (
                 <>
                     {/* Banner ad above video list */}
-                    <AdSlot type="banner" network="trafficjunky" />
-                    
+                    <AdSlot
+                        adType="banner"
+                        exoClickZoneId="YOUR_EXOCLICK_BANNER_ZONE_ID"
+                        trafficJunkyZoneId="YOUR_TRAFFICJUNKY_BANNER_ZONE_ID"
+                    />
+
                     <div className="continuous-video-grid">
                         {filteredVideos.map((video, index) => (
-                            <VideoCard key={video.id} video={video} />
+                            <React.Fragment key={`item-${video.id}`}>
+                                <VideoCard
+                                    video={video}
+                                    onVideoCardClick={onVideoCardClick}
+                                />
+                                {/* After every 8th video, insert a Native Ad Card */}
+                                {(index + 1) % 8 === 0 && (
+                                    <NativeAdCard
+                                        widgetZoneId="YOUR_EXOCLICK_NATIVE_ZONE_ID" // CRITICAL: Replace
+                                        widgetFormat="1x1" // Standard format for a single ad card
+                                    />
+                                )}
+                            </React.Fragment>
                         ))}
-                        
+
                         {/* Ads placed strategically without breaking flow */}
                         {filteredVideos.length > 8 && (
                             <div className="ad-slot-inline">
-                                <AdSlot type="rectangle" network="hilltopads" />
+                                <AdSlot
+                                    adType="rectangle"
+                                    exoClickZoneId="YOUR_EXOCLICK_RECTANGLE_ZONE_ID"
+                                    trafficJunkyZoneId="YOUR_TRAFFICJUNKY_RECTANGLE_ZONE_ID"
+                                />
                             </div>
                         )}
                     </div>

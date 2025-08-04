@@ -26,3 +26,14 @@ export interface AffiliateBanner {
     imageUrl: string;
     alt: string;
 }
+
+// Global gtag function type declaration for Google Analytics
+declare global {
+    interface Window {
+        gtag?: (
+            command: 'config' | 'event' | 'js' | 'set',
+            targetId: string | Date,
+            config?: Record<string, any>
+        ) => void;
+    }
+}

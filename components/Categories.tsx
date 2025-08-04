@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { categories } from '../data/categories';
 import { videos } from '../data/videos';
 import { VideoCard } from './VideoCard';
+import { Video } from '../types';
 
 interface CategoriesProps {
     searchQuery: string;
+    onVideoCardClick: (video: Video) => void;
 }
 
-export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
+export function Categories({ searchQuery, onVideoCardClick }: CategoriesProps): React.ReactNode {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     // Filter videos based on selected category and search
@@ -98,7 +100,11 @@ export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
                 ) : (
                     <div className="continuous-video-grid">
                         {filteredVideos.map((video) => (
-                            <VideoCard key={video.id} video={video} />
+                            <VideoCard 
+                                key={video.id} 
+                                video={video} 
+                                onVideoCardClick={onVideoCardClick}
+                            />
                         ))}
                     </div>
                 )}
