@@ -1,125 +1,136 @@
 import { Category } from '../types';
-import { videos } from './videos';
+
+/*
+  Smart Content Engine Generated - 2025-08-06T17:41:28.957Z
+  Auto-generated categories based on content analysis
+  Total Categories: 21
+*/
 
 export const categories: Category[] = [
   {
-    id: 'amateur',
-    name: 'Amateur',
-    description: 'Real people, real passion',
-    videoCount: videos.filter(v => v.category === 'Amateur').length
+    "id": "milf",
+    "name": "MILF",
+    "description": "Experienced and confident mature women",
+    "videoCount": 99
   },
   {
-    id: 'college',
-    name: 'College',
-    description: 'Young adult adventures',
-    videoCount: videos.filter(v => v.category === 'College').length
+    "id": "ebony",
+    "name": "Ebony",
+    "description": "Beautiful ebony performers",
+    "videoCount": 15
   },
   {
-    id: 'milf',
-    name: 'MILF',
-    description: 'Experienced and confident',
-    videoCount: videos.filter(v => v.category === 'MILF').length
+    "id": "lesbian",
+    "name": "Lesbian",
+    "description": "Women loving women",
+    "videoCount": 40
   },
   {
-    id: 'office',
-    name: 'Office',
-    description: 'Professional encounters',
-    videoCount: videos.filter(v => v.category === 'Office').length
+    "id": "group",
+    "name": "Group",
+    "description": "Multiple participant encounters",
+    "videoCount": 9
   },
   {
-    id: 'outdoor',
-    name: 'Outdoor',
-    description: 'Adventures in nature',
-    videoCount: videos.filter(v => v.category === 'Outdoor').length
+    "id": "roleplay",
+    "name": "Roleplay",
+    "description": "Fantasy scenarios and costumes",
+    "videoCount": 4
   },
   {
-    id: 'fitness',
-    name: 'Fitness',
-    description: 'Workout and wellness',
-    videoCount: videos.filter(v => v.category === 'Fitness').length
+    "id": "amateur",
+    "name": "Amateur",
+    "description": "Real people, authentic passion",
+    "videoCount": 17
   },
   {
-    id: 'romance',
-    name: 'Romance',
-    description: 'Love and intimacy',
-    videoCount: videos.filter(v => v.category === 'Romance').length
+    "id": "office",
+    "name": "Office",
+    "description": "Professional workplace scenarios",
+    "videoCount": 19
   },
   {
-    id: 'gaming',
-    name: 'Gaming',
-    description: 'Gamer culture meets passion',
-    videoCount: videos.filter(v => v.category === 'Gaming').length
+    "id": "gaming",
+    "name": "Gaming",
+    "description": "Gamer culture meets passion",
+    "videoCount": 16
   },
   {
-    id: 'desi',
-    name: 'Desi',
-    description: 'South Asian passion and culture',
-    videoCount: videos.filter(v => v.category === 'Desi').length
+    "id": "desi",
+    "name": "Desi",
+    "description": "South Asian passion and culture",
+    "videoCount": 4
   },
   {
-    id: 'teen',
-    name: 'Teen',
-    description: 'Young adult content (18+)',
-    videoCount: videos.filter(v => v.category === 'Teen').length
+    "id": "college",
+    "name": "College",
+    "description": "University and campus encounters",
+    "videoCount": 16
   },
   {
-    id: 'couple',
-    name: 'Couple',
-    description: 'Intimate moments between partners',
-    videoCount: videos.filter(v => v.category === 'Couple').length
+    "id": "teen",
+    "name": "Teen",
+    "description": "Young adult content (18+ only)",
+    "videoCount": 17
   },
   {
-    id: 'asian',
-    name: 'Asian',
-    description: 'Asian beauty and passion',
-    videoCount: videos.filter(v => v.category === 'Asian').length
+    "id": "latin",
+    "name": "Latin",
+    "description": "Passionate Latina performers",
+    "videoCount": 3
   },
   {
-    id: 'latin',
-    name: 'Latin',
-    description: 'Latin passion and fire',
-    videoCount: videos.filter(v => v.category === 'Latin').length
+    "id": "romance",
+    "name": "Romance",
+    "description": "Love and intimate connection",
+    "videoCount": 12
   },
   {
-    id: 'ebony',
-    name: 'Ebony',
-    description: 'Beautiful ebony performers',
-    videoCount: videos.filter(v => v.category === 'Ebony').length
+    "id": "asian",
+    "name": "Asian",
+    "description": "Asian beauty and sensuality",
+    "videoCount": 3
   },
   {
-    id: 'group',
-    name: 'Group',
-    description: 'Multiple participants having fun',
-    videoCount: videos.filter(v => v.category === 'Group').length
+    "id": "couple",
+    "name": "Couple",
+    "description": "Intimate moments between partners",
+    "videoCount": 14
   },
   {
-    id: 'solo',
-    name: 'Solo',
-    description: 'Individual performances',
-    videoCount: videos.filter(v => v.category === 'Solo').length
+    "id": "fitness",
+    "name": "Fitness",
+    "description": "Workout and wellness themed",
+    "videoCount": 21
   },
   {
-    id: 'bdsm',
-    name: 'BDSM',
-    description: 'Light bondage and domination',
-    videoCount: videos.filter(v => v.category === 'BDSM').length
+    "id": "outdoor",
+    "name": "Outdoor",
+    "description": "Adventures in nature",
+    "videoCount": 12
   },
   {
-    id: 'roleplay',
-    name: 'Roleplay',
-    description: 'Fantasy scenarios and characters',
-    videoCount: videos.filter(v => v.category === 'Roleplay').length
+    "id": "bdsm",
+    "name": "BDSM",
+    "description": "Light bondage and domination",
+    "videoCount": 1
   },
   {
-    id: 'massage',
-    name: 'Massage',
-    description: 'Sensual massage experiences',
-    videoCount: videos.filter(v => v.category === 'Massage').length
+    "id": "cheating",
+    "name": "Cheating",
+    "description": "Forbidden affairs and encounters",
+    "videoCount": 21
   },
   {
-    id: 'vintage',
-    name: 'Vintage',
-    description: 'Classic and retro style content',
-    videoCount: videos.filter(v => v.category === 'Vintage').length
+    "id": "massage",
+    "name": "Massage",
+    "description": "Sensual massage experiences",
+    "videoCount": 2
+  },
+  {
+    "id": "vintage",
+    "name": "Vintage",
+    "description": "Classic and retro content",
+    "videoCount": 17
   }
 ];

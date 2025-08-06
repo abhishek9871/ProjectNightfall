@@ -489,7 +489,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                     </div>
 
                                     <h3 className="text-lg font-medium text-white mb-2">Description</h3>
-                                    <p className="text-slate-300 leading-relaxed">{video.sourceDescription}</p>
+                                    <p className="text-slate-300 leading-relaxed">{video.description}</p>
                                 </div>
 
                                 {/* Modal Footer with Video Info */}
