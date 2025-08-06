@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { categories } from '../data/categories';
 import { videos } from '../data/videos';
 import { VideoCard } from './VideoCard';
+import { Pagination } from './Pagination';
 import { Video } from '../types';
 
 interface CategoriesProps {
@@ -11,18 +12,36 @@ interface CategoriesProps {
 
 export function Categories({ searchQuery, onVideoCardClick }: CategoriesProps): React.ReactNode {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [currentPageNum, setCurrentPageNum] = useState(1);
+    
+    // Pagination constants
+    const VIDEOS_PER_PAGE = 24;
 
     // Filter videos based on selected category and search
-    const filteredVideos = videos.filter(video => {
-        const matchesSearch = searchQuery.trim() === '' ||
-            video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredVideos = useMemo(() => {
+        return videos.filter(video => {
+            const matchesSearch = searchQuery.trim() === '' ||
+                video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        const matchesCategory = selectedCategory === null ||
-            video.category.toLowerCase() === selectedCategory.toLowerCase();
+            const matchesCategory = selectedCategory === null ||
+                video.category.toLowerCase() === selectedCategory.toLowerCase();
 
-        return matchesSearch && matchesCategory;
-    });
+            return matchesSearch && matchesCategory;
+        });
+    }, [searchQuery, selectedCategory]);
+
+    // Calculate paginated videos
+    const paginatedVideos = useMemo(() => {
+        const startIndex = (currentPageNum - 1) * VIDEOS_PER_PAGE;
+        const endIndex = startIndex + VIDEOS_PER_PAGE;
+        return filteredVideos.slice(startIndex, endIndex);
+    }, [filteredVideos, currentPageNum]);
+
+    // Reset pagination when category or search changes
+    useEffect(() => {
+        setCurrentPageNum(1);
+    }, [selectedCategory, searchQuery]);
 
     const getTitle = () => {
         if (searchQuery.trim()) {
@@ -98,15 +117,25 @@ export function Categories({ searchQuery, onVideoCardClick }: CategoriesProps): 
                         )}
                     </div>
                 ) : (
-                    <div className="continuous-video-grid">
-                        {filteredVideos.map((video) => (
-                            <VideoCard 
-                                key={video.id} 
-                                video={video} 
-                                onVideoCardClick={onVideoCardClick}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        <div className="continuous-video-grid">
+                            {paginatedVideos.map((video) => (
+                                <VideoCard 
+                                    key={video.id} 
+                                    video={video} 
+                                    onVideoCardClick={onVideoCardClick}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Pagination Component */}
+                        <Pagination
+                            totalItems={filteredVideos.length}
+                            itemsPerPage={VIDEOS_PER_PAGE}
+                            currentPage={currentPageNum}
+                            onPageChange={setCurrentPageNum}
+                        />
+                    </>
                 )}
             </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { VideoCard } from './VideoCard';
 import { Categories } from './Categories';
+import { Pagination } from './Pagination';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
 import { Video } from '../types';
@@ -11,13 +12,19 @@ interface VideoGridProps {
     currentPage: PageType;
     searchQuery: string;
     onVideoCardClick: (video: Video) => void;
+    currentPageNum: number;
+    onPageChange: (page: number) => void;
+    totalVideos: number;
 }
 
-export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoGridProps): React.ReactNode {
+export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentPageNum, onPageChange, totalVideos }: VideoGridProps): React.ReactNode {
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
         return <Categories searchQuery={searchQuery} onVideoCardClick={onVideoCardClick} />;
     }
+
+    // Pagination constants
+    const VIDEOS_PER_PAGE = 24;
 
     // Log total video count for verification
     console.log(`Total videos loaded: ${videos.length}`);
@@ -122,6 +129,13 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
         return filtered;
     }, [currentPage, searchQuery]);
 
+    // Calculate paginated videos
+    const paginatedVideos = useMemo(() => {
+        const startIndex = (currentPageNum - 1) * VIDEOS_PER_PAGE;
+        const endIndex = startIndex + VIDEOS_PER_PAGE;
+        return filteredVideos.slice(startIndex, endIndex);
+    }, [filteredVideos, currentPageNum]);
+
     const getPageTitle = () => {
         if (searchQuery.trim()) {
             return `Search Results for "${searchQuery}"`;
@@ -173,7 +187,7 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
                     />
 
                     <div className="continuous-video-grid">
-                        {filteredVideos.map((video, index) => (
+                        {paginatedVideos.map((video, index) => (
                             <React.Fragment key={`item-${video.id}`}>
                                 <VideoCard
                                     video={video}
@@ -200,7 +214,7 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
                         ))}
 
                         {/* Ads placed strategically without breaking flow */}
-                        {filteredVideos.length > 8 && (
+                        {paginatedVideos.length > 8 && (
                             <div className="ad-slot-inline">
                                 <MasterAdSlot
                                     adType="popunder"
@@ -210,6 +224,14 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
                             </div>
                         )}
                     </div>
+
+                    {/* Pagination Component */}
+                    <Pagination
+                        totalItems={filteredVideos.length}
+                        itemsPerPage={VIDEOS_PER_PAGE}
+                        currentPage={currentPageNum}
+                        onPageChange={onPageChange}
+                    />
                 </>
             )}
         </section>

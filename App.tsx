@@ -15,7 +15,7 @@ import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { InterstitialAd } from './components/InterstitialAd';
 import { AdEngineProvider, useAdEngine } from './src/contexts/AdEngineContext';
 import { Video } from './types';
-import { categories } from './data/categories';
+import { videos } from './data/videos';
 
 export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
 
@@ -25,7 +25,8 @@ function AppContent(): React.ReactNode {
     const [searchQuery, setSearchQuery] = useState('');
     const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    
+    const [currentPageNum, setCurrentPageNum] = useState(1);
+
     // Unified modal state to prevent race conditions
     type ModalState = {
         step: 'idle' | 'preroll' | 'content';
@@ -35,7 +36,7 @@ function AppContent(): React.ReactNode {
         step: 'idle',
         video: null,
     });
-    
+
     // Interstitial ad state
     const [showInterstitial, setShowInterstitial] = useState(false);
     const [nextPage, setNextPage] = useState<PageType | null>(null);
@@ -131,6 +132,9 @@ function AppContent(): React.ReactNode {
 
     // Navigation handler with interstitial logic
     const handleNavigation = (page: PageType) => {
+        // Reset pagination when changing pages
+        setCurrentPageNum(1);
+
         // Rule: Show interstitial only if it hasn't been shown this session,
         // and the user is navigating away from the 'home' page.
         if (currentPage === 'home') {
@@ -149,6 +153,11 @@ function AppContent(): React.ReactNode {
             setCurrentPage(page);
         }
     };
+
+    // Reset pagination when search query changes
+    React.useEffect(() => {
+        setCurrentPageNum(1);
+    }, [searchQuery]);
 
     // Ad closed handler
     const handleAdClosed = () => {
@@ -169,23 +178,26 @@ function AppContent(): React.ReactNode {
             <AdStrategyProvider />
             <AggressiveAdStrategy />
             <div className="flex">
-                <Sidebar 
-                    currentPage={currentPage} 
+                <Sidebar
+                    currentPage={currentPage}
                     onPageChange={handleNavigation}
                     isMobileOpen={isMobileSidebarOpen}
                     onMobileClose={() => setIsMobileSidebarOpen(false)}
                 />
                 <main className="flex-1 lg:ml-64">
-                    <Header 
-                        searchQuery={searchQuery} 
+                    <Header
+                        searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
                         onMobileMenuToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                     />
                     <div className="p-4 sm:p-6 lg:p-8" data-testid="video-grid">
-                        <VideoGrid 
-                            currentPage={currentPage} 
+                        <VideoGrid
+                            currentPage={currentPage}
                             searchQuery={searchQuery}
                             onVideoCardClick={handleVideoCardClick}
+                            currentPageNum={currentPageNum}
+                            onPageChange={setCurrentPageNum}
+                            totalVideos={videos.length}
                         />
                     </div>
                     <Footer onLegalPageOpen={setLegalPage} />
@@ -193,12 +205,12 @@ function AppContent(): React.ReactNode {
             </div>
             <PrivacyNotice />
             {legalPage && (
-                <LegalPages 
-                    page={legalPage} 
-                    onClose={() => setLegalPage(null)} 
+                <LegalPages
+                    page={legalPage}
+                    onClose={() => setLegalPage(null)}
                 />
             )}
-            
+
             {/* Pre-roll ad modal */}
             {modalState.step === 'preroll' && modalState.video && (
                 <PreRollModal
@@ -206,7 +218,7 @@ function AppContent(): React.ReactNode {
                     onAdComplete={handleAdComplete}
                 />
             )}
-            
+
             {/* Main video content modal */}
             {modalState.step === 'content' && modalState.video && (
                 <ModalPlayer
@@ -215,7 +227,7 @@ function AppContent(): React.ReactNode {
                     onClose={handleCloseContentModal}
                 />
             )}
-            
+
             {/* Interstitial Ad */}
             {showInterstitial && (
                 <InterstitialAd
