@@ -11,6 +11,11 @@ export interface Video {
     rating: number; // 1-5 stars
     uploadDate: string; // ISO date string
     tags: string[];
+    description: string;
+    sourceDescription: string;
+    actors?: string[];
+    studio?: string;
+    isFamilyFriendly?: boolean;
 }
 
 export interface Category {

@@ -15,18 +15,29 @@ export function Footer({ onLegalPageOpen }: FooterProps): React.ReactNode {
                     <DisplaySlot slotId="footer-banner-728x90" />
                 </div>
                 <nav className="flex flex-wrap justify-center -mx-5 -my-2" role="navigation" aria-label="Footer">
+                    {/* Trust & Information Pages */}
                     <div className="px-5 py-2">
                         <button 
-                            onClick={() => onLegalPageOpen('2257')}
+                            onClick={() => onLegalPageOpen('about')}
                             className="text-base text-slate-400 hover:text-purple-400 transition-colors"
                         >
-                            2257
+                            About Us
                         </button>
                     </div>
                     <div className="px-5 py-2">
                         <button 
-                            onClick={() => onLegalPageOpen('terms')}
+                            onClick={() => onLegalPageOpen('contact')}
                             className="text-base text-slate-400 hover:text-purple-400 transition-colors"
+                        >
+                            Contact
+                        </button>
+                    </div>
+                    
+                    {/* Legal Compliance Pages */}
+                    <div className="px-5 py-2">
+                        <button 
+                            onClick={() => onLegalPageOpen('terms')}
+                            className="text-base text-slate-400 hover:text-purple-400 transition-colors font-medium"
                         >
                             Terms of Service
                         </button>
@@ -34,7 +45,7 @@ export function Footer({ onLegalPageOpen }: FooterProps): React.ReactNode {
                     <div className="px-5 py-2">
                         <button 
                             onClick={() => onLegalPageOpen('privacy')}
-                            className="text-base text-slate-400 hover:text-purple-400 transition-colors"
+                            className="text-base text-slate-400 hover:text-purple-400 transition-colors font-medium"
                         >
                             Privacy Policy
                         </button>
@@ -42,9 +53,17 @@ export function Footer({ onLegalPageOpen }: FooterProps): React.ReactNode {
                     <div className="px-5 py-2">
                         <button 
                             onClick={() => onLegalPageOpen('dmca')}
-                            className="text-base text-slate-400 hover:text-purple-400 transition-colors"
+                            className="text-base text-slate-400 hover:text-purple-400 transition-colors font-medium"
                         >
                             DMCA
+                        </button>
+                    </div>
+                    <div className="px-5 py-2">
+                        <button 
+                            onClick={() => onLegalPageOpen('2257')}
+                            className="text-base text-slate-400 hover:text-purple-400 transition-colors font-medium"
+                        >
+                            18 U.S.C. 2257
                         </button>
                     </div>
                 </nav>

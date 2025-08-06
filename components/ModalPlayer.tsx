@@ -245,16 +245,16 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
             const setupTimer = setTimeout(async () => {
                 const originalUrl = video.embedUrls[currentIdx] || video.embedUrls[0];
                 const videoId = originalUrl.split('/').pop();
-                
+
                 console.log('🎬 Setting up video for currentIdx:', currentIdx, 'domainAttempt:', domainAttempt);
                 console.log('📹 Original URL:', originalUrl);
-                
+
                 // For Indian users, try network detection first
                 if (country === 'IN' && domainAttempt === 0 && !useNetworkDetection) {
                     try {
                         console.log('🇮🇳 Indian user - Attempting network detection...');
                         const networkUrl = await getEmbedUrl(videoId || '');
-                        
+
                         // Determine network type for analytics
                         if (networkUrl.includes('proxy')) {
                             setNetworkType('jio');
@@ -263,7 +263,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                             setNetworkType('airtel');
                             console.log('📶 Airtel/other network - Using direct mirror');
                         }
-                        
+
                         setUseNetworkDetection(true);
                         setCurrentSrc(networkUrl);
                         setUrlReady(true);
@@ -273,19 +273,19 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                         setNetworkType('unknown');
                     }
                 }
-                
+
                 // Fallback to existing geo-detection system (maintains current functionality)
                 const processedUrl = getVideoUrl(originalUrl, domainAttempt);
                 console.log('🌍 Using geo-detection URL:', processedUrl);
-                
+
                 if (country !== 'IN') {
                     setNetworkType('global');
                 }
-                
+
                 setCurrentSrc(processedUrl);
                 setUrlReady(true);
             }, 100); // Small delay to ensure modal is ready
-            
+
             return () => clearTimeout(setupTimer);
         } else {
             setCurrentSrc('');
@@ -436,7 +436,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                             // Reset URL ready state to show loading
                                                             setUrlReady(false);
                                                             setIsLoading(true);
-                                                            
+
                                                             // Use smart fallback based on current URL
                                                             const videoId = video.embedUrls[currentIdx]?.split('/').pop() || video.embedUrls[0]?.split('/').pop();
                                                             if (videoId) {
@@ -460,6 +460,36 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                             </div>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* Video Details Section */}
+                                <div className="p-6 bg-slate-900 border-t border-slate-700">
+                                    <h2 className="text-xl font-semibold text-white mb-4">{video.title}</h2>
+
+                                    <div className="flex items-center gap-6 mb-4 text-sm text-slate-300">
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            {video.views}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {video.duration}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                            </svg>
+                                            {video.rating}/5
+                                        </span>
+                                    </div>
+
+                                    <h3 className="text-lg font-medium text-white mb-2">Description</h3>
+                                    <p className="text-slate-300 leading-relaxed">{video.sourceDescription}</p>
                                 </div>
 
                                 {/* Modal Footer with Video Info */}

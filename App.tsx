@@ -15,6 +15,7 @@ import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { InterstitialAd } from './components/InterstitialAd';
 import { AdEngineProvider, useAdEngine } from './src/contexts/AdEngineContext';
 import { Video } from './types';
+import { categories } from './data/categories';
 
 export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
 
@@ -41,6 +42,26 @@ function AppContent(): React.ReactNode {
 
     // Get ad engine functions
     const { triggerPreRoll, triggerInterstitial } = useAdEngine();
+
+    // Dynamic page title management
+    useEffect(() => {
+        let title = 'Project Nightfall - Curated Adult Entertainment';
+
+        if (modalState.step === 'content' && modalState.video) {
+            title = `${modalState.video.title} - Project Nightfall`;
+        } else if (currentPage === 'categories') {
+            // For categories page, we'll use a generic title since we don't have access to selected category here
+            title = 'Categories - Project Nightfall';
+        } else if (currentPage === 'trending') {
+            title = 'Trending Videos - Project Nightfall';
+        } else if (currentPage === 'top-rated') {
+            title = 'Top Rated Videos - Project Nightfall';
+        } else if (currentPage === 'home') {
+            title = 'Project Nightfall - Curated Adult Entertainment';
+        }
+
+        document.title = title;
+    }, [currentPage, modalState.step, modalState.video]);
 
     // DNS prefetching for Xvideos domains to reduce connection time
     React.useEffect(() => {

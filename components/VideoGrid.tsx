@@ -4,7 +4,7 @@ import { Categories } from './Categories';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
 import { Video } from '../types';
-import { AdSlot } from './AdSlot';
+import { MasterAdSlot } from './ads/MasterAdSlot';
 import { NativeAdCard } from './NativeAdCard';
 
 interface VideoGridProps {
@@ -166,10 +166,10 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
             ) : (
                 <>
                     {/* Banner ad above video list */}
-                    <AdSlot
+                    <MasterAdSlot
                         adType="banner"
                         exoClickZoneId="YOUR_EXOCLICK_BANNER_ZONE_ID"
-                        trafficJunkyZoneId="YOUR_TRAFFICJUNKY_BANNER_ZONE_ID"
+                        popAdsSiteId={1234567} // PopAds doesn't have banners, so this is a placeholder
                     />
 
                     <div className="continuous-video-grid">
@@ -186,16 +186,26 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick }: VideoG
                                         widgetFormat="1x1" // Standard format for a single ad card
                                     />
                                 )}
+                                {/* Popunder trigger every 5th video */}
+                                {(index + 1) % 5 === 0 && (
+                                    <div className="col-span-full my-4">
+                                        <MasterAdSlot
+                                            adType="popunder"
+                                            exoClickZoneId="YOUR_EXOCLICK_POPUNDER_ZONE_ID" // Placeholder
+                                            popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
+                                        />
+                                    </div>
+                                )}
                             </React.Fragment>
                         ))}
 
                         {/* Ads placed strategically without breaking flow */}
                         {filteredVideos.length > 8 && (
                             <div className="ad-slot-inline">
-                                <AdSlot
-                                    adType="rectangle"
-                                    exoClickZoneId="YOUR_EXOCLICK_RECTANGLE_ZONE_ID"
-                                    trafficJunkyZoneId="YOUR_TRAFFICJUNKY_RECTANGLE_ZONE_ID"
+                                <MasterAdSlot
+                                    adType="popunder"
+                                    exoClickZoneId="YOUR_EXOCLICK_POPUNDER_ZONE_ID" // Placeholder
+                                    popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
                                 />
                             </div>
                         )}
