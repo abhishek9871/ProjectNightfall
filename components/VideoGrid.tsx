@@ -182,7 +182,7 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentP
                     {/* Banner ad above video list */}
                     <MasterAdSlot
                         adType="banner"
-                        exoClickZoneId="YOUR_EXOCLICK_BANNER_ZONE_ID"
+                        exoClickZoneId="5695448" // Use the real Banner Zone ID
                         popAdsSiteId={1234567} // PopAds doesn't have banners, so this is a placeholder
                     />
 
@@ -205,7 +205,7 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentP
                                     <div className="col-span-full my-4">
                                         <MasterAdSlot
                                             adType="popunder"
-                                            exoClickZoneId="YOUR_EXOCLICK_POPUNDER_ZONE_ID" // Placeholder
+                                            exoClickZoneId="5695452" // Use the real Popunder Zone ID
                                             popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
                                         />
                                     </div>
@@ -218,7 +218,7 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentP
                             <div className="ad-slot-inline">
                                 <MasterAdSlot
                                     adType="popunder"
-                                    exoClickZoneId="YOUR_EXOCLICK_POPUNDER_ZONE_ID" // Placeholder
+                                    exoClickZoneId="5695452" // Use the real Popunder Zone ID
                                     popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
                                 />
                             </div>

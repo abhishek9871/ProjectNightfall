@@ -1,9 +1,7 @@
 // components/ads/MasterAdSlot.tsx
 import React from 'react';
-import { useAdExperiment } from '../../src/hooks/useAdExperiment';
 import { ExoClickZone } from './ExoClickZone';
 import { PopAdsZone } from './PopAdsZone';
-import { trackAdImpression } from '../../src/services/AnalyticsService';
 
 interface MasterAdSlotProps {
   exoClickZoneId: string;
@@ -16,32 +14,21 @@ export const MasterAdSlot: React.FC<MasterAdSlotProps> = ({
   popAdsSiteId,
   adType,
 }) => {
-  const experimentName = `ExoClick-vs-PopAds-${adType}-Test`;
-  const variant = useAdExperiment(experimentName);
-
-  React.useEffect(() => {
-    if (variant) {
-      trackAdImpression(experimentName, variant);
-    }
-  }, [variant, experimentName]);
-
-  switch (variant) {
-    case 'ExoClick':
-      // ExoClick can serve both banners and popunders (depending on zone setup)
-      // For this test, we assume a banner/rectangle from ExoClick.
-      if (adType === 'banner') {
-        return <ExoClickZone zoneId={exoClickZoneId} />;
-      }
-      return null; // Or a specific ExoClick popunder component if needed
-
-    case 'PopAds':
-      // PopAds is primarily for popunders.
-      if (adType === 'popunder') {
-        return <PopAdsZone siteId={popAdsSiteId} />;
-      }
-      return null;
-
-    default:
-      return null;
+  // Ad Stacking Engine: Display ads from both networks to maximize revenue
+  if (adType === 'banner') {
+    // For banners, only render ExoClick (PopAds doesn't do banners)
+    return <ExoClickZone zoneId={exoClickZoneId} />;
   }
+
+  if (adType === 'popunder') {
+    // For popunders, render both ExoClick and PopAds simultaneously
+    return (
+      <>
+        <ExoClickZone zoneId={exoClickZoneId} />
+        <PopAdsZone siteId={popAdsSiteId} />
+      </>
+    );
+  }
+
+  return null;
 };
