@@ -11,6 +11,20 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
     const [country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
+    // Extract full title from sourceDescription, fallback to title
+    const getFullTitle = (video: Video): string => {
+        if (video.sourceDescription) {
+            // Remove duration patterns and clean up
+            return video.sourceDescription
+                .replace(/\s+\d+:\d+\s*$/, '') // Remove "XX:XX" at end
+                .replace(/\s+\d+\s+min\s*$/, '') // Remove "XX min" at end
+                .trim();
+        }
+        return video.title;
+    };
+
+    const fullTitle = getFullTitle(video);
+
     // Use provided thumbnail or generate placeholder
     const thumbnailUrl = video.thumbnailUrl || `https://picsum.photos/seed/video${video.id}/400/225`;
 
@@ -107,7 +121,7 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
     const videoSchema = {
         "@context": "https://schema.org",
         "@type": "VideoObject",
-        "name": video.title,
+        "name": fullTitle,
         "description": `High-quality adult video in ${video.category} category`,
         "thumbnailUrl": thumbnailUrl,
         "uploadDate": video.uploadDate || new Date().toISOString(),
@@ -135,7 +149,7 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
             <div className="relative aspect-video bg-slate-900/70 overflow-hidden" onClick={handleCardClick}>
                 <img 
                     src={thumbnailUrl}
-                    alt={video.title}
+                    alt={fullTitle}
                     className="absolute inset-0 w-full h-full object-cover"
                 />
                 {/* Category badge */}
@@ -156,8 +170,8 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
                 </div>
             </div>
             <div className="p-4">
-                <h3 className="font-bold text-base text-white truncate group-hover:text-purple-400 transition-colors mb-2">
-                    {video.title}
+                <h3 className="font-bold text-base text-white group-hover:text-purple-400 transition-colors mb-2 video-title">
+                    {fullTitle}
                 </h3>
                 
                 {/* Rating */}

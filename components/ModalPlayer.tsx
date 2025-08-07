@@ -17,6 +17,20 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
     if (!video) {
         return null;
     }
+
+    // Extract full title from sourceDescription, fallback to title
+    const getFullTitle = (video: Video): string => {
+        if (video.sourceDescription) {
+            // Remove duration patterns and clean up
+            return video.sourceDescription
+                .replace(/\s+\d+:\d+\s*$/, '') // Remove "XX:XX" at end
+                .replace(/\s+\d+\s+min\s*$/, '') // Remove "XX min" at end
+                .trim();
+        }
+        return video.title;
+    };
+
+    const fullTitle = getFullTitle(video);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [showError, setShowError] = useState(false);
     const [loadTimeout, setLoadTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -341,9 +355,9 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                     <div className="flex-1">
                                         <Dialog.Title
                                             as="h3"
-                                            className="text-lg font-semibold text-white text-left truncate pr-4"
+                                            className="text-lg font-semibold text-white text-left pr-4 video-title"
                                         >
-                                            {video.title}
+                                            {fullTitle}
                                         </Dialog.Title>
                                         <div className="flex items-center gap-4 mt-1 text-sm text-slate-400">
                                             <span>{video.views}</span>
@@ -418,7 +432,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                         key={`${currentIdx}-${domainAttempt}`} // Force re-render on URL or domain change
                                                         className="absolute top-0 left-0 w-full h-full"
                                                         src={currentEmbedUrl}
-                                                        title={video.title}
+                                                        title={fullTitle}
                                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                                                         allowFullScreen
                                                         loading="eager"
@@ -464,7 +478,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
 
                                 {/* Video Details Section */}
                                 <div className="p-6 bg-slate-900 border-t border-slate-700">
-                                    <h2 className="text-xl font-semibold text-white mb-4">{video.title}</h2>
+                                    <h2 className="text-xl font-semibold text-white mb-4 video-title">{fullTitle}</h2>
 
                                     <div className="flex items-center gap-6 mb-4 text-sm text-slate-300">
                                         <span className="flex items-center gap-2">
@@ -541,7 +555,7 @@ export function ModalPlayer({ video, isOpen, onClose }: ModalPlayerProps): React
                                                 e.stopPropagation();
                                                 if (navigator.share) {
                                                     navigator.share({
-                                                        title: video.title,
+                                                        title: fullTitle,
                                                         url: window.location.href
                                                     });
                                                 } else {

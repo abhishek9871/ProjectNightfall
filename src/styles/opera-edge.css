@@ -57,33 +57,38 @@
     display: block;
 }
 
-/* Continuous video grid layout - no line breaks */
+/* Continuous video grid layout - gap-free with dense packing */
 .continuous-video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-flow: row dense;
     gap: 1.5rem;
     overflow-x: hidden;
     width: 100%;
+    align-items: start;
 }
 
 /* Responsive adjustments for continuous flow */
 @media (min-width: 640px) {
     .continuous-video-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-auto-flow: row dense;
         gap: 1.5rem;
     }
 }
 
 @media (min-width: 1024px) {
     .continuous-video-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-auto-flow: row dense;
         gap: 1.5rem;
     }
 }
 
 @media (min-width: 1280px) {
     .continuous-video-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-auto-flow: row dense;
         gap: 1.5rem;
     }
 }
@@ -103,7 +108,29 @@
 /* Ensure video cards fit properly in continuous grid */
 .continuous-video-grid .video-card-container {
     width: 100%;
-    height: auto;
     min-width: 0;
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+}
+
+/* Natural title wrapping for full visibility - SEO optimized */
+.video-title {
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    display: block;
+}
+
+/* Video card content area flexbox for proper spacing */
+.continuous-video-grid .video-card-container>div:last-child {
+    /* Make the content area flex to distribute space properly */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px;
+    /* Ensure consistent minimum content height */
 }
