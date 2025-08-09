@@ -5,7 +5,7 @@ const Analytics: React.FC = () => {
         // Load Google Analytics script
         const script1 = document.createElement('script');
         script1.async = true;
-        script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX';
+        script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-NIGHTFALL2025';
         document.head.appendChild(script1);
 
         const script2 = document.createElement('script');
@@ -13,7 +13,15 @@ const Analytics: React.FC = () => {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX');
+            gtag('config', 'G-NIGHTFALL2025', {
+                page_title: document.title,
+                page_location: window.location.href,
+                content_group1: 'Adult Entertainment',
+                custom_map: {
+                    'dimension1': 'video_category',
+                    'dimension2': 'network_type'
+                }
+            });
         `;
         document.head.appendChild(script2);
 

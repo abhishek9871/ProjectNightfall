@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "add-video": "node scripts/addVideo.js",
+    "generate-video-sitemap": "node scripts/generateVideoSitemap.js",
+    "seo-build": "npm run generate-video-sitemap && npm run build",
     "verify": "node scripts/verify-deployment.js",
     "deploy": "node scripts/deploy.js",
     "deploy:netlify": "netlify deploy --prod --dir=dist",

@@ -17,7 +17,7 @@ interface VideoGridProps {
     totalVideos: number;
 }
 
-export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentPageNum, onPageChange, totalVideos }: VideoGridProps): React.ReactNode {
+export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentPageNum, onPageChange, totalVideos: _totalVideos }: VideoGridProps): React.ReactNode {
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
         return <Categories searchQuery={searchQuery} onVideoCardClick={onVideoCardClick} />;

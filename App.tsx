@@ -10,6 +10,7 @@ import { PreRollModal } from './components/PreRollModal';
 import { ModalPlayer } from './components/ModalPlayer';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Analytics from './components/Analytics';
+import { SEOHead } from './components/SEOHead';
 import { AdStrategyProvider } from './components/AdStrategyProvider';
 import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { InterstitialAd } from './components/InterstitialAd';
@@ -174,6 +175,13 @@ function AppContent(): React.ReactNode {
 
     return (
         <div className="bg-slate-950 text-slate-300 min-h-screen">
+            <SEOHead 
+                currentPage={currentPage}
+                searchQuery={searchQuery}
+                videoTitle={modalState.video?.title}
+                videoDescription={modalState.video?.description}
+                videoThumbnail={modalState.video?.thumbnailUrl}
+            />
             <Analytics />
             <AdStrategyProvider />
             <AggressiveAdStrategy />
