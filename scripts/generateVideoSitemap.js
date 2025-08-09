@@ -36,8 +36,8 @@ const generateVideoSitemap = () => {
             if (!idMatch || !titleMatch) return;
 
             const videoId = idMatch[1];
-            const title = titleMatch[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            const description = descriptionMatch ? descriptionMatch[1].substring(0, 200).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+            const title = titleMatch[1];
+            const description = descriptionMatch ? descriptionMatch[1] : '';
             const duration = durationMatch ? durationMatch[1] : '';
             const thumbnail = thumbnailMatch ? thumbnailMatch[1] : `https://picsum.photos/seed/video${videoId}/400/225`;
             const category = categoryMatch ? categoryMatch[1] : '';
@@ -45,32 +45,29 @@ const generateVideoSitemap = () => {
             const views = viewsMatch ? viewsMatch[1] : '';
             const rating = ratingMatch ? ratingMatch[1] : '4.0';
 
-            // Convert duration to seconds for video sitemap
+            // Convert duration to seconds for video sitemap (GSC-compliant format)
             const durationInSeconds = duration ? convertDurationToSeconds(duration) : 600;
             
-            // Convert views to number
-            const viewCount = convertViewsToNumber(views);
+            // Format publication date to ISO 8601 with timezone (GSC-compliant)
+            const publicationDate = new Date(uploadDate).toISOString();
+            
+            // Ensure thumbnail URL is absolute
+            const thumbnailUrl = thumbnail.startsWith('http') 
+                ? thumbnail 
+                : `${baseUrl}${thumbnail}`;
 
             sitemapContent += `
     <url>
-        <loc>${baseUrl}/video/${videoId}</loc>
-        <lastmod>${uploadDate}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <loc>${baseUrl}/watch/${videoId}</loc>
         <video:video>
-            <video:thumbnail_loc>${thumbnail}</video:thumbnail_loc>
-            <video:title>${title}</video:title>
-            <video:description>${description}</video:description>
-            <video:content_loc>${baseUrl}/video/${videoId}</video:content_loc>
-            <video:player_loc>${baseUrl}/video/${videoId}</video:player_loc>
+            <video:thumbnail_loc>${thumbnailUrl}</video:thumbnail_loc>
+            <video:title><![CDATA[${title}]]></video:title>
+            <video:description><![CDATA[${description}]]></video:description>
+            <video:player_loc>${baseUrl}/watch/${videoId}</video:player_loc>
             <video:duration>${durationInSeconds}</video:duration>
-            <video:publication_date>${uploadDate}</video:publication_date>
-            <video:category>${category}</video:category>
-            <video:rating>${rating}</video:rating>
-            <video:view_count>${viewCount}</video:view_count>
+            <video:publication_date>${publicationDate}</video:publication_date>
             <video:family_friendly>no</video:family_friendly>
-            <video:requires_subscription>no</video:requires_subscription>
-            <video:live>no</video:live>
+            <video:content_rating>adult</video:content_rating>
         </video:video>
     </url>`;
         } catch (error) {
@@ -80,6 +77,18 @@ const generateVideoSitemap = () => {
 
     sitemapContent += `
 </urlset>`;
+
+    // Ensure dist directory exists
+    const distDir = path.join(__dirname, '../dist');
+    if (!fs.existsSync(distDir)) {
+        fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    // Ensure public directory exists
+    const publicDir = path.join(__dirname, '../public');
+    if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+    }
 
     // Write video sitemap
     const outputPath = path.join(__dirname, '../dist/video-sitemap.xml');
@@ -92,6 +101,8 @@ const generateVideoSitemap = () => {
     console.log(`✅ Video sitemap generated with ${videoMatches.length} videos`);
     console.log(`📁 Saved to: ${outputPath}`);
     console.log(`📁 Saved to: ${publicPath}`);
+    console.log(`🔗 Updated URLs to use /watch/{id} format`);
+    console.log(`📋 GSC-compliant format with CDATA sections and adult content markers`);
 };
 
 // Helper function to convert duration to seconds
