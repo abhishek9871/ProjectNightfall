@@ -41,7 +41,8 @@ export default defineConfig(({ mode }) => {
         ],
         changefreq: 'daily',
         priority: 0.8,
-        lastmod: new Date()
+        lastmod: new Date(),
+        generateRobotsTxt: false
       }),
       compression(),
       VitePWA({
