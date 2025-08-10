@@ -1,3 +1,11 @@
+/video-sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com https://static.cloudflareinsights.com https://ajax.cloudflare.com https://challenges.cloudflare.com https://hilltopads.com https://cdn.hilltopads.com https://js.hilltopads.com https://track.hilltopads.com https://delivery.hilltopads.com https://loud-student.com https://adsterra.com https://cdn.adsterra.com https://js.adsterra.com https://track.adsterra.com https://ads.adsterra.com https://static.adsterra.com https://exoclick.com https://main.exoclick.com https://syndication.exoclick.com https://analytics.exoclick.com https://a.exoclick.com https://mix.exoclick.com https://popads.net https://js.popads.net https://cdn.popads.net https://c1.popads.net https://c2.popads.net https://api.popads.net https://s.magsrv.com https://syndication.realsrv.com https://www.profitabledisplayformat.com https://imasdk.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.plyr.io https://vjs.zencdn.net; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://*.hilltopads.com https://*.adsterra.com https://*.exoclick.com https://*.popads.net https://images.exoclick.com https://cdn.exoclick.com https://picsum.photos https://fastly.picsum.photos https://i.imgur.com https://via.placeholder.com; connect-src 'self' https://cloudflareinsights.com https://www.google-analytics.com https://track.hilltopads.com https://cdn.hilltopads.com https://track.adsterra.com https://analytics.exoclick.com https://api.exoclick.com https://api.popads.net https://s.magsrv.com https://syndication.realsrv.com https://hb.adsterra.com https://www.xvideos.com https://www.xvideos4.com https://api.ipify.org; frame-src 'self' https://challenges.cloudflare.com https://xvideos.com https://xvideos4.com https://main.exoclick.com https://imasdk.googleapis.com https://s.magsrv.com https://a.exoclick.com https://mix.exoclick.com https://ads.adsterra.com; object-src 'none'; base-uri 'self'
   X-Content-Type-Options: nosniff

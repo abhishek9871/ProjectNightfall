@@ -47,6 +47,17 @@ export default defineConfig(({ mode }) => {
       compression(),
       VitePWA({
         registerType: 'autoUpdate',
+        strategies: 'generateSW',
+        workbox: {
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/video-sitemap\.xml$/, /^\/robots\.txt$/, /\.(xml|txt)$/],
+          globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico}'], // Exclude XML/TXT
+          globIgnores: ['**/*.{xml,txt}'], // Double exclusion
+          runtimeCaching: [{
+            urlPattern: ({ url }) => url.pathname.endsWith('.xml') || url.pathname.endsWith('.txt'),
+            handler: 'NetworkOnly', // Bypass SW for sitemaps
+          }],
+        },
         manifest: {
           name: 'Project Nightfall',
           short_name: 'Nightfall',
