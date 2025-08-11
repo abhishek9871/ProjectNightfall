@@ -3,14 +3,13 @@ import { categories } from '../data/categories';
 import { videos } from '../data/videos';
 import { VideoCard } from './VideoCard';
 import { Pagination } from './Pagination';
-import { Video } from '../types';
+// Removed unused Video import
 
 interface CategoriesProps {
     searchQuery: string;
-    onVideoCardClick: (video: Video) => void;
 }
 
-export function Categories({ searchQuery, onVideoCardClick }: CategoriesProps): React.ReactNode {
+export function Categories({ searchQuery }: CategoriesProps): React.ReactNode {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [currentPageNum, setCurrentPageNum] = useState(1);
     
@@ -118,12 +117,11 @@ export function Categories({ searchQuery, onVideoCardClick }: CategoriesProps): 
                     </div>
                 ) : (
                     <>
-                        <div className="continuous-video-grid">
+                        <div className="professional-video-grid">
                             {paginatedVideos.map((video) => (
                                 <VideoCard 
                                     key={video.id} 
-                                    video={video} 
-                                    onVideoCardClick={onVideoCardClick}
+                                    video={video}
                                 />
                             ))}
                         </div>

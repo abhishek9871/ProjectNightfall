@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Video } from '../types';
 import { getUserCountry, getVideoUrl } from '../utils/geoDetector';
 
@@ -7,7 +8,7 @@ interface VideoCardProps {
     onVideoCardClick: (video: Video) => void;
 }
 
-export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps): React.ReactNode => {
+export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCardClick'>): React.ReactNode => {
     const [_country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -76,9 +77,6 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
             detail: { videoId: video.id, videoTitle: video.title }
         });
         window.dispatchEvent(videoInteractionEvent);
-        
-        // Use the new global flow handler
-        onVideoCardClick(video);
     };
 
     const renderStars = (rating: number) => {
@@ -156,76 +154,57 @@ export const VideoCard = React.memo(({ video, onVideoCardClick }: VideoCardProps
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
             />
-            <div 
-                className="video-card-container group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-500/30 transform hover:-translate-y-1 cursor-pointer w-full"
+            <Link 
+                to={`/watch/${video.id}`}
+                className="video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer w-full flex flex-col h-full block"
                 onMouseEnter={handleVideoHover}
                 onTouchStart={handleVideoHover}
+                onClick={handleCardClick}
             >
-            <div className="relative aspect-video bg-slate-900/70 overflow-hidden" onClick={handleCardClick}>
+            <div className="relative aspect-video bg-slate-900/70 overflow-hidden">
                 <img 
                     src={thumbnailUrl}
                     alt={fullTitle}
                     className="absolute inset-0 w-full h-full object-cover"
                 />
                 {/* Category badge */}
-                <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
+                <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
                     {video.category}
                 </div>
                 {/* Play button overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                        <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                        <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
                 </div>
                 {/* Duration badge */}
-                <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                <div className="absolute bottom-2 right-2 bg-black/90 text-white text-xs px-2 py-0.5 rounded-md font-medium">
                     {video.duration}
                 </div>
             </div>
-            <div className="p-4">
-                <h3 className="font-bold text-base text-white group-hover:text-purple-400 transition-colors mb-2 video-title">
-                    {fullTitle}
-                </h3>
+            <div className="p-3 flex flex-col h-full">
+                <div className="flex-grow mb-2">
+                    <h3 className="font-semibold text-sm text-white group-hover:text-purple-400 transition-colors leading-tight video-title line-clamp-2">
+                        {fullTitle}
+                    </h3>
+                </div>
                 
                 {/* Rating */}
                 <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                         {renderStars(video.rating)}
                     </div>
                     <span className="text-xs text-slate-400">({video.rating})</span>
                 </div>
                 
-                <div className="flex justify-between items-center text-sm text-slate-400">
-                    <span>{video.views}</span>
-                    <div className="flex items-center gap-2">
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (navigator.share) {
-                                    navigator.share({
-                                        title: video.title,
-                                        url: window.location.href
-                                    });
-                                } else {
-                                    // Fallback: copy to clipboard
-                                    navigator.clipboard.writeText(window.location.href);
-                                    alert('Link copied to clipboard!');
-                                }
-                            }}
-                            className="text-purple-400 hover:text-purple-300 transition-colors"
-                            title="Share video"
-                        >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-                            </svg>
-                        </button>
-                        <span className="text-purple-400">Click for modal</span>
-                    </div>
+                <div className="flex justify-between items-center text-xs text-slate-400">
+                    <span className="font-medium">{video.views}</span>
+                    <span className="text-purple-400 font-medium">Watch Now</span>
                 </div>
             </div>
-        </div>
+        </Link>
         </>
     );
 });

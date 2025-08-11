@@ -1,21 +1,19 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { categories } from '../../data/categories';
 import { videos } from '../../data/videos';
 import { VideoCard } from '../../components/VideoCard';
-import { Breadcrumb } from '../../components/Breadcrumb';
+import { Layout } from '../../components/Layout';
 import { categoryContent } from '../data/categoryContent';
-import { Video } from '../../types';
+// Removed unused Video import
 
-interface BreadcrumbItem {
-  name: string;
-  url?: string;
-}
+// Removed unused BreadcrumbItem interface
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [currentPageNum, setCurrentPageNum] = useState(1);
+  // Pagination state - currently not used but ready for future implementation
+  // const [currentPageNum, setCurrentPageNum] = useState(1);
   
   const category = categories.find(c => c.slug === slug);
   
@@ -157,17 +155,7 @@ const CategoryPage = () => {
     };
   }, [category, content, filteredVideos, pageTitle, metaDescription, slug]);
 
-  // Breadcrumb items for the new Breadcrumb component format
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: 'Home', url: '/' },
-    { name: category.name }
-  ];
-
-  // Dummy video click handler - in a real implementation this would trigger modals
-  const handleVideoCardClick = (video: Video) => {
-    // For now, just navigate to watch page
-    window.location.href = `/watch/${video.id}`;
-  };
+  // Video click handler removed - now handled by Link in VideoCard
 
   return (
     <>
@@ -201,9 +189,8 @@ const CategoryPage = () => {
         <meta name="publisher" content="Project Nightfall" />
       </Helmet>
 
-      <div className="bg-slate-950 text-slate-300 min-h-screen">
-        <main className="flex-1 lg:ml-64">
-          <div className="p-4 sm:p-6 lg:p-8">
+      <Layout currentPage="categories">
+        <div className="p-4 sm:p-6 lg:p-8">
             {/* Simple breadcrumb for now */}
             <nav className="flex mb-4" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-3">
@@ -277,19 +264,17 @@ const CategoryPage = () => {
                 <p className="text-slate-500 mt-2">Check back later for new content.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="professional-video-grid">
                 {filteredVideos.map((video) => (
                   <VideoCard
                     key={video.id}
                     video={video}
-                    onVideoCardClick={handleVideoCardClick}
                   />
                 ))}
               </div>
             )}
-          </div>
-        </main>
-      </div>
+        </div>
+      </Layout>
     </>
   );
 };

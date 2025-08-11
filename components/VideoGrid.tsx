@@ -4,23 +4,22 @@ import { Categories } from './Categories';
 import { Pagination } from './Pagination';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
-import { Video } from '../types';
+// Removed unused Video import
 import { MasterAdSlot } from './ads/MasterAdSlot';
 import { NativeAdCard } from './NativeAdCard';
 
 interface VideoGridProps {
     currentPage: PageType;
     searchQuery: string;
-    onVideoCardClick: (video: Video) => void;
     currentPageNum: number;
     onPageChange: (page: number) => void;
     totalVideos: number;
 }
 
-export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentPageNum, onPageChange, totalVideos: _totalVideos }: VideoGridProps): React.ReactNode {
+export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChange, totalVideos: _totalVideos }: VideoGridProps): React.ReactNode {
     // If we're on categories page, use the Categories component
     if (currentPage === 'categories') {
-        return <Categories searchQuery={searchQuery} onVideoCardClick={onVideoCardClick} />;
+        return <Categories searchQuery={searchQuery} />;
     }
 
     // Pagination constants
@@ -186,12 +185,11 @@ export function VideoGrid({ currentPage, searchQuery, onVideoCardClick, currentP
                         popAdsSiteId={1234567} // PopAds doesn't have banners, so this is a placeholder
                     />
 
-                    <div className="continuous-video-grid">
+                    <div className="professional-video-grid">
                         {paginatedVideos.map((video, index) => (
                             <React.Fragment key={`item-${video.id}`}>
                                 <VideoCard
                                     video={video}
-                                    onVideoCardClick={onVideoCardClick}
                                 />
                                 {/* After every 8th video, insert a Native Ad Card */}
                                 {(index + 1) % 8 === 0 && (

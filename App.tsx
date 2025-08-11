@@ -24,6 +24,15 @@ function AppContent(): React.ReactNode {
     const [isVerified, setIsVerified] = useLocalStorage('ageVerified', false);
     const [currentPage, setCurrentPage] = useState<PageType>('home');
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Handle URL parameters for page navigation
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageParam = urlParams.get('page') as PageType;
+        if (pageParam && ['home', 'trending', 'categories', 'top-rated'].includes(pageParam)) {
+            setCurrentPage(pageParam);
+        }
+    }, []);
     const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [currentPageNum, setCurrentPageNum] = useState(1);
@@ -43,7 +52,7 @@ function AppContent(): React.ReactNode {
     const [nextPage, setNextPage] = useState<PageType | null>(null);
 
     // Get ad engine functions
-    const { triggerPreRoll, triggerInterstitial } = useAdEngine();
+    const { triggerInterstitial } = useAdEngine();
 
     // Dynamic page title management
     useEffect(() => {
@@ -102,17 +111,8 @@ function AppContent(): React.ReactNode {
         };
     }, []); // Empty dependency array ensures this runs only once
 
-    // Race-condition-free modal flow handlers
-    const handleVideoCardClick = (video: Video) => {
-        if (triggerPreRoll()) {
-            // STEP 1: Set the video and trigger the 'preroll' step.
-            // This is a single, atomic state update that prevents race conditions.
-            setModalState({
-                step: 'preroll',
-                video: video,
-            });
-        }
-    };
+    // Modal flow handlers - now deprecated in favor of direct navigation
+    // Videos now navigate directly to /watch/:id pages
 
     const handleAdComplete = () => {
         // STEP 2: Transition from 'preroll' to 'content'.
@@ -135,6 +135,10 @@ function AppContent(): React.ReactNode {
     const handleNavigation = (page: PageType) => {
         // Reset pagination when changing pages
         setCurrentPageNum(1);
+
+        // Update URL to reflect the current page
+        const newUrl = page === 'home' ? '/' : `/?page=${page}`;
+        window.history.pushState({}, '', newUrl);
 
         // Rule: Show interstitial only if it hasn't been shown this session,
         // and the user is navigating away from the 'home' page.
@@ -165,6 +169,9 @@ function AppContent(): React.ReactNode {
         setShowInterstitial(false);
         if (nextPage) {
             setCurrentPage(nextPage);
+            // Update URL after ad closes
+            const newUrl = nextPage === 'home' ? '/' : `/?page=${nextPage}`;
+            window.history.pushState({}, '', newUrl);
             setNextPage(null);
         }
     };
@@ -202,7 +209,6 @@ function AppContent(): React.ReactNode {
                         <VideoGrid
                             currentPage={currentPage}
                             searchQuery={searchQuery}
-                            onVideoCardClick={handleVideoCardClick}
                             currentPageNum={currentPageNum}
                             onPageChange={setCurrentPageNum}
                             totalVideos={videos.length}

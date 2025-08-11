@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { videos } from '../../data/videos';
+import { Layout } from '../../components/Layout';
+import { getCategorySlug } from '../../utils/categoryUtils';
 import { Video } from '../../types';
 
 export function WatchPage() {
@@ -91,7 +93,7 @@ export function WatchPage() {
             "@type": "ListItem",
             "position": 2,
             "name": video.category,
-            "item": `https://project-nightfall.pages.dev/categories/${video.category.toLowerCase().replace(/\s+/g, '-')}`
+            "item": `https://project-nightfall.pages.dev/category/${getCategorySlug(video.category)}`
           },
           {
             "@type": "ListItem",
@@ -273,7 +275,7 @@ export function WatchPage() {
         <meta name="video:tag" content={video.tags?.join(', ') || ''} />
       </Helmet>
 
-      <div className="min-h-screen bg-slate-950 text-white">
+      <Layout>
         {/* Header with Navigation */}
         <header className="bg-slate-900 border-b border-slate-800 p-4">
           <div className="max-w-7xl mx-auto">
@@ -281,7 +283,7 @@ export function WatchPage() {
               <Link to="/" className="hover:text-white transition-colors">Home</Link>
               <span>/</span>
               <Link 
-                to={`/categories/${video.category.toLowerCase().replace(/\s+/g, '-')}`}
+                to={`/category/${getCategorySlug(video.category)}`}
                 className="hover:text-white transition-colors"
               >
                 {video.category}
@@ -407,7 +409,7 @@ export function WatchPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     </>
   );
 }
