@@ -21,6 +21,7 @@ export interface Video {
 export interface Category {
     id: string;
     name: string;
+    slug: string;
     description: string;
     videoCount: number;
 }

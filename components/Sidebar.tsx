@@ -1,5 +1,6 @@
 import React from 'react';
 import { affiliateBanners } from '../data/affiliates';
+import { categories } from '../data/categories';
 import { HomeIcon, FireIcon, VideoCameraIcon, StarIcon } from './icons/NavIcons';
 import { PageType } from '../App';
 
@@ -54,6 +55,27 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 {item.name}
                             </button>
                         ))}
+                        
+                        {/* Categories Section */}
+                        <div className="mt-6">
+                            <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                Categories
+                            </h3>
+                            {categories.map((category) => (
+                                <a
+                                    key={category.id}
+                                    href={`/category/${category.slug}`}
+                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left"
+                                    onClick={onMobileClose}
+                                >
+                                    <span className="mr-3 flex-shrink-0 h-2 w-2 bg-purple-500 rounded-full"></span>
+                                    {category.name}
+                                    <span className="ml-auto text-xs text-slate-500">
+                                        {category.videoCount}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
                     </nav>
                     <div className="p-4 space-y-4">
                         <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -114,6 +136,27 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 {item.name}
                             </button>
                         ))}
+                        
+                        {/* Categories Section */}
+                        <div className="mt-6">
+                            <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                Categories
+                            </h3>
+                            {categories.map((category) => (
+                                <a
+                                    key={category.id}
+                                    href={`/category/${category.slug}`}
+                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left"
+                                    onClick={onMobileClose}
+                                >
+                                    <span className="mr-3 flex-shrink-0 h-2 w-2 bg-purple-500 rounded-full"></span>
+                                    {category.name}
+                                    <span className="ml-auto text-xs text-slate-500">
+                                        {category.videoCount}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
                     </nav>
                     <div className="p-4 space-y-4">
                         <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
