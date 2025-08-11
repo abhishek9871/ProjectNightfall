@@ -6,3 +6,4 @@ Allow: /
 
 Sitemap: https://project-nightfall.pages.dev/sitemap.xml
 Sitemap: https://project-nightfall.pages.dev/video-sitemap.xml
+Sitemap: https://project-nightfall.pages.dev/category-sitemap.xml
