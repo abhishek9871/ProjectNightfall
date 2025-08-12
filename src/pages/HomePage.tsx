@@ -3,7 +3,6 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { VideoGrid } from '../../components/VideoGrid';
 import { Footer } from '../../components/Footer';
-import { LegalPages, LegalPageType } from '../../components/LegalPages';
 import { SEOHead } from '../../components/SEOHead';
 import { PageType } from '../../App';
 import { videos } from '../../data/videos';
@@ -12,7 +11,7 @@ import '../utils/webVitals';
 export default function HomePage(): React.ReactNode {
     const [currentPage, setCurrentPage] = useState<PageType>('home');
     const [searchQuery, setSearchQuery] = useState('');
-    const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
+
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [currentPageNum, setCurrentPageNum] = useState(1);
 
@@ -66,15 +65,10 @@ export default function HomePage(): React.ReactNode {
                             totalVideos={videos.length}
                         />
                     </div>
-                    <Footer onLegalPageOpen={setLegalPage} />
+                    <Footer />
                 </main>
             </div>
-            {legalPage && (
-                <LegalPages
-                    page={legalPage}
-                    onClose={() => setLegalPage(null)}
-                />
-            )}
+
         </div>
     );
 }

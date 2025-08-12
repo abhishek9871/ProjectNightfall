@@ -4,8 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PrivacyNotice } from './PrivacyNotice';
-import { LegalPages } from './LegalPages';
-import { PageType, LegalPageType } from '../types';
+import { PageType } from '../types';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -23,7 +22,7 @@ export function Layout({
     onSearchChange = () => { }
 }: LayoutProps): React.ReactNode {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
+
     const navigate = useNavigate();
 
     // Handle navigation - if no onPageChange provided, use router navigation
@@ -63,16 +62,11 @@ export function Layout({
                         onMobileMenuToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                     />
                     {children}
-                    <Footer onLegalPageOpen={setLegalPage} />
+                    <Footer />
                 </main>
             </div>
             <PrivacyNotice />
-            {legalPage && (
-                <LegalPages
-                    page={legalPage}
-                    onClose={() => setLegalPage(null)}
-                />
-            )}
+
         </div>
     );
 }
