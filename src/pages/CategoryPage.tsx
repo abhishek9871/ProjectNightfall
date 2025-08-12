@@ -1,21 +1,53 @@
 import { useMemo, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { categories } from '../../data/categories';
+import { specialtyClusters } from '../data/specialtyClusters';
 import { videos } from '../../data/videos';
 import { VideoCard } from '../../components/VideoCard';
+import { CategoryPagination } from '../../components/CategoryPagination';
 import { Layout } from '../../components/Layout';
 import { categoryContent } from '../data/categoryContent';
+import { getVideosForCluster } from '../utils/clusterAssignment';
 // Removed unused Video import
 
 // Removed unused BreadcrumbItem interface
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  // Pagination state - currently not used but ready for future implementation
-  // const [currentPageNum, setCurrentPageNum] = useState(1);
+  const [searchParams] = useSearchParams();
   
-  const category = categories.find(c => c.slug === slug);
+  // Pagination constants
+  const VIDEOS_PER_PAGE = 24;
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+
+  // Scroll to video grid when page changes (for direct URL navigation)
+  useEffect(() => {
+    if (currentPage > 1) {
+      // Small delay to ensure content is rendered
+      const timer = setTimeout(() => {
+        const videoGrid = document.querySelector('.professional-video-grid');
+        const mainContent = document.querySelector('main');
+        const targetElement = videoGrid || mainContent;
+        
+        if (targetElement) {
+          const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+          const offset = 100;
+          
+          window.scrollTo({
+            top: Math.max(0, elementTop - offset),
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentPage]);
+  
+  // Check both main categories and specialty clusters
+  const category = categories.find(c => c.slug === slug) || 
+                   specialtyClusters.find(c => c.slug === slug);
   
   if (!category) {
     return (
@@ -34,16 +66,41 @@ const CategoryPage = () => {
     );
   }
 
-  const filteredVideos = useMemo(() => {
-    return videos.filter(v => 
-      v.category.toLowerCase() === category.id.toLowerCase()
-    );
+  const allCategoryVideos = useMemo(() => {
+    // For specialty clusters, use the cluster assignment logic
+    const isSpecialtyCluster = specialtyClusters.some(c => c.id === category.id);
+    
+    if (isSpecialtyCluster) {
+      return getVideosForCluster(videos, category.id);
+    } else {
+      // For main categories, use the existing logic
+      return videos.filter(v => 
+        v.category.toLowerCase() === category.id.toLowerCase()
+      );
+    }
   }, [category.id]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(allCategoryVideos.length / VIDEOS_PER_PAGE);
+  const startIndex = (currentPage - 1) * VIDEOS_PER_PAGE;
+  const endIndex = startIndex + VIDEOS_PER_PAGE;
+  const paginatedVideos = allCategoryVideos.slice(startIndex, endIndex);
 
   // Get enriched content for this category
   const content = categoryContent[category.id] || categoryContent[category.slug];
-  const pageTitle = content?.title || `Best ${category.name} Videos - Project Nightfall`;
-  const metaDescription = content?.metaDescription || `Discover ${filteredVideos.length} of the best ${category.name} videos. ${category.description}`;
+  
+  // SEO-safe titles and descriptions with page numbers
+  const baseTitle = content?.title || `Best ${category.name} Videos - Project Nightfall`;
+  const baseDescription = content?.metaDescription || `Discover ${allCategoryVideos.length} of the best ${category.name} videos. ${category.description}`;
+  
+  const pageTitle = currentPage > 1 ? `${category.name} Videos - Page ${currentPage} | Project Nightfall` : baseTitle;
+  const metaDescription = currentPage > 1 ? `${category.name} videos page ${currentPage}. ${baseDescription}` : baseDescription;
+  
+  // Generate canonical and pagination URLs
+  const baseUrl = `https://project-nightfall.pages.dev/category/${slug}`;
+  const canonicalUrl = currentPage > 1 ? `${baseUrl}?page=${currentPage}` : baseUrl;
+  const prevUrl = currentPage > 2 ? `${baseUrl}?page=${currentPage - 1}` : (currentPage === 2 ? baseUrl : null);
+  const nextUrl = currentPage < totalPages ? `${baseUrl}?page=${currentPage + 1}` : null;
 
   // Generate comprehensive JSON-LD schema
   useEffect(() => {
@@ -60,15 +117,15 @@ const CategoryPage = () => {
         "@type": "WebPage",
         "name": pageTitle,
         "description": metaDescription,
-        "url": `https://project-nightfall.pages.dev/category/${slug}`,
+        "url": canonicalUrl,
         "mainEntity": {
           "@type": "ItemList",
-          "name": `${category.name} Videos`,
+          "name": `${category.name} Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
           "description": content.intro,
-          "numberOfItems": filteredVideos.length,
-          "itemListElement": filteredVideos.slice(0, 10).map((video, index) => ({
+          "numberOfItems": allCategoryVideos.length,
+          "itemListElement": paginatedVideos.slice(0, 10).map((video, index) => ({
             "@type": "VideoObject",
-            "position": index + 1,
+            "position": startIndex + index + 1,
             "name": video.title,
             "description": video.description,
             "thumbnailUrl": video.thumbnailUrl,
@@ -94,38 +151,43 @@ const CategoryPage = () => {
               "@type": "ListItem",
               "position": 2,
               "name": category.name,
-              "item": `https://project-nightfall.pages.dev/category/${slug}`
+              "item": baseUrl
             }
           ]
         }
       };
 
-      // 2. FAQ Schema
-      const faqSchema = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": content.faqs.map((faq: any) => ({
-          "@type": "Question",
-          "name": faq.q,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.a
-          }
-        }))
-      };
+      // 2. FAQ Schema - Only on page 1 where FAQ is visible
+      const schemas: any[] = [webPageSchema];
+      
+      if (currentPage === 1 && content.faqs && content.faqs.length > 0) {
+        const faqSchema = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": content.faqs.map((faq: any) => ({
+            "@type": "Question",
+            "name": faq.q,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.a
+            }
+          }))
+        };
+        schemas.push(faqSchema);
+      }
 
       // 3. CollectionPage Schema
       const collectionSchema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        "name": `${category.name} Porn Videos`,
+        "name": `${category.name} Porn Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
         "description": content.intro,
-        "url": `https://project-nightfall.pages.dev/category/${slug}`,
+        "url": canonicalUrl,
         "mainEntity": {
           "@type": "VideoGallery",
           "name": `${category.name} Video Collection`,
           "description": content.intro,
-          "numberOfItems": filteredVideos.length
+          "numberOfItems": allCategoryVideos.length
         },
         "publisher": {
           "@type": "Organization",
@@ -133,9 +195,9 @@ const CategoryPage = () => {
           "url": "https://project-nightfall.pages.dev"
         }
       };
+      schemas.push(collectionSchema);
 
       // Inject schemas
-      const schemas = [webPageSchema, faqSchema, collectionSchema];
       schemas.forEach((schema, index) => {
         const script = document.createElement('script');
         script.type = 'application/ld+json';
@@ -153,7 +215,7 @@ const CategoryPage = () => {
       const schemas = document.querySelectorAll('script[data-category-schema]');
       schemas.forEach(script => script.remove());
     };
-  }, [category, content, filteredVideos, pageTitle, metaDescription, slug]);
+  }, [category, content, paginatedVideos, pageTitle, metaDescription, canonicalUrl, currentPage, startIndex, allCategoryVideos.length, baseUrl]);
 
   // Video click handler removed - now handled by Link in VideoCard
 
@@ -163,7 +225,11 @@ const CategoryPage = () => {
         <title>{pageTitle}</title>
         <meta name="description" content={metaDescription} />
         <meta name="keywords" content={`${category.name.toLowerCase()}, ${category.name.toLowerCase()} porn, ${category.name.toLowerCase()} videos, ${category.name.toLowerCase()} sex, adult videos, porn videos, HD porn`} />
-        <link rel="canonical" href={`https://project-nightfall.pages.dev/category/${slug}`} />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Pagination Meta Tags */}
+        {prevUrl && <link rel="prev" href={prevUrl} />}
+        {nextUrl && <link rel="next" href={nextUrl} />}
         
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
@@ -172,7 +238,7 @@ const CategoryPage = () => {
         {/* Open Graph Meta Tags */}
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:url" content={`https://project-nightfall.pages.dev/category/${slug}`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Project Nightfall" />
         
@@ -219,9 +285,17 @@ const CategoryPage = () => {
             </nav>
             
             <div className="mb-8">
-              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                {category.name} Videos
-              </h1>
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-3xl lg:text-4xl font-bold text-white">
+                  {category.name} Videos
+                </h1>
+                <Link 
+                  to="/categories"
+                  className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                >
+                  Browse All Categories →
+                </Link>
+              </div>
               
               {/* Introductory Content */}
               {content?.intro && (
@@ -233,12 +307,16 @@ const CategoryPage = () => {
               )}
               
               <p className="text-slate-500 text-sm mb-6">
-                Discover {filteredVideos.length} of the best {category.name} videos.
+                {currentPage > 1 ? (
+                  <>Page {currentPage} of {totalPages} • Showing {paginatedVideos.length} of {allCategoryVideos.length} {category.name} videos</>
+                ) : (
+                  <>Discover {allCategoryVideos.length} of the best {category.name} videos</>
+                )}
               </p>
             </div>
 
-            {/* FAQ Section */}
-            {content?.faqs && content.faqs.length > 0 && (
+            {/* FAQ Section - Only on page 1 */}
+            {currentPage === 1 && content?.faqs && content.faqs.length > 0 && (
               <div className="bg-slate-900 rounded-lg p-6 mb-8">
                 <h2 className="text-2xl font-bold text-white mb-6">
                   Frequently Asked Questions
@@ -258,20 +336,56 @@ const CategoryPage = () => {
               </div>
             )}
 
-            {filteredVideos.length === 0 ? (
+            {/* Related Categories - Only on page 1 */}
+            {currentPage === 1 && (
+              <div className="bg-slate-900 rounded-lg p-6 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">Related Categories</h2>
+                <div className="flex flex-wrap gap-3">
+                  <Link 
+                    to="/categories"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Browse All Categories
+                  </Link>
+                  {[...categories, ...specialtyClusters]
+                    .filter(cat => cat.id !== category.id)
+                    .slice(0, 3)
+                    .map((relatedCat) => (
+                      <Link
+                        key={relatedCat.id}
+                        to={`/category/${relatedCat.slug}`}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700 hover:border-purple-500"
+                      >
+                        {relatedCat.name}
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {allCategoryVideos.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-slate-400 text-lg">No videos found in this category.</p>
                 <p className="text-slate-500 mt-2">Check back later for new content.</p>
               </div>
             ) : (
-              <div className="professional-video-grid">
-                {filteredVideos.map((video) => (
-                  <VideoCard
-                    key={video.id}
-                    video={video}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="professional-video-grid">
+                  {paginatedVideos.map((video) => (
+                    <VideoCard
+                      key={video.id}
+                      video={video}
+                    />
+                  ))}
+                </div>
+                
+                {/* Pagination */}
+                <CategoryPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  categorySlug={slug!}
+                />
+              </>
             )}
         </div>
       </Layout>

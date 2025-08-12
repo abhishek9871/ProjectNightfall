@@ -13,6 +13,8 @@
     "index:google": "node scripts/indexGoogle.js",
     "index:now": "node scripts/indexNow.js",
     "index:all": "node scripts/indexAllCategories.js",
+    "index:hub": "node scripts/indexHub.js",
+    "index:categories:changed": "node scripts/detectCategoryChanges.js",
     "test:indexing": "node scripts/testIndexing.js",
     "verify": "node scripts/verify-deployment.js",
     "deploy": "node scripts/deploy.js",

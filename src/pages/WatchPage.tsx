@@ -3,7 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { videos } from '../../data/videos';
 import { Layout } from '../../components/Layout';
-import { getCategorySlug } from '../../utils/categoryUtils';
+import { assignVideoToCluster } from '../utils/clusterAssignment';
+import { categories } from '../../data/categories';
+import { specialtyClusters } from '../data/specialtyClusters';
 import { Video } from '../../types';
 
 export function WatchPage() {
@@ -11,6 +13,13 @@ export function WatchPage() {
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
+
+  // Get the correct category info for a video (handles cluster assignment)
+  const getVideoCategory = (video: Video) => {
+    const clusterId = assignVideoToCluster(video);
+    const category = [...categories, ...specialtyClusters].find(c => c.id === clusterId);
+    return category || { id: clusterId, name: video.category, slug: clusterId };
+  };
 
   useEffect(() => {
     if (!id) {
@@ -23,10 +32,11 @@ export function WatchPage() {
     setVideo(foundVideo || null);
     setLoading(false);
 
-    // Get related videos from same category
+    // Get related videos from same cluster
     if (foundVideo) {
+      const videoClusterId = assignVideoToCluster(foundVideo);
       const related = videos
-        .filter(v => v.category === foundVideo.category && v.id !== foundVideo.id)
+        .filter(v => assignVideoToCluster(v) === videoClusterId && v.id !== foundVideo.id)
         .slice(0, 6);
       setRelatedVideos(related);
     }
@@ -78,7 +88,8 @@ export function WatchPage() {
         }
       };
 
-      // Generate BreadcrumbList schema
+      // Generate BreadcrumbList schema with correct category
+      const videoCategory = getVideoCategory(video);
       const breadcrumbSchema = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -92,8 +103,8 @@ export function WatchPage() {
           {
             "@type": "ListItem",
             "position": 2,
-            "name": video.category,
-            "item": `https://project-nightfall.pages.dev/category/${getCategorySlug(video.category)}`
+            "name": videoCategory.name,
+            "item": `https://project-nightfall.pages.dev/category/${videoCategory.slug}`
           },
           {
             "@type": "ListItem",
@@ -283,10 +294,10 @@ export function WatchPage() {
               <Link to="/" className="hover:text-white transition-colors">Home</Link>
               <span>/</span>
               <Link 
-                to={`/category/${getCategorySlug(video.category)}`}
+                to={`/category/${getVideoCategory(video).slug}`}
                 className="hover:text-white transition-colors"
               >
-                {video.category}
+                {getVideoCategory(video).name}
               </Link>
               <span>/</span>
               <span className="text-white truncate">{video.title}</span>
@@ -330,10 +341,16 @@ export function WatchPage() {
                   </span>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
                     {video.category}
                   </span>
+                  <Link 
+                    to="/categories"
+                    className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                  >
+                    Browse All Categories →
+                  </Link>
                 </div>
 
                 {video.tags && video.tags.length > 0 && (

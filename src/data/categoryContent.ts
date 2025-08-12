@@ -79,5 +79,86 @@ export const categoryContent: { [key: string]: any } = {
             { q: "Are the breasts real or fake?", a: "Our collection includes a mix of both! We tag videos to help you find exactly what you're looking for, whether you prefer the natural bounce of real breasts or the perfect shape of implants." },
             { q: "What is a 'titty fuck'?", a: "A titty fuck, or titjob, is a non-penetrative sex act where a man places his penis between a woman's breasts and thrusts to simulate intercourse, often leading to ejaculation on her chest." }
         ]
+    },
+    // Specialty Clusters Content
+    fetish: {
+        title: "Fetish Porn Videos & Kinky Sex Scenes | Project Nightfall",
+        metaDescription: "Explore specialized fetish porn videos featuring unique interests and kinky scenarios. Discover niche content for specific preferences and fantasies.",
+        intro: "Dive into the world of specialized interests and unique preferences with our fetish collection. This category celebrates the diversity of human sexuality, featuring content that caters to specific kinks and fantasies. From light bondage to unique scenarios, explore content that goes beyond mainstream preferences.",
+        faqs: [
+            { q: "What is fetish porn?", a: "Fetish porn focuses on specific objects, body parts, or scenarios that are sexually arousing to particular viewers. It encompasses a wide range of specialized interests and preferences." },
+            { q: "Is fetish content safe?", a: "All content is produced with full consent and safety measures. Professional studios follow strict guidelines to ensure performer safety and well-being." },
+            { q: "How diverse is the fetish category?", a: "Our fetish collection includes a wide variety of specialized content, from foot fetish to role-playing scenarios, catering to diverse interests and preferences." }
+        ]
+    },
+    threesome: {
+        title: "Threesome Porn Videos & Group Sex Scenes | Project Nightfall",
+        metaDescription: "Watch hot threesome porn videos featuring multiple partners. Explore MMF, FFM, and group sex scenarios with passionate performers in HD quality.",
+        intro: "Experience the excitement of multiple partner encounters with our threesome collection. From passionate FFM scenarios to intense MMF action, watch as performers explore the dynamics of group intimacy and shared pleasure.",
+        faqs: [
+            { q: "What types of threesomes are featured?", a: "Our collection includes FFM (two women, one man), MMF (two men, one woman), and same-gender threesome scenarios, offering variety for all preferences." },
+            { q: "How do performers coordinate in group scenes?", a: "Professional performers are experienced in group dynamics and communication, ensuring everyone is comfortable and the action flows naturally." },
+            { q: "Are these real threesomes?", a: "While professionally produced, these scenes feature genuine chemistry and authentic reactions between performers who are comfortable with group scenarios." }
+        ]
+    },
+    bbw: {
+        title: "BBW Porn Videos & Curvy Women Sex Scenes | Project Nightfall",
+        metaDescription: "Celebrate beautiful big women with our BBW porn collection. Watch curvy performers embrace their sexuality in passionate, body-positive adult content.",
+        intro: "Celebrate the beauty and sensuality of curvy women with our BBW collection. These confident performers embrace their bodies and sexuality, showcasing that beauty comes in all shapes and sizes. Experience passionate encounters that celebrate curves and confidence.",
+        faqs: [
+            { q: "What does BBW stand for?", a: "BBW stands for 'Big Beautiful Woman' and refers to plus-size women who are confident and comfortable with their bodies and sexuality." },
+            { q: "Is BBW porn body-positive?", a: "Yes, our BBW content celebrates body diversity and promotes positive representation of different body types in adult entertainment." },
+            { q: "What makes BBW content unique?", a: "BBW content focuses on the confidence and sensuality of curvy performers, often featuring passionate encounters that celebrate body positivity and self-acceptance." }
+        ]
+    },
+    mature: {
+        title: "Mature Porn Videos & Older Women Sex | Project Nightfall",
+        metaDescription: "Watch experienced mature women in passionate adult videos. Our collection features seasoned performers who know exactly what they want.",
+        intro: "Experience the confidence and skill that comes with maturity. Our mature category features experienced women who have embraced their sexuality and know exactly how to please and be pleased. These seasoned performers bring wisdom and passion to every encounter.",
+        faqs: [
+            { q: "What age range is considered mature?", a: "Our mature category typically features performers who are 40+ years old, focusing on experienced women who embody confidence and sexual wisdom." },
+            { q: "What makes mature content appealing?", a: "Mature performers often display greater confidence, experience, and comfort with their sexuality, creating more authentic and passionate encounters." },
+            { q: "Is mature different from MILF?", a: "While there's overlap, mature focuses more on age and experience, while MILF specifically emphasizes the 'mother' fantasy aspect." }
+        ]
+    },
+    interracial: {
+        title: "Interracial Porn Videos & Mixed Race Sex | Project Nightfall",
+        metaDescription: "Explore passionate interracial porn videos featuring diverse performers. Watch beautiful encounters that celebrate cultural diversity and attraction.",
+        intro: "Celebrate diversity and cross-cultural attraction with our interracial collection. These videos showcase the beauty of connections that transcend racial boundaries, featuring passionate encounters between performers of different ethnic backgrounds.",
+        faqs: [
+            { q: "What is interracial porn?", a: "Interracial porn features sexual encounters between performers of different racial or ethnic backgrounds, celebrating diversity in adult entertainment." },
+            { q: "Why is interracial content popular?", a: "Many viewers are attracted to the diversity and the breaking of social taboos, as well as the authentic chemistry between performers of different backgrounds." },
+            { q: "Is the content respectful?", a: "Yes, our interracial content focuses on genuine attraction and chemistry while avoiding stereotypes or disrespectful portrayals." }
+        ]
+    },
+    cosplay: {
+        title: "Cosplay Porn Videos & Fantasy Costume Sex | Project Nightfall",
+        metaDescription: "Dive into fantasy with cosplay porn videos featuring performers in costumes and character roleplay. Explore your favorite fantasy scenarios.",
+        intro: "Bring your fantasies to life with our cosplay collection. Watch as performers transform into beloved characters and fantasy figures, creating immersive experiences that blend costume play with passionate encounters.",
+        faqs: [
+            { q: "What is cosplay porn?", a: "Cosplay porn features performers dressed as fictional characters from anime, video games, movies, or other media, often incorporating roleplay elements." },
+            { q: "What types of characters are featured?", a: "Our collection includes a wide range of characters from popular anime, video games, superheroes, and fantasy genres, catering to diverse fan interests." },
+            { q: "Is the roleplay authentic?", a: "Many performers are genuine fans of the characters they portray, bringing authentic enthusiasm and attention to detail to their performances." }
+        ]
+    },
+    hardcore: {
+        title: "Hardcore Porn Videos & Intense Sex Scenes | Project Nightfall",
+        metaDescription: "Experience the most intense hardcore porn videos featuring passionate and energetic performers in high-energy adult scenes.",
+        intro: "For those who crave intensity and passion, our hardcore collection delivers the most energetic and intense adult content. These scenes feature performers who bring maximum energy and enthusiasm to their encounters.",
+        faqs: [
+            { q: "What defines hardcore porn?", a: "Hardcore porn typically features explicit sexual acts with high energy, intensity, and passion, often including more vigorous or athletic sexual positions." },
+            { q: "Is hardcore content safe?", a: "Yes, all content is produced with full consent and safety measures, with experienced performers who are comfortable with intense scenarios." },
+            { q: "What can I expect from hardcore scenes?", a: "Expect high-energy encounters with passionate performers, intense chemistry, and explicit sexual acts performed with enthusiasm and skill." }
+        ]
+    },
+    misc: {
+        title: "Specialty Adult Videos & Unique Content | Project Nightfall",
+        metaDescription: "Discover unique and specialty adult content that doesn't fit traditional categories. Explore diverse and creative adult entertainment.",
+        intro: "Explore our specialty collection featuring unique content that defies traditional categorization. This diverse selection includes creative scenarios, artistic adult content, and innovative approaches to adult entertainment.",
+        faqs: [
+            { q: "What type of content is in the specialty category?", a: "This category includes unique, creative, or artistic adult content that doesn't fit neatly into traditional categories, offering something different for adventurous viewers." },
+            { q: "How often is specialty content updated?", a: "We regularly add new and unique content to this category, ensuring there's always something fresh and different to discover." },
+            { q: "Is specialty content experimental?", a: "Some content may be more artistic or experimental in nature, offering viewers a chance to explore different styles and approaches to adult entertainment." }
+        ]
     }
 };

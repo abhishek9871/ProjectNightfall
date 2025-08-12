@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Video } from '../types';
 import { getUserCountry, getVideoUrl } from '../utils/geoDetector';
+import { assignVideoToCluster } from '../src/utils/clusterAssignment';
+import { categories } from '../data/categories';
+import { specialtyClusters } from '../src/data/specialtyClusters';
 
 interface VideoCardProps {
     video: Video;
@@ -11,6 +14,15 @@ interface VideoCardProps {
 export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCardClick'>): React.ReactNode => {
     const [_country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+    // Get the correct category info for the video (handles cluster assignment)
+    const getVideoCategory = () => {
+        const clusterId = assignVideoToCluster(video);
+        const category = [...categories, ...specialtyClusters].find(c => c.id === clusterId);
+        return category || { id: clusterId, name: video.category, slug: clusterId };
+    };
+
+    const videoCategory = getVideoCategory();
 
     // Extract full title from sourceDescription, fallback to title
     const getFullTitle = (video: Video): string => {
@@ -170,7 +182,7 @@ export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCar
                     />
                     {/* Category badge */}
                     <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
-                        {video.category}
+                        {videoCategory.name}
                     </div>
                     {/* Play button overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">

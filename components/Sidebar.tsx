@@ -43,18 +43,29 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                 </div>
                 <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
-                        {navigation.map((item) => (
-                            <button
-                                key={item.name}
-                                onClick={() => onPageChange(item.page)}
-                                className={`${
-                                    currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
-                                } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
-                            >
-                                <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
-                                {item.name}
-                            </button>
-                        ))}
+                        {navigation.map((item) => 
+                            item.name === 'Categories' ? (
+                                <a
+                                    key={item.name}
+                                    href="/categories"
+                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left"
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </a>
+                            ) : (
+                                <button
+                                    key={item.name}
+                                    onClick={() => onPageChange(item.page)}
+                                    className={`${
+                                        currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </button>
+                            )
+                        )}
                         
                         {/* Categories Section */}
                         <div className="mt-6">
@@ -124,18 +135,30 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                 </div>
                 <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
-                        {navigation.map((item) => (
-                            <button
-                                key={item.name}
-                                onClick={() => handleNavClick(item.page)}
-                                className={`${
-                                    currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
-                                } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
-                            >
-                                <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
-                                {item.name}
-                            </button>
-                        ))}
+                        {navigation.map((item) => 
+                            item.name === 'Categories' ? (
+                                <a
+                                    key={item.name}
+                                    href="/categories"
+                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left"
+                                    onClick={onMobileClose}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </a>
+                            ) : (
+                                <button
+                                    key={item.name}
+                                    onClick={() => handleNavClick(item.page)}
+                                    className={`${
+                                        currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </button>
+                            )
+                        )}
                         
                         {/* Categories Section */}
                         <div className="mt-6">

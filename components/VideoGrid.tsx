@@ -1,12 +1,9 @@
 import React, { useMemo, useEffect } from 'react';
 import { VideoCard } from './VideoCard';
-import { Categories } from './Categories';
 import { Pagination } from './Pagination';
 import { videos } from '../data/videos';
 import { PageType } from '../App';
 // Removed unused Video import
-import { MasterAdSlot } from './ads/MasterAdSlot';
-import { NativeAdCard } from './NativeAdCard';
 
 interface VideoGridProps {
     currentPage: PageType;
@@ -17,10 +14,6 @@ interface VideoGridProps {
 }
 
 export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChange, totalVideos: _totalVideos }: VideoGridProps): React.ReactNode {
-    // If we're on categories page, use the Categories component
-    if (currentPage === 'categories') {
-        return <Categories searchQuery={searchQuery} />;
-    }
 
     // Pagination constants
     const VIDEOS_PER_PAGE = 24;
