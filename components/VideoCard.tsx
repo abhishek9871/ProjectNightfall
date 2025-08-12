@@ -156,52 +156,54 @@ export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCar
             />
             <Link 
                 to={`/watch/${video.id}`}
-                className="video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer w-full flex flex-col h-full block"
+                className="video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer block h-full"
                 onMouseEnter={handleVideoHover}
                 onTouchStart={handleVideoHover}
                 onClick={handleCardClick}
             >
-            <div className="relative aspect-video bg-slate-900/70 overflow-hidden">
-                <img 
-                    src={thumbnailUrl}
-                    alt={fullTitle}
-                    className="absolute inset-0 w-full h-full object-cover"
-                />
-                {/* Category badge */}
-                <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
-                    {video.category}
-                </div>
-                {/* Play button overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                    <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                        <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
+            <div className="flex flex-col h-full">
+                <div className="relative aspect-video bg-slate-900/70 overflow-hidden">
+                    <img 
+                        src={thumbnailUrl}
+                        alt={fullTitle}
+                        className="w-full h-full object-cover"
+                    />
+                    {/* Category badge */}
+                    <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
+                        {video.category}
+                    </div>
+                    {/* Play button overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                        <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    {/* Duration badge */}
+                    <div className="absolute bottom-2 right-2 bg-black/90 text-white text-xs px-2 py-0.5 rounded-md font-medium">
+                        {video.duration}
                     </div>
                 </div>
-                {/* Duration badge */}
-                <div className="absolute bottom-2 right-2 bg-black/90 text-white text-xs px-2 py-0.5 rounded-md font-medium">
-                    {video.duration}
-                </div>
-            </div>
-            <div className="p-3 flex flex-col h-full">
-                <div className="flex-grow mb-2">
-                    <h3 className="font-semibold text-sm text-white group-hover:text-purple-400 transition-colors leading-tight video-title line-clamp-2">
-                        {fullTitle}
-                    </h3>
-                </div>
-                
-                {/* Rating */}
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-0.5">
-                        {renderStars(video.rating)}
+                <div className="p-3 flex flex-col flex-grow">
+                    <div className="flex-grow mb-2">
+                        <h3 className="font-semibold text-sm text-white group-hover:text-purple-400 transition-colors leading-tight video-title">
+                            {fullTitle}
+                        </h3>
                     </div>
-                    <span className="text-xs text-slate-400">({video.rating})</span>
-                </div>
-                
-                <div className="flex justify-between items-center text-xs text-slate-400">
-                    <span className="font-medium">{video.views}</span>
-                    <span className="text-purple-400 font-medium">Watch Now</span>
+                    
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-0.5">
+                            {renderStars(video.rating)}
+                        </div>
+                        <span className="text-xs text-slate-400">({video.rating})</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-xs text-slate-400 mt-auto">
+                        <span className="font-medium">{video.views}</span>
+                        <span className="text-purple-400 font-medium">Watch Now</span>
+                    </div>
                 </div>
             </div>
         </Link>

@@ -178,50 +178,39 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
                 </div>
             ) : (
                 <>
-                    {/* Banner ad above video list */}
-                    <MasterAdSlot
-                        adType="banner"
-                        exoClickZoneId="5695448" // Use the real Banner Zone ID
-                        popAdsSiteId={1234567} // PopAds doesn't have banners, so this is a placeholder
-                    />
-
+                    {/* First batch of videos (PERFECT GRID) */}
                     <div className="professional-video-grid">
-                        {paginatedVideos.map((video, index) => (
-                            <React.Fragment key={`item-${video.id}`}>
+                        {paginatedVideos.slice(0, 8).map((video) => (
+                            <VideoCard
+                                key={video.id}
+                                video={video}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Second batch of videos (PERFECT GRID) */}
+                    {paginatedVideos.length > 8 && (
+                        <div className="professional-video-grid">
+                            {paginatedVideos.slice(8, 16).map((video) => (
                                 <VideoCard
+                                    key={video.id}
                                     video={video}
                                 />
-                                {/* After every 8th video, insert a Native Ad Card */}
-                                {(index + 1) % 8 === 0 && (
-                                    <NativeAdCard
-                                        widgetZoneId="YOUR_EXOCLICK_NATIVE_ZONE_ID" // CRITICAL: Replace
-                                        widgetFormat="1x1" // Standard format for a single ad card
-                                    />
-                                )}
-                                {/* Popunder trigger every 5th video */}
-                                {(index + 1) % 5 === 0 && (
-                                    <div className="col-span-full my-4">
-                                        <MasterAdSlot
-                                            adType="popunder"
-                                            exoClickZoneId="5695452" // Use the real Popunder Zone ID
-                                            popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
-                                        />
-                                    </div>
-                                )}
-                            </React.Fragment>
-                        ))}
+                            ))}
+                        </div>
+                    )}
 
-                        {/* Ads placed strategically without breaking flow */}
-                        {paginatedVideos.length > 8 && (
-                            <div className="ad-slot-inline">
-                                <MasterAdSlot
-                                    adType="popunder"
-                                    exoClickZoneId="5695452" // Use the real Popunder Zone ID
-                                    popAdsSiteId={1234567} // Replace with your actual PopAds Site ID
+                    {/* Remaining videos (PERFECT GRID) */}
+                    {paginatedVideos.length > 16 && (
+                        <div className="professional-video-grid">
+                            {paginatedVideos.slice(16).map((video) => (
+                                <VideoCard
+                                    key={video.id}
+                                    video={video}
                                 />
-                            </div>
-                        )}
-                    </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Pagination Component */}
                     <Pagination

@@ -114,10 +114,3 @@ body {
   background-color: #a855f7;
 }
 
-/* Line clamp utility for consistent text truncation */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
