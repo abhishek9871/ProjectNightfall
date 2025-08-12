@@ -82,6 +82,29 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separate vendor chunks for better caching
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['@headlessui/react'],
+          }
+        }
+      },
+      // Optimize chunk size
+      chunkSizeWarningLimit: 1000,
+      // Enable source maps for production debugging
+      sourcemap: false,
+      // Minify for production
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        }
+      }
     }
   };
 });

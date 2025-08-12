@@ -171,12 +171,13 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
                 </div>
             ) : (
                 <>
-                    {/* First batch of videos (PERFECT GRID) */}
+                    {/* First batch of videos (PERFECT GRID) - Priority loading for LCP */}
                     <div className="professional-video-grid">
-                        {paginatedVideos.slice(0, 8).map((video) => (
+                        {paginatedVideos.slice(0, 8).map((video, index) => (
                             <VideoCard
                                 key={video.id}
                                 video={video}
+                                priority={index < 4} // First 4 videos get priority loading
                             />
                         ))}
                     </div>

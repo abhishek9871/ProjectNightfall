@@ -9,9 +9,10 @@ import { specialtyClusters } from '../src/data/specialtyClusters';
 interface VideoCardProps {
     video: Video;
     onVideoCardClick: (video: Video) => void;
+    priority?: boolean; // New prop for LCP optimization
 }
 
-export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCardClick'>): React.ReactNode => {
+export const VideoCard = React.memo(({ video, priority = false }: Omit<VideoCardProps, 'onVideoCardClick'> & { priority?: boolean }): React.ReactNode => {
     const [_country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -179,6 +180,10 @@ export const VideoCard = React.memo(({ video }: Omit<VideoCardProps, 'onVideoCar
                         src={thumbnailUrl}
                         alt={fullTitle}
                         className="w-full h-full object-cover"
+                        width="400"
+                        height="225"
+                        loading={priority ? "eager" : "lazy"}
+                        fetchPriority={priority ? "high" : "auto"}
                     />
                     {/* Category badge */}
                     <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
