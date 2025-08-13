@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { VideoCard } from './VideoCard';
 import { Pagination } from './Pagination';
 import { videos } from '../data/videos';
-import { PageType } from '../App';
+import { PageType } from '../types';
 // Removed unused Video import
 
 interface VideoGridProps {
@@ -83,22 +83,7 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
                     return scoreB - scoreA;
                 });
                 break;
-            case 'top-rated':
-                // Sort by rating first, then by views
-                filtered.sort((a, b) => {
-                    if (b.rating !== a.rating) {
-                        return b.rating - a.rating;
-                    }
-                    const getViews = (viewStr: string) => {
-                        const match = viewStr.match(/(\d+\.?\d*)(K|M)/);
-                        if (!match) return 0;
-                        const num = parseFloat(match[1]);
-                        const unit = match[2];
-                        return unit === 'M' ? num * 1000000 : num * 1000;
-                    };
-                    return getViews(b.views) - getViews(a.views);
-                });
-                break;
+
             default:
                 // Home - show a curated mix (highest rated + most viewed)
                 filtered.sort((a, b) => {
@@ -135,8 +120,7 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
         switch (currentPage) {
             case 'trending':
                 return 'Trending Videos';
-            case 'top-rated':
-                return 'Top Rated Videos';
+
             default:
                 return 'Featured Videos';
         }
@@ -146,8 +130,7 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
         switch (currentPage) {
             case 'trending':
                 return 'Most popular videos trending right now';
-            case 'top-rated':
-                return 'Highest rated videos by our community';
+
             default:
                 return 'Hand-picked premium content just for you';
         }

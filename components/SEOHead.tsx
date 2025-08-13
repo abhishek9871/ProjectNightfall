@@ -33,10 +33,10 @@ export function SEOHead({
                 };
             case 'top-rated':
                 return {
-                    title: 'Top Rated Adult Videos - Project Nightfall',
-                    description: 'Explore the highest rated adult videos chosen by our community. Premium quality content with 5-star ratings.',
+                    title: 'Top Rated Videos | The Best of Project Nightfall',
+                    description: 'Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly.',
                     url: `${baseUrl}/top-rated`,
-                    keywords: 'top rated videos, best adult content, 5 star videos, premium adult videos'
+                    keywords: 'top rated videos, best adult content, 5 star videos, premium adult videos, highest rated, community choice'
                 };
             case 'categories':
                 const categoryTitle = categoryName ? `${categoryName} Videos` : 'Adult Video Categories';

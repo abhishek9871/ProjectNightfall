@@ -214,7 +214,7 @@ function AppContent(): React.ReactNode {
                             totalVideos={videos.length}
                         />
                     </div>
-                    <Footer onLegalPageOpen={setLegalPage} />
+                    <Footer />
                 </main>
             </div>
             <PrivacyNotice />

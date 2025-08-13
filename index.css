@@ -7,6 +7,9 @@
 /* Opera/Edge layout fixes */
 @import url('./src/styles/opera-edge.css');
 
+/* Top Rated page optimizations */
+@import url('./src/styles/topRated.css');
+
 /* Basic styles for Live Server compatibility */
 * {
   margin: 0;

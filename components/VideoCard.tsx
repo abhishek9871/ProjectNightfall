@@ -8,11 +8,13 @@ import { specialtyClusters } from '../src/data/specialtyClusters';
 
 interface VideoCardProps {
     video: Video;
-    onVideoCardClick: (video: Video) => void;
+    onVideoCardClick?: (video: Video) => void;
     priority?: boolean; // New prop for LCP optimization
+    compact?: boolean; // New prop for compact display
+    fetchPriority?: "high" | "low" | "auto"; // New prop for fetch priority
 }
 
-export const VideoCard = React.memo(({ video, priority = false }: Omit<VideoCardProps, 'onVideoCardClick'> & { priority?: boolean }): React.ReactNode => {
+export const VideoCard = React.memo(({ video, priority = false, compact = false, fetchPriority = "auto" }: Omit<VideoCardProps, 'onVideoCardClick'> & { priority?: boolean; compact?: boolean; fetchPriority?: "high" | "low" | "auto" }): React.ReactNode => {
     const [_country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -169,7 +171,7 @@ export const VideoCard = React.memo(({ video, priority = false }: Omit<VideoCard
             />
             <Link 
                 to={`/watch/${video.id}`}
-                className="video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer block h-full"
+                className={`video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer block h-full ${compact ? 'compact-card' : ''}`}
                 onMouseEnter={handleVideoHover}
                 onTouchStart={handleVideoHover}
                 onClick={handleCardClick}
@@ -183,7 +185,7 @@ export const VideoCard = React.memo(({ video, priority = false }: Omit<VideoCard
                         width="400"
                         height="225"
                         loading={priority ? "eager" : "lazy"}
-                        fetchPriority={priority ? "high" : "auto"}
+                        fetchPriority={fetchPriority}
                     />
                     {/* Category badge */}
                     <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">

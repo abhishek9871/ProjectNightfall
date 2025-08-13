@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { affiliateBanners } from '../data/affiliates';
 import { categories } from '../data/categories';
 import { HomeIcon, FireIcon, VideoCameraIcon, StarIcon } from './icons/NavIcons';
@@ -12,16 +13,25 @@ interface SidebarProps {
 }
 
 const navigation = [
-    { name: 'Home', icon: HomeIcon, page: 'home' as PageType },
-    { name: 'Trending', icon: FireIcon, page: 'trending' as PageType },
-    { name: 'Categories', icon: VideoCameraIcon, page: 'categories' as PageType },
-    { name: 'Top Rated', icon: StarIcon, page: 'top-rated' as PageType },
+    { name: 'Home', icon: HomeIcon, page: 'home' as PageType, path: '/' },
+    { name: 'Trending', icon: FireIcon, page: 'trending' as PageType, path: '/?page=trending' },
+    { name: 'Categories', icon: VideoCameraIcon, page: 'categories' as PageType, path: '/categories' },
+    { name: 'Top Rated', icon: StarIcon, page: 'top-rated' as PageType, path: '/top-rated' },
 ];
 
 export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose }: SidebarProps): React.ReactNode {
+    const location = useLocation();
+    
     const handleNavClick = (page: PageType) => {
         onPageChange(page);
         onMobileClose(); // Close mobile sidebar after navigation
+    };
+
+    const isActive = (item: typeof navigation[0]) => {
+        if (item.page === 'top-rated') {
+            return location.pathname === '/top-rated';
+        }
+        return currentPage === item.page;
     };
 
     return (
@@ -53,12 +63,24 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
                                 </a>
+                            ) : item.name === 'Top Rated' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/top-rated"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </Link>
                             ) : (
                                 <button
                                     key={item.name}
-                                    onClick={() => onPageChange(item.page)}
+                                    onClick={() => handleNavClick(item.page)}
                                     className={`${
-                                        currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
@@ -146,12 +168,24 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
                                 </a>
+                            ) : item.name === 'Top Rated' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/top-rated"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                </Link>
                             ) : (
                                 <button
                                     key={item.name}
                                     onClick={() => handleNavClick(item.page)}
                                     className={`${
-                                        currentPage === item.page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />

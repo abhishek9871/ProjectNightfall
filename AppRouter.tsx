@@ -14,6 +14,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 const HomePage = React.lazy(() => import('./src/pages/HomePage'));
 const CategoryHub = React.lazy(() => import('./src/pages/CategoryHub'));
 const CategoryPage = React.lazy(() => import('./src/pages/CategoryPage'));
+const TopRatedPage = React.lazy(() => import('./src/pages/TopRatedPage').then(module => ({ default: module.TopRatedPage })));
 const WatchPage = React.lazy(() => import('./src/pages/WatchPage').then(module => ({ default: module.WatchPage })));
 
 // Legal and trust pages
@@ -42,6 +43,7 @@ function AppContent(): React.ReactNode {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/categories" element={<CategoryHub />} />
+          <Route path="/top-rated" element={<TopRatedPage />} />
           <Route path="/watch/:id" element={<WatchPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           

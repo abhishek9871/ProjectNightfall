@@ -1,0 +1,271 @@
+/* Top Rated Page Optimizations */
+
+/* Compact card styling for recently top-rated section */
+.compact-card {
+    @apply transform transition-transform duration-200;
+}
+
+.compact-card:hover {
+    @apply scale-105;
+}
+
+/* Professional video grid with perfect aspect ratios */
+.professional-video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+    .professional-video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .professional-video-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .professional-video-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Ensure consistent aspect ratios for CLS prevention */
+.video-card-container .aspect-video {
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-card-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Loading animation for smooth transitions */
+.loading-shimmer {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Enhanced star ratings with better visibility */
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+}
+
+.star-rating svg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Trust signals styling */
+.trust-signal {
+    @apply flex items-center justify-center p-4 rounded-lg bg-slate-800/50 border border-slate-700/50;
+    transition: all 0.2s ease-in-out;
+}
+
+.trust-signal:hover {
+    @apply bg-slate-800/70 border-slate-600/50 transform scale-105;
+}
+
+/* Performance indicator animation */
+.performance-indicator {
+    position: relative;
+    overflow: hidden;
+}
+
+.performance-indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
+    animation: scan 2s infinite;
+}
+
+@keyframes scan {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Mobile-optimized touch targets */
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .professional-video-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Accessibility improvements */
+.video-card-container:focus {
+    @apply outline-none ring-2 ring-purple-500 ring-offset-2 ring-offset-slate-950;
+}
+
+.video-card-container:focus-visible {
+    @apply outline-none ring-2 ring-purple-500 ring-offset-2 ring-offset-slate-950;
+}
+
+/* Smooth scroll behavior for pagination */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Enhanced hover effects for better UX */
+.video-card-container {
+    transform-origin: center;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+.video-card-container:hover {
+    transform: translateY(-2px);
+}
+
+/* Loading states */
+.skeleton-loader {
+    @apply bg-slate-800 rounded animate-pulse;
+}
+
+.skeleton-text {
+    @apply bg-slate-700 rounded h-4 animate-pulse;
+}
+
+/* Time filter buttons */
+.time-filter-button {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 touch-target;
+}
+
+.time-filter-button.active {
+    @apply bg-purple-600 text-white shadow-lg transform scale-105;
+}
+
+.time-filter-button:not(.active) {
+    @apply bg-slate-800 text-slate-300;
+}
+
+.time-filter-button:not(.active):hover {
+    @apply bg-slate-700 text-white transform scale-105;
+}
+
+/* Results summary styling */
+.results-summary {
+    @apply text-sm text-slate-400 mb-6 p-3 bg-slate-900/50 rounded-lg border border-slate-800/50;
+}
+
+/* Enhanced pagination for mobile */
+@media (max-width: 640px) {
+    .pagination-container {
+        @apply flex-col space-y-4;
+    }
+    
+    .pagination-buttons {
+        @apply justify-center;
+    }
+    
+    .pagination-info {
+        @apply text-center;
+    }
+}
+
+/* Core Web Vitals optimizations */
+.video-thumbnail {
+    content-visibility: auto;
+    contain-intrinsic-size: 400px 225px;
+}
+
+/* Reduce layout shift with proper sizing */
+.video-card-container {
+    contain: layout style paint;
+}
+
+/* Optimize paint performance */
+.video-card-container .overlay {
+    will-change: opacity;
+    transform: translateZ(0);
+}
+
+/* Preload critical resources */
+.critical-resource {
+    font-display: swap;
+}
+
+/* Enhanced focus management */
+.skip-link {
+    @apply absolute -top-10 left-4 bg-purple-600 text-white px-4 py-2 rounded-md z-50 transition-all;
+}
+
+.skip-link:focus {
+    @apply top-4;
+}
+
+/* Print styles for accessibility */
+@media print {
+    .video-card-container {
+        @apply break-inside-avoid;
+    }
+    
+    .pagination-container {
+        @apply hidden;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .video-card-container {
+        @apply border-2 border-white;
+    }
+    
+    .star-rating svg {
+        filter: none;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .video-card-container,
+    .time-filter-button,
+    .trust-signal {
+        transition: none;
+        animation: none;
+    }
+    
+    .loading-shimmer {
+        animation: none;
+        background: #334155;
+    }
+    
+    .performance-indicator::before {
+        animation: none;
+    }
+}
