@@ -315,9 +315,16 @@ export function WatchPage() {
                   <iframe
                     src={video.embedUrls[0]}
                     className="w-full h-full"
-                    frameBorder="0"
-                    allowFullScreen
                     title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                    allowFullScreen
+                    loading="eager"
+                    referrerPolicy="origin-when-cross-origin"
+                    style={{
+                      border: 'none',
+                      outline: 'none'
+                    }}
                   />
                 </div>
               </div>
