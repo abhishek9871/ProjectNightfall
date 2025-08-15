@@ -8,13 +8,12 @@ import { specialtyClusters } from '../src/data/specialtyClusters';
 
 interface VideoCardProps {
     video: Video;
-    onVideoCardClick?: (video: Video) => void;
     priority?: boolean; // New prop for LCP optimization
     compact?: boolean; // New prop for compact display
     fetchPriority?: "high" | "low" | "auto"; // New prop for fetch priority
 }
 
-export const VideoCard = React.memo(({ video, priority = false, compact = false, fetchPriority = "auto" }: Omit<VideoCardProps, 'onVideoCardClick'> & { priority?: boolean; compact?: boolean; fetchPriority?: "high" | "low" | "auto" }): React.ReactNode => {
+export const VideoCard = React.memo(({ video, priority = false, compact = false, fetchPriority = "auto" }: VideoCardProps): React.ReactNode => {
     const [_country, setCountry] = useState<string>('US');
     const preloadIframeRef = useRef<HTMLIFrameElement | null>(null);
 

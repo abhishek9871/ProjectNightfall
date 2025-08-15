@@ -6,8 +6,6 @@ import { VideoGrid } from './components/VideoGrid';
 import { Footer } from './components/Footer';
 import { PrivacyNotice } from './components/PrivacyNotice';
 import { LegalPages, LegalPageType } from './components/LegalPages';
-import { PreRollModal } from './components/PreRollModal';
-import { ModalPlayer } from './components/ModalPlayer';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Analytics from './components/Analytics';
 import { SEOHead } from './components/SEOHead';
@@ -15,7 +13,6 @@ import { AdStrategyProvider } from './components/AdStrategyProvider';
 import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { InterstitialAd } from './components/InterstitialAd';
 import { AdEngineProvider, useAdEngine } from './src/contexts/AdEngineContext';
-import { Video } from './types';
 import { videos } from './data/videos';
 
 export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
@@ -37,15 +34,7 @@ function AppContent(): React.ReactNode {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [currentPageNum, setCurrentPageNum] = useState(1);
 
-    // Unified modal state to prevent race conditions
-    type ModalState = {
-        step: 'idle' | 'preroll' | 'content';
-        video: Video | null;
-    };
-    const [modalState, setModalState] = useState<ModalState>({
-        step: 'idle',
-        video: null,
-    });
+
 
     // Interstitial ad state
     const [showInterstitial, setShowInterstitial] = useState(false);
@@ -58,9 +47,7 @@ function AppContent(): React.ReactNode {
     useEffect(() => {
         let title = 'Project Nightfall - Curated Adult Entertainment';
 
-        if (modalState.step === 'content' && modalState.video) {
-            title = `${modalState.video.title} - Project Nightfall`;
-        } else if (currentPage === 'categories') {
+        if (currentPage === 'categories') {
             // For categories page, we'll use a generic title since we don't have access to selected category here
             title = 'Categories - Project Nightfall';
         } else if (currentPage === 'trending') {
@@ -72,7 +59,7 @@ function AppContent(): React.ReactNode {
         }
 
         document.title = title;
-    }, [currentPage, modalState.step, modalState.video]);
+    }, [currentPage]);
 
     // DNS prefetching for Xvideos domains to reduce connection time
     React.useEffect(() => {
@@ -114,22 +101,7 @@ function AppContent(): React.ReactNode {
     // Modal flow handlers - now deprecated in favor of direct navigation
     // Videos now navigate directly to /watch/:id pages
 
-    const handleAdComplete = () => {
-        // STEP 2: Transition from 'preroll' to 'content'.
-        // The selected video is already correctly set in the state.
-        setModalState((prevState) => ({
-            ...prevState,
-            step: 'content',
-        }));
-    };
 
-    const handleCloseContentModal = () => {
-        // STEP 3: Reset the entire flow back to 'idle'.
-        setModalState({
-            step: 'idle',
-            video: null,
-        });
-    };
 
     // Navigation handler with interstitial logic
     const handleNavigation = (page: PageType) => {
@@ -185,9 +157,6 @@ function AppContent(): React.ReactNode {
             <SEOHead 
                 currentPage={currentPage}
                 searchQuery={searchQuery}
-                videoTitle={modalState.video?.title}
-                videoDescription={modalState.video?.description}
-                videoThumbnail={modalState.video?.thumbnailUrl}
             />
             <Analytics />
             <AdStrategyProvider />
@@ -225,22 +194,7 @@ function AppContent(): React.ReactNode {
                 />
             )}
 
-            {/* Pre-roll ad modal */}
-            {modalState.step === 'preroll' && modalState.video && (
-                <PreRollModal
-                    vastTagUrl="https://s.magsrv.com/v1/vast.php?idzone=5692184"
-                    onAdComplete={handleAdComplete}
-                />
-            )}
 
-            {/* Main video content modal */}
-            {modalState.step === 'content' && modalState.video && (
-                <ModalPlayer
-                    video={modalState.video}
-                    isOpen={modalState.step === 'content'}
-                    onClose={handleCloseContentModal}
-                />
-            )}
 
             {/* Interstitial Ad */}
             {showInterstitial && (
