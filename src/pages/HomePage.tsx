@@ -37,6 +37,11 @@ export default function HomePage(): React.ReactNode {
         setCurrentPageNum(1);
     }, [searchQuery]);
 
+    // Scroll to top when navigating between different page types (home, trending, etc.)
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
+
     return (
         <div className="bg-slate-950 text-slate-300 min-h-screen">
             <SEOHead

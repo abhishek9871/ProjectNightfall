@@ -181,6 +181,15 @@ export function SEOHead({
 
         updateTwitterTag('twitter:title', pageMeta.title);
         updateTwitterTag('twitter:description', pageMeta.description);
+        
+        // Add adult content rating meta tag (Google requirement)
+        let ratingTag = document.querySelector('meta[name="rating"]');
+        if (!ratingTag) {
+            ratingTag = document.createElement('meta');
+            ratingTag.setAttribute('name', 'rating');
+            ratingTag.setAttribute('content', 'adult');
+            document.head.appendChild(ratingTag);
+        }
 
     }, [currentPage, searchQuery, categoryName]);
 

@@ -1,7 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import sitemap from 'vite-plugin-sitemap';
+// import sitemap from 'vite-plugin-sitemap'; // Removed - using custom scripts
 import compression from 'vite-plugin-compression';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -10,53 +10,36 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      sitemap({
-        hostname: 'https://project-nightfall.pages.dev',
-        dynamicRoutes: [
-          '/',
-          '/trending',
-          '/top-rated',
-          '/categories',
-          '/categories/amateur',
-          '/categories/ebony',
-          '/categories/lesbian',
-          '/categories/group',
-          '/categories/roleplay',
-          '/categories/office',
-          '/categories/gaming',
-          '/categories/desi',
-          '/categories/college',
-          '/categories/teen',
-          '/categories/latin',
-          '/categories/romance',
-          '/categories/asian',
-          '/categories/couple',
-          '/categories/fitness',
-          '/categories/outdoor',
-          '/categories/bdsm',
-          '/categories/cheating',
-          '/categories/massage',
-          '/categories/vintage',
-          '/categories/milf'
-        ],
-        changefreq: 'daily',
-        priority: 0.8,
-        lastmod: new Date(),
-        generateRobotsTxt: false
-      }),
+      // Removed vite-plugin-sitemap - using custom scripts for accurate URLs
       compression(),
       VitePWA({
         registerType: 'autoUpdate',
         strategies: 'generateSW',
         workbox: {
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/video-sitemap\.xml$/, /^\/robots\.txt$/, /\.(xml|txt)$/],
-          globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico}'], // Exclude XML/TXT
-          globIgnores: ['**/*.{xml,txt}'], // Double exclusion
+          navigateFallbackDenylist: [
+            /^\/sitemap\.xml$/,
+            /^\/video-sitemap\.xml$/,
+            /^\/category-sitemap\.xml$/,
+            /^\/robots\.txt$/,
+            /\.(xml|txt)$/
+          ],
+          globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico}'],
+          globIgnores: ['**/*.{xml,txt}'],
+          // Completely bypass service worker for XML/TXT files
           runtimeCaching: [{
             urlPattern: ({ url }) => url.pathname.endsWith('.xml') || url.pathname.endsWith('.txt'),
-            handler: 'NetworkOnly', // Bypass SW for sitemaps
+            handler: 'NetworkOnly',
           }],
+          // Exclude XML files from precaching
+          manifestTransforms: [
+            (manifestEntries) => {
+              const manifest = manifestEntries.filter(
+                entry => !entry.url.endsWith('.xml') && !entry.url.endsWith('.txt')
+              );
+              return { manifest };
+            }
+          ]
         },
         manifest: {
           name: 'Project Nightfall',

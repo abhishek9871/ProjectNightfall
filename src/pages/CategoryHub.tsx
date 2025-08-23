@@ -1,16 +1,105 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '../../components/Layout';
 import { VideoCard } from '../../components/VideoCard';
+import { Pagination } from '../../components/Pagination';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../data/specialtyClusters';
 import { videos } from '../../data/videos';
-import { computeCategoryCounts } from '../utils/clusterAssignment';
+import { computeCategoryCounts, assignVideoToCluster } from '../utils/clusterAssignment';
+import { useSearch } from '../contexts/SearchContext';
 
 const CategoryHub = () => {
+  const { searchQuery } = useSearch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Pagination constants
+  const VIDEOS_PER_PAGE = 24;
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+  
+  // Handle page change by updating URL params
+  const onPageChange = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newParams.delete('page');
+    } else {
+      newParams.set('page', page.toString());
+    }
+    setSearchParams(newParams);
+  };
+  
   // Compute dynamic video counts
   const categoryCounts = useMemo(() => computeCategoryCounts(videos), []);
+  
+  // Enhanced search-aware video filtering
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    
+    const query = searchQuery.toLowerCase();
+    let filtered = [...videos];
+    
+    // Find if search query matches any category name
+    const allCategories = [...categories, ...specialtyClusters];
+    const matchingCategory = allCategories.find(cat => 
+      cat.name.toLowerCase().includes(query) ||
+      cat.slug.toLowerCase().includes(query) ||
+      cat.id.toLowerCase().includes(query)
+    );
+    
+    if (matchingCategory) {
+      // Category search: get all videos assigned to this category + text matches
+      const categoryVideos = filtered.filter(video => 
+        assignVideoToCluster(video) === matchingCategory.id
+      );
+      
+      const textMatchVideos = filtered.filter(video =>
+        video.title.toLowerCase().includes(query) ||
+        video.tags.some(tag => tag.toLowerCase().includes(query)) ||
+        video.category.toLowerCase().includes(query) ||
+        video.description.toLowerCase().includes(query)
+      );
+      
+      // Combine and deduplicate
+      const videoIds = new Set();
+      filtered = [...categoryVideos, ...textMatchVideos].filter(video => {
+        if (videoIds.has(video.id)) return false;
+        videoIds.add(video.id);
+        return true;
+      });
+    } else {
+      // Regular text search
+      filtered = filtered.filter(video =>
+        video.title.toLowerCase().includes(query) ||
+        video.tags.some(tag => tag.toLowerCase().includes(query)) ||
+        video.category.toLowerCase().includes(query) ||
+        video.description.toLowerCase().includes(query)
+      );
+    }
+    
+    // Sort by relevance (rating + views)
+    return filtered.sort((a, b) => {
+      const getViews = (viewStr: string) => {
+        const match = viewStr.match(/(\d+\.?\d*)(K|M)/);
+        if (!match) return 0;
+        const num = parseFloat(match[1]);
+        const unit = match[2];
+        return unit === 'M' ? num * 1000000 : num * 1000;
+      };
+      
+      const scoreA = (a.rating * 500000) + getViews(a.views);
+      const scoreB = (b.rating * 500000) + getViews(b.views);
+      return scoreB - scoreA;
+    }); // Removed .slice(0, 24) limit
+  }, [searchQuery]);
+  
+  // Calculate paginated search results
+  const paginatedSearchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const startIndex = (currentPage - 1) * VIDEOS_PER_PAGE;
+    const endIndex = startIndex + VIDEOS_PER_PAGE;
+    return searchResults.slice(startIndex, endIndex);
+  }, [searchResults, currentPage, searchQuery]);
   
   // Get popular videos from last 7 days (or best available metric)
   const popularVideos = useMemo(() => {
@@ -157,102 +246,161 @@ const CategoryHub = () => {
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
                   </svg>
                   <span className="text-sm font-medium text-slate-300" aria-current="page">
-                    All Categories
+                    {searchQuery ? `Search Results for "${searchQuery}"` : 'All Categories'}
                   </span>
                 </div>
               </li>
             </ol>
           </nav>
 
-          {/* Header */}
+          {/* Dynamic Header */}
           <div className="mb-8">
-            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Browse All Video Categories
-            </h1>
-            
-            {/* Quick Answer Intro */}
-            <div className="bg-slate-900 rounded-lg p-6 mb-6">
-              <p className="text-slate-300 leading-relaxed text-lg">
-                Explore our comprehensive collection of adult video categories, featuring 8 premium pillars and specialty collections. 
-                Navigate through curated content organized by popularity, themes, and viewer preferences for easy discovery.
-              </p>
-              <p className="text-slate-500 text-sm mt-2">
-                Last updated: {currentDate}
-              </p>
-            </div>
+            {searchQuery ? (
+              <>
+                <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 mobile-text-container mobile-safe">
+                  Search "{searchQuery}" - All Categories
+                </h1>
+                <div className="bg-slate-900 rounded-lg p-6 mb-6">
+                  <p className="text-slate-300 leading-relaxed text-lg">
+                    Found {searchResults.length} videos matching your search criteria across all categories.
+                  </p>
+                  {searchResults.length > VIDEOS_PER_PAGE && (
+                    <p className="text-slate-500 text-sm mt-2">
+                      Showing {Math.min((currentPage - 1) * VIDEOS_PER_PAGE + 1, searchResults.length)} - {Math.min(currentPage * VIDEOS_PER_PAGE, searchResults.length)} of {searchResults.length} results
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 mobile-text-container mobile-safe">
+                  Browse All Video Categories
+                </h1>
+                <div className="bg-slate-900 rounded-lg p-6 mb-6">
+                  <p className="text-slate-300 leading-relaxed text-lg">
+                    Explore our comprehensive collection of adult video categories, featuring 8 premium pillars and specialty collections. 
+                    Navigate through curated content organized by popularity, themes, and viewer preferences for easy discovery.
+                  </p>
+                  <p className="text-slate-500 text-sm mt-2">
+                    Last updated: {currentDate}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Featured Categories (8 Core Pillars) */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Featured Categories</h2>
-            <div className="professional-video-grid">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  to={`/category/${category.slug}`}
-                  className="bg-slate-800 hover:bg-slate-700 rounded-lg p-6 transition-all hover:scale-105 border border-slate-700 hover:border-purple-500 h-full flex flex-col"
-                >
-                  <h3 className="font-semibold text-white mb-2 text-lg">{category.name}</h3>
-                  <p className="text-sm text-slate-400 mb-4 flex-grow">{category.description}</p>
-                  <span className="text-sm text-purple-400 font-medium">
-                    {categoryCounts[category.id] || category.videoCount} videos
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Specialty Collections */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Specialty Collections</h2>
-            <div className="professional-video-grid">
-              {specialtyClusters.map((cluster) => (
-                <Link
-                  key={cluster.id}
-                  to={`/category/${cluster.slug}`}
-                  className="bg-slate-800 hover:bg-slate-700 rounded-lg p-6 transition-all hover:scale-105 border border-slate-700 hover:border-purple-500 h-full flex flex-col"
-                >
-                  <h3 className="font-semibold text-white mb-2 text-lg">{cluster.name}</h3>
-                  <p className="text-sm text-slate-400 mb-4 flex-grow">{cluster.description}</p>
-                  <span className="text-sm text-purple-400 font-medium">
-                    {categoryCounts[cluster.id] || 0} videos
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Popular This Week */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Popular This Week</h2>
-            <div className="professional-video-grid">
-              {popularVideos.map((video) => (
-                <VideoCard
-                  key={video.id}
-                  video={video}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* FAQ Section */}
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
-            <div className="bg-slate-900 rounded-lg p-6">
-              <div className="space-y-6">
-                {faqs.map((faq, index) => (
-                  <div key={index} className="border-b border-slate-800 pb-4 last:border-b-0 last:pb-0">
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {faq.question}
-                    </h3>
-                    <p className="text-slate-300 leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </div>
+          {/* Show search results if searching */}
+          {searchQuery && searchResults.length > 0 && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-white mb-6">Search Results</h2>
+              <div className="professional-video-grid">
+                {paginatedSearchResults.map((video) => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                  />
                 ))}
               </div>
-            </div>
-          </section>
+              
+              {/* Pagination for search results */}
+              {searchResults.length > VIDEOS_PER_PAGE && (
+                <Pagination
+                  totalItems={searchResults.length}
+                  itemsPerPage={VIDEOS_PER_PAGE}
+                  currentPage={currentPage}
+                  onPageChange={onPageChange}
+                />
+              )}
+            </section>
+          )}
+
+          {/* Show "No results" if searching but no results */}
+          {searchQuery && searchResults.length === 0 && (
+            <section className="mb-12">
+              <div className="text-center py-12">
+                <p className="text-slate-400 text-lg">No videos found matching "{searchQuery}".</p>
+                <p className="text-slate-500 mt-2">Try adjusting your search terms or browse categories below.</p>
+              </div>
+            </section>
+          )}
+
+          {/* Show categories only when not searching or no results */}
+          {(!searchQuery || searchResults.length === 0) && (
+            <>
+              {/* Featured Categories (8 Core Pillars) */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold text-white mb-6">Featured Categories</h2>
+                <div className="professional-video-grid">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.id}
+                      to={`/category/${category.slug}`}
+                      className="bg-slate-800 hover:bg-slate-700 rounded-lg p-6 transition-all hover:scale-105 border border-slate-700 hover:border-purple-500 h-full flex flex-col"
+                    >
+                      <h3 className="font-semibold text-white mb-2 text-lg">{category.name}</h3>
+                      <p className="text-sm text-slate-400 mb-4 flex-grow">{category.description}</p>
+                      <span className="text-sm text-purple-400 font-medium">
+                        {categoryCounts[category.id] || category.videoCount} videos
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* Specialty Collections */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold text-white mb-6">Specialty Collections</h2>
+                <div className="professional-video-grid">
+                  {specialtyClusters.map((cluster) => (
+                    <Link
+                      key={cluster.id}
+                      to={`/category/${cluster.slug}`}
+                      className="bg-slate-800 hover:bg-slate-700 rounded-lg p-6 transition-all hover:scale-105 border border-slate-700 hover:border-purple-500 h-full flex flex-col"
+                    >
+                      <h3 className="font-semibold text-white mb-2 text-lg">{cluster.name}</h3>
+                      <p className="text-sm text-slate-400 mb-4 flex-grow">{cluster.description}</p>
+                      <span className="text-sm text-purple-400 font-medium">
+                        {categoryCounts[cluster.id] || 0} videos
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* Popular This Week */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold text-white mb-6">Popular This Week</h2>
+                <div className="professional-video-grid">
+                  {popularVideos.map((video) => (
+                    <VideoCard
+                      key={video.id}
+                      video={video}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* FAQ Section */}
+              <section className="mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
+                <div className="bg-slate-900 rounded-lg p-6">
+                  <div className="space-y-6">
+                    {faqs.map((faq, index) => (
+                      <div key={index} className="border-b border-slate-800 pb-4 last:border-b-0 last:pb-0">
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          {faq.question}
+                        </h3>
+                        <p className="text-slate-300 leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
         </div>
       </Layout>
     </>

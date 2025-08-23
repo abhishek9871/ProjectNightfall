@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface CategoryPaginationProps {
     currentPage: number;
@@ -8,39 +8,25 @@ interface CategoryPaginationProps {
 }
 
 export function CategoryPagination({ currentPage, totalPages, categorySlug }: CategoryPaginationProps): React.ReactNode {
+    const [searchParams] = useSearchParams();
 
     if (totalPages <= 1) return null;
 
-    // Scroll to video grid section when pagination is clicked
-    const scrollToVideoGrid = () => {
-        // Find the video grid or main content area
-        const videoGrid = document.querySelector('.professional-video-grid');
-        const mainContent = document.querySelector('main');
-        const targetElement = videoGrid || mainContent;
-
-        if (targetElement) {
-            // Scroll to the element with some offset for better UX
-            const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
-            const offset = 100; // Offset from top for better visibility
-
-            window.scrollTo({
-                top: Math.max(0, elementTop - offset),
-                behavior: 'smooth'
-            });
-        } else {
-            // Fallback: scroll to top
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-    };
+    // Scroll handling now managed by CategoryPage useEffect for consistent behavior
 
     const generatePageUrl = (page: number): string => {
+        const params = new URLSearchParams(searchParams);
+        
         if (page === 1) {
-            return `/category/${categorySlug}`;
+            params.delete('page');
+        } else {
+            params.set('page', page.toString());
         }
-        return `/category/${categorySlug}?page=${page}`;
+        
+        const queryString = params.toString();
+        const baseUrl = `/category/${categorySlug}`;
+        
+        return queryString ? `${baseUrl}?${queryString}` : baseUrl;
     };
 
     const getVisiblePages = (): number[] => {
@@ -87,25 +73,27 @@ export function CategoryPagination({ currentPage, totalPages, categorySlug }: Ca
 
     return (
         <nav className="flex justify-center mt-12 mb-8" aria-label="Category pagination">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
                 {/* Previous Button */}
                 {currentPage > 1 ? (
                     <Link
                         to={generatePageUrl(currentPage - 1)}
-                        onClick={scrollToVideoGrid}
-                        className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+                        className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label="Previous page"
                     >
-                        ← Previous
+                        <span className="hidden sm:inline">← Previous</span>
+                        <span className="sm:hidden">‹</span>
                     </Link>
                 ) : (
-                    <span className="px-3 py-2 text-sm font-medium text-slate-500 bg-slate-900 border border-slate-800 rounded-lg cursor-not-allowed">
-                        ← Previous
+                    <span className="px-3 py-2 text-sm font-medium text-slate-500 bg-slate-900 border border-slate-800 rounded-lg cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <span className="hidden sm:inline">← Previous</span>
+                        <span className="sm:hidden">‹</span>
                     </span>
                 )}
 
                 {/* Page Numbers */}
-                {visiblePages.map((page, index) => {
+                <div className="flex items-center space-x-1">
+                    {visiblePages.map((page, index) => {
                     if (page === -1) {
                         // Ellipsis
                         return (
@@ -120,7 +108,7 @@ export function CategoryPagination({ currentPage, totalPages, categorySlug }: Ca
                         return (
                             <span
                                 key={page}
-                                className="px-3 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg"
+                                className="px-3 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
                                 aria-current="page"
                             >
                                 {page}
@@ -133,28 +121,29 @@ export function CategoryPagination({ currentPage, totalPages, categorySlug }: Ca
                         <Link
                             key={page}
                             to={generatePageUrl(page)}
-                            onClick={scrollToVideoGrid}
-                            className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+                            className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                             aria-label={`Go to page ${page}`}
                         >
                             {page}
                         </Link>
                     );
-                })}
+                    })}
+                </div>
 
                 {/* Next Button */}
                 {currentPage < totalPages ? (
                     <Link
                         to={generatePageUrl(currentPage + 1)}
-                        onClick={scrollToVideoGrid}
-                        className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+                        className="px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label="Next page"
                     >
-                        Next →
+                        <span className="hidden sm:inline">Next →</span>
+                        <span className="sm:hidden">›</span>
                     </Link>
                 ) : (
-                    <span className="px-3 py-2 text-sm font-medium text-slate-500 bg-slate-900 border border-slate-800 rounded-lg cursor-not-allowed">
-                        Next →
+                    <span className="px-3 py-2 text-sm font-medium text-slate-500 bg-slate-900 border border-slate-800 rounded-lg cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <span className="hidden sm:inline">Next →</span>
+                        <span className="sm:hidden">›</span>
                     </span>
                 )}
             </div>

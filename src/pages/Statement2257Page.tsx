@@ -1,51 +1,15 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
-import { Sidebar } from '../../components/Sidebar';
-import { Header } from '../../components/Header';
-import { Footer } from '../../components/Footer';
-import { PageType } from '../../types';
+import { Layout } from '../../components/Layout';
 
 export default function Statement2257Page(): React.ReactNode {
-    const navigate = useNavigate();
-
-    const handlePageChange = (page: PageType) => {
-        switch (page) {
-            case 'home':
-                navigate('/');
-                break;
-            case 'trending':
-            case 'top-rated':
-                navigate(`/?page=${page}`);
-                break;
-            case 'categories':
-                navigate('/categories');
-                break;
-            default:
-                navigate('/');
-        }
-    };
-
     return (
-        <div className="bg-slate-950 text-slate-300 min-h-screen">
+        <Layout currentPage="home">
             <Helmet>
                 <title>18 U.S.C. 2257 Compliance Statement | Project Nightfall</title>
                 <meta name="description" content="View the 18 U.S.C. 2257 Record-Keeping Requirements Compliance Statement for all content featured on Project Nightfall." />
             </Helmet>
-            <div className="flex">
-                <Sidebar
-                    currentPage="home"
-                    onPageChange={handlePageChange}
-                    isMobileOpen={false}
-                    onMobileClose={() => {}}
-                />
-                <main className="flex-1 lg:ml-64">
-                    <Header
-                        searchQuery=""
-                        onSearchChange={() => {}}
-                        onMobileMenuToggle={() => {}}
-                    />
-                    <div className="container mx-auto p-4 text-white max-w-4xl">
+            <div className="container mx-auto p-4 text-white max-w-4xl">
                         <h1 className="text-3xl lg:text-4xl font-bold mb-6">18 U.S.C. 2257 Compliance Statement</h1>
                         <div className="space-y-6 text-gray-300">
                             <h2 className="text-2xl font-semibold text-white">Age Verification and Record-Keeping Compliance</h2>
@@ -92,10 +56,7 @@ export default function Statement2257Page(): React.ReactNode {
                             
                             <p className="text-sm text-gray-400 italic">This compliance statement is effective as of {new Date().toLocaleDateString()} and supersedes all previous versions.</p>
                         </div>
-                    </div>
-                    <Footer />
-                </main>
             </div>
-        </div>
+        </Layout>
     );
 }

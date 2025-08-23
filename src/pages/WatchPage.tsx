@@ -6,13 +6,16 @@ import { Layout } from '../../components/Layout';
 import { assignVideoToCluster } from '../utils/clusterAssignment';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../data/specialtyClusters';
+import { useSearch } from '../contexts/SearchContext';
 import { Video } from '../../types';
 
 export function WatchPage() {
   const { id } = useParams();
+  const { searchQuery } = useSearch();
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
+  const [searchResults, setSearchResults] = useState<Video[]>([]);
 
   // Get the correct category info for a video (handles cluster assignment)
   const getVideoCategory = (video: Video) => {
@@ -41,6 +44,75 @@ export function WatchPage() {
       setRelatedVideos(related);
     }
   }, [id]);
+
+  // Enhanced search functionality for watch page
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    let filtered = [...videos];
+    
+    // Find if search query matches any category name
+    const allCategories = [...categories, ...specialtyClusters];
+    const matchingCategory = allCategories.find(cat => 
+      cat.name.toLowerCase().includes(query) ||
+      cat.slug.toLowerCase().includes(query) ||
+      cat.id.toLowerCase().includes(query)
+    );
+    
+    if (matchingCategory) {
+      // Category search: get all videos assigned to this category + text matches
+      const categoryVideos = filtered.filter(video => 
+        assignVideoToCluster(video) === matchingCategory.id
+      );
+      
+      const textMatchVideos = filtered.filter(video =>
+        video.title.toLowerCase().includes(query) ||
+        video.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        video.category.toLowerCase().includes(query)
+      );
+      
+      // Combine and deduplicate
+      const videoIds = new Set();
+      filtered = [...categoryVideos, ...textMatchVideos].filter(video => {
+        if (videoIds.has(video.id)) return false;
+        videoIds.add(video.id);
+        return true;
+      });
+    } else {
+      // Regular text search
+      filtered = filtered.filter(video =>
+        video.title.toLowerCase().includes(query) ||
+        video.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        video.category.toLowerCase().includes(query)
+      );
+    }
+    
+    // Exclude current video from search results
+    if (video) {
+      filtered = filtered.filter(v => v.id !== video.id);
+    }
+    
+    // Sort by relevance and limit to 12 results
+    const sortedResults = filtered.sort((a, b) => {
+      const getViews = (viewStr: string) => {
+        const match = viewStr.match(/(\d+\.?\d*)(K|M)/);
+        if (!match) return 0;
+        const num = parseFloat(match[1]);
+        const unit = match[2];
+        return unit === 'M' ? num * 1000000 : num * 1000;
+      };
+      
+      const scoreA = (a.rating * 500000) + getViews(a.views);
+      const scoreB = (b.rating * 500000) + getViews(b.views);
+      return scoreB - scoreA;
+    }).slice(0, 12);
+    
+    setSearchResults(sortedResults);
+  }, [searchQuery, video]);
 
   // Enhanced JSON-LD Schema injection using direct DOM manipulation
   useEffect(() => {
@@ -300,38 +372,42 @@ export function WatchPage() {
                 {getVideoCategory(video).name}
               </Link>
               <span>/</span>
-              <span className="text-white truncate">{video.title}</span>
+              <span className="text-white truncate mobile-text-container mobile-safe">{video.title}</span>
             </nav>
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto p-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="max-w-7xl mx-auto p-4 watch-page-container">
+          <div className="mobile-grid-container lg:grid lg:grid-cols-3 lg:gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Video Player */}
-              <div className="bg-slate-900 rounded-lg overflow-hidden mb-6">
+              <div className="bg-slate-900 rounded-lg overflow-hidden mb-6 mobile-video-container">
                 <div className="aspect-video">
                   <iframe
                     src={video.embedUrls[0]}
                     className="w-full h-full"
                     title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                    allowFullScreen
-                    loading="eager"
                     referrerPolicy="no-referrer-when-downgrade"
-                    sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-presentation"
+                    sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-presentation allow-fullscreen"
+                    allowFullScreen
+                    frameBorder="0"
+                    loading="eager"
                     style={{
                       border: 'none',
-                      outline: 'none'
+                      outline: 'none',
+                      width: '100%',
+                      maxWidth: '100%',
+                      height: '100%',
+                      display: 'block'
                     }}
                   />
                 </div>
               </div>
 
               {/* Video Info */}
-              <div className="bg-slate-900 rounded-lg p-6">
-                <h1 className="text-2xl font-bold mb-4">{video.title}</h1>
+              <div className="bg-slate-900 rounded-lg p-6 mobile-compact">
+                <h1 className="text-2xl font-bold mb-4 mobile-text-container mobile-safe">{video.title}</h1>
                 
                 <div className="flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-400">
                   <span className="flex items-center gap-1">
@@ -373,7 +449,7 @@ export function WatchPage() {
                   </div>
                 )}
 
-                <div className="text-slate-300 leading-relaxed">
+                <div className="text-slate-300 leading-relaxed mobile-text-container mobile-safe">
                   {video.description}
                 </div>
 
@@ -395,40 +471,82 @@ export function WatchPage() {
               </div>
             </div>
 
-            {/* Related Videos Sidebar */}
-            <div className="lg:col-span-1">
+            {/* Related Videos or Search Results Sidebar */}
+            <div className="lg:col-span-1 related-videos-mobile mobile-safe">
               <div className="bg-slate-900 rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4">Related Videos</h2>
-                <div className="space-y-4">
-                  {relatedVideos.map((relatedVideo) => (
-                    <Link
-                      key={relatedVideo.id}
-                      to={`/watch/${relatedVideo.id}`}
-                      className="block group"
-                    >
-                      <div className="flex gap-3">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={relatedVideo.thumbnailUrl}
-                            alt={relatedVideo.title}
-                            className="w-24 h-16 object-cover rounded group-hover:opacity-80 transition-opacity"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium text-white group-hover:text-red-400 transition-colors line-clamp-2">
-                            {relatedVideo.title}
-                          </h3>
-                          <p className="text-xs text-slate-400 mt-1">
-                            {relatedVideo.views}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {relatedVideo.duration}
-                          </p>
-                        </div>
+                {searchQuery ? (
+                  <>
+                    <h2 className="text-xl font-bold mb-4">Search Results for "{searchQuery}"</h2>
+                    {searchResults.length > 0 ? (
+                      <div className="space-y-4">
+                        {searchResults.map((searchVideo) => (
+                          <Link
+                            key={searchVideo.id}
+                            to={`/watch/${searchVideo.id}`}
+                            className="block group"
+                          >
+                            <div className="flex gap-3">
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={searchVideo.thumbnailUrl}
+                                  alt={searchVideo.title}
+                                  className="w-24 h-16 object-cover rounded group-hover:opacity-80 transition-opacity"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-sm font-medium text-white group-hover:text-red-400 transition-colors line-clamp-2">
+                                  {searchVideo.title}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-1">
+                                  {searchVideo.views}
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                  {searchVideo.duration}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
                       </div>
-                    </Link>
-                  ))}
-                </div>
+                    ) : (
+                      <p className="text-slate-400 text-sm">No results found for "{searchQuery}"</p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold mb-4">Related Videos</h2>
+                    <div className="space-y-4">
+                      {relatedVideos.map((relatedVideo) => (
+                        <Link
+                          key={relatedVideo.id}
+                          to={`/watch/${relatedVideo.id}`}
+                          className="block group"
+                        >
+                          <div className="flex gap-3">
+                            <div className="flex-shrink-0">
+                              <img
+                                src={relatedVideo.thumbnailUrl}
+                                alt={relatedVideo.title}
+                                className="w-24 h-16 object-cover rounded group-hover:opacity-80 transition-opacity"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-medium text-white group-hover:text-red-400 transition-colors line-clamp-2">
+                                {relatedVideo.title}
+                              </h3>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {relatedVideo.views}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {relatedVideo.duration}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

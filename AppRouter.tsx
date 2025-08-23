@@ -8,6 +8,7 @@ import Analytics from './components/Analytics';
 import { AdStrategyProvider } from './components/AdStrategyProvider';
 import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { AdEngineProvider } from './src/contexts/AdEngineContext';
+import { SearchProvider } from './src/contexts/SearchContext';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Lazy load page components for code splitting
@@ -28,7 +29,26 @@ const Statement2257Page = React.lazy(() => import('./src/pages/Statement2257Page
 function AppContent(): React.ReactNode {
   const [isVerified, setIsVerified] = useLocalStorage('ageVerified', false);
 
-  if (!isVerified) {
+  // Detect search engine bots and bypass age gate
+  const isBot = React.useMemo(() => {
+    if (typeof window === 'undefined') return true; // SSR
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const botPatterns = [
+      'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+      'yandexbot', 'facebookexternalhit', 'twitterbot', 'rogerbot',
+      'linkedinbot', 'embedly', 'quora link preview', 'showyoubot',
+      'outbrain', 'pinterest/0.', 'developers.google.com/+/web/snippet',
+      'www.google.com/webmasters/tools/richsnippets', 'slackbot', 'vkshare',
+      'w3c_validator', 'redditbot', 'applebot', 'whatsapp', 'flipboard',
+      'tumblr', 'bitlybot', 'skypeuripreview', 'nuzzel', 'discordbot',
+      'google page speed', 'qwantify', 'pinterestbot', 'bitrix link preview',
+      'xing-contenttabreceiver', 'chrome-lighthouse', 'telegrambot'
+    ];
+    return botPatterns.some(pattern => userAgent.includes(pattern));
+  }, []);
+
+  // Bypass age gate for bots and verified users
+  if (!isVerified && !isBot) {
     return <AgeGate onVerified={() => setIsVerified(true)} />;
   }
 
@@ -39,8 +59,9 @@ function AppContent(): React.ReactNode {
       <AggressiveAdStrategy />
       <PrivacyNotice />
 
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
+      <SearchProvider>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/categories" element={<CategoryHub />} />
           <Route path="/top-rated" element={<TopRatedPage />} />
@@ -55,7 +76,8 @@ function AppContent(): React.ReactNode {
           <Route path="/dmca" element={<DMCAPage />} />
           <Route path="/2257-statement" element={<Statement2257Page />} />
         </Routes>
-      </Suspense>
+        </Suspense>
+      </SearchProvider>
     </>
   );
 }

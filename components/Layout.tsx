@@ -5,24 +5,21 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { PrivacyNotice } from './PrivacyNotice';
 import { PageType } from '../types';
+import { useSearch } from '../src/contexts/SearchContext';
 
 interface LayoutProps {
     children: React.ReactNode;
     currentPage?: PageType;
     onPageChange?: (page: PageType) => void;
-    searchQuery?: string;
-    onSearchChange?: (query: string) => void;
 }
 
 export function Layout({
     children,
     currentPage = 'home',
-    onPageChange,
-    searchQuery = '',
-    onSearchChange = () => { }
+    onPageChange
 }: LayoutProps): React.ReactNode {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
+    const { searchQuery, setSearchQuery } = useSearch();
     const navigate = useNavigate();
 
     // Handle navigation - if no onPageChange provided, use router navigation
@@ -58,7 +55,7 @@ export function Layout({
                 <main className="flex-1 lg:ml-64">
                     <Header
                         searchQuery={searchQuery}
-                        onSearchChange={onSearchChange}
+                        onSearchChange={setSearchQuery}
                         onMobileMenuToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                     />
                     {children}

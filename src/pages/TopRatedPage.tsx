@@ -5,6 +5,7 @@ import { Layout } from '../../components/Layout';
 import { VideoCard } from '../../components/VideoCard';
 import { Pagination } from '../../components/Pagination';
 import { videos } from '../../data/videos';
+import { useSearch } from '../contexts/SearchContext';
 
 type TimeFilter = 'all' | 'week' | 'month';
 
@@ -12,10 +13,10 @@ export function TopRatedPage(): React.ReactNode {
     const [searchParams, setSearchParams] = useSearchParams();
     const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
     const [isLoading, setIsLoading] = useState(false);
+    const { searchQuery } = useSearch();
 
     // Get current page from URL params
     const currentPageNum = parseInt(searchParams.get('page') || '1', 10);
-    const searchQuery = searchParams.get('search') || '';
 
     // Handle page change by updating URL params
     const onPageChange = (page: number) => {
@@ -237,10 +238,10 @@ export function TopRatedPage(): React.ReactNode {
     return (
         <Layout>
             <Helmet>
-                <title>{`Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`}</title>
+                <title>{searchQuery.trim() ? `Search "${searchQuery}" in Top Rated | Project Nightfall` : `Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`}</title>
                 <meta
                     name="description"
-                    content={`Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly. Page ${currentPageNum} of ${Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE)}.`}
+                    content={searchQuery.trim() ? `Top rated search results for "${searchQuery}". Discover premium quality content from our curated collection.` : `Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly. Page ${currentPageNum} of ${Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE)}.`}
                 />
                 <link
                     rel="canonical"
@@ -262,11 +263,18 @@ export function TopRatedPage(): React.ReactNode {
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                                Top Rated Videos
+                                {searchQuery.trim() ? `Search "${searchQuery}" in Top Rated` : 'Top Rated Videos'}
                             </h1>
+                            {searchQuery.trim() && (
+                                <p className="text-slate-400 mb-4">
+                                    Found {filteredVideos.length} top-rated results for "{searchQuery}"
+                                </p>
+                            )}
                             <p className="text-lg text-slate-400 mb-4 max-w-3xl">
-                                Discover the highest-rated videos across our entire library, ranked by our community of users.
-                                These are the videos that consistently deliver exceptional quality and viewer satisfaction.
+                                {searchQuery.trim() 
+                                    ? `Top-rated videos matching "${searchQuery}" from our curated collection.`
+                                    : 'Discover the highest-rated videos across our entire library, ranked by our community of users. These are the videos that consistently deliver exceptional quality and viewer satisfaction.'
+                                }
                             </p>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
                                 <span>Updated: {lastUpdated}</span>

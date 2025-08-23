@@ -3,6 +3,9 @@ import { VideoCard } from './VideoCard';
 import { Pagination } from './Pagination';
 import { videos } from '../data/videos';
 import { PageType } from '../types';
+import { categories } from '../data/categories';
+import { specialtyClusters } from '../src/data/specialtyClusters';
+import { assignVideoToCluster } from '../src/utils/clusterAssignment';
 // Removed unused Video import
 
 interface VideoGridProps {
@@ -53,13 +56,45 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
     const filteredVideos = useMemo(() => {
         let filtered = [...videos];
 
-        // Filter by search query
+        // Enhanced category-aware search
         if (searchQuery.trim()) {
-            filtered = filtered.filter(video =>
-                video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                video.category.toLowerCase().includes(searchQuery.toLowerCase())
+            const query = searchQuery.toLowerCase();
+            
+            // Find if search query matches any category name
+            const allCategories = [...categories, ...specialtyClusters];
+            const matchingCategory = allCategories.find(cat => 
+                cat.name.toLowerCase().includes(query) ||
+                cat.slug.toLowerCase().includes(query) ||
+                cat.id.toLowerCase().includes(query)
             );
+            
+            if (matchingCategory) {
+                // Category search: get all videos assigned to this category + text matches
+                const categoryVideos = filtered.filter(video => 
+                    assignVideoToCluster(video) === matchingCategory.id
+                );
+                
+                const textMatchVideos = filtered.filter(video =>
+                    video.title.toLowerCase().includes(query) ||
+                    video.tags.some(tag => tag.toLowerCase().includes(query)) ||
+                    video.category.toLowerCase().includes(query)
+                );
+                
+                // Combine and deduplicate
+                const videoIds = new Set();
+                filtered = [...categoryVideos, ...textMatchVideos].filter(video => {
+                    if (videoIds.has(video.id)) return false;
+                    videoIds.add(video.id);
+                    return true;
+                });
+            } else {
+                // Regular text search
+                filtered = filtered.filter(video =>
+                    video.title.toLowerCase().includes(query) ||
+                    video.tags.some(tag => tag.toLowerCase().includes(query)) ||
+                    video.category.toLowerCase().includes(query)
+                );
+            }
         }
 
         // Sort by page type

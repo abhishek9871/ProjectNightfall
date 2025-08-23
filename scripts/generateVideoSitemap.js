@@ -67,7 +67,6 @@ const generateVideoSitemap = () => {
             <video:duration>${durationInSeconds}</video:duration>
             <video:publication_date>${publicationDate}</video:publication_date>
             <video:family_friendly>no</video:family_friendly>
-            <video:content_rating>adult</video:content_rating>
         </video:video>
     </url>`;
         } catch (error) {

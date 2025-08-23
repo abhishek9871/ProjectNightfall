@@ -9,6 +9,7 @@ import { CategoryPagination } from '../../components/CategoryPagination';
 import { Layout } from '../../components/Layout';
 import { categoryContent } from '../data/categoryContent';
 import { getVideosForCluster } from '../utils/clusterAssignment';
+import { useSearch } from '../contexts/SearchContext';
 // Removed unused Video import
 
 // Removed unused BreadcrumbItem interface
@@ -16,34 +17,45 @@ import { getVideosForCluster } from '../utils/clusterAssignment';
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
+  const { searchQuery } = useSearch();
   
   // Pagination constants
   const VIDEOS_PER_PAGE = 24;
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
 
-  // Scroll to video grid when page changes (for direct URL navigation)
+  // Enhanced scroll to video grid when page changes - handles all pagination scenarios
   useEffect(() => {
-    if (currentPage > 1) {
-      // Small delay to ensure content is rendered
-      const timer = setTimeout(() => {
-        const videoGrid = document.querySelector('.professional-video-grid');
-        const mainContent = document.querySelector('main');
-        const targetElement = videoGrid || mainContent;
-        
-        if (targetElement) {
-          const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
-          const offset = 100;
-          
-          window.scrollTo({
-            top: Math.max(0, elementTop - offset),
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
+    // Always scroll to video grid on page change, regardless of page number
+    // Increased delay to ensure content is rendered and DOM is updated after navigation
+    const timer = setTimeout(() => {
+      const videoGrid = document.querySelector('.professional-video-grid');
+      const mainContent = document.querySelector('main');
+      const targetElement = videoGrid || mainContent;
       
-      return () => clearTimeout(timer);
-    }
-  }, [currentPage]);
+      if (targetElement) {
+        const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+        const offset = 100; // Offset from top for better visibility
+        
+        window.scrollTo({
+          top: Math.max(0, elementTop - offset),
+          behavior: 'smooth'
+        });
+      } else {
+        // Fallback: scroll to top
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }, 150); // Increased delay to ensure DOM is fully updated
+    
+    return () => clearTimeout(timer);
+  }, [currentPage]); // Triggers on any page change
+  
+  // Scroll to top when initially navigating to this category page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [slug]); // Trigger when category slug changes (initial navigation)
   
   // Check both main categories and specialty clusters
   const category = categories.find(c => c.slug === slug) || 
@@ -67,7 +79,17 @@ const CategoryPage = () => {
   }
 
   const allCategoryVideos = useMemo(() => {
-    // For specialty clusters, use the cluster assignment logic
+    // When search query is present, use global search (like HomePage/TopRated)
+    if (searchQuery.trim()) {
+      return videos.filter(video =>
+        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // When no search query, show category-specific videos (existing behavior)
     const isSpecialtyCluster = specialtyClusters.some(c => c.id === category.id);
     
     if (isSpecialtyCluster) {
@@ -78,7 +100,7 @@ const CategoryPage = () => {
         v.category.toLowerCase() === category.id.toLowerCase()
       );
     }
-  }, [category.id]);
+  }, [category.id, searchQuery]);
 
   // Pagination calculations
   const totalPages = Math.ceil(allCategoryVideos.length / VIDEOS_PER_PAGE);
@@ -89,12 +111,20 @@ const CategoryPage = () => {
   // Get enriched content for this category
   const content = categoryContent[category.id] || categoryContent[category.slug];
   
-  // SEO-safe titles and descriptions with page numbers
+  // SEO-safe titles and descriptions with page numbers and search
   const baseTitle = content?.title || `Best ${category.name} Videos - Project Nightfall`;
   const baseDescription = content?.metaDescription || `Discover ${allCategoryVideos.length} of the best ${category.name} videos. ${category.description}`;
   
-  const pageTitle = currentPage > 1 ? `${category.name} Videos - Page ${currentPage} | Project Nightfall` : baseTitle;
-  const metaDescription = currentPage > 1 ? `${category.name} videos page ${currentPage}. ${baseDescription}` : baseDescription;
+  let pageTitle = baseTitle;
+  let metaDescription = baseDescription;
+
+  if (searchQuery.trim()) {
+    pageTitle = `Search "${searchQuery}" - All Categories | Project Nightfall`;
+    metaDescription = `Search results for "${searchQuery}" across all categories. Discover ${allCategoryVideos.length} matching videos from our complete collection.`;
+  } else if (currentPage > 1) {
+    pageTitle = `${category.name} Videos - Page ${currentPage} | Project Nightfall`;
+    metaDescription = `${category.name} videos page ${currentPage}. ${baseDescription}`;
+  }
   
   // Generate canonical and pagination URLs
   const baseUrl = `https://project-nightfall.pages.dev/category/${slug}`;
@@ -285,17 +315,23 @@ const CategoryPage = () => {
             </nav>
             
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl lg:text-4xl font-bold text-white">
-                  {category.name} Videos
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 sm:gap-4">
+                <h1 className="text-3xl lg:text-4xl font-bold text-white mobile-text-container mobile-safe">
+                  {searchQuery.trim() ? `Search "${searchQuery}" - All Categories` : `${category.name} Videos`}
                 </h1>
                 <Link 
                   to="/categories"
-                  className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                  className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors self-start sm:self-auto min-h-[44px] flex items-center whitespace-nowrap"
                 >
                   Browse All Categories →
                 </Link>
               </div>
+              
+              {searchQuery.trim() && (
+                <p className="text-slate-400 mb-4">
+                  Found {allCategoryVideos.length} results for "{searchQuery}" across all categories
+                </p>
+              )}
               
               {/* Introductory Content */}
               {content?.intro && (
@@ -307,7 +343,9 @@ const CategoryPage = () => {
               )}
               
               <p className="text-slate-500 text-sm mb-6">
-                {currentPage > 1 ? (
+                {searchQuery.trim() ? (
+                  <>Global search results • Showing {paginatedVideos.length} of {allCategoryVideos.length} matching videos across all categories</>
+                ) : currentPage > 1 ? (
                   <>Page {currentPage} of {totalPages} • Showing {paginatedVideos.length} of {allCategoryVideos.length} {category.name} videos</>
                 ) : (
                   <>Discover {allCategoryVideos.length} of the best {category.name} videos</>
