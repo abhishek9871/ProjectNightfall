@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '../../components/Layout';
@@ -14,6 +14,9 @@ const CategoryHub = () => {
   const { searchQuery } = useSearch();
   const [searchParams, setSearchParams] = useSearchParams();
   
+  // Track previous search query to detect changes
+  const prevSearchQueryRef = useRef(searchQuery);
+  
   // Pagination constants
   const VIDEOS_PER_PAGE = 24;
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
@@ -28,6 +31,37 @@ const CategoryHub = () => {
     }
     setSearchParams(newParams);
   };
+
+  // Handle pagination change with smart scrolling
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
+
+    // Scroll to video grid when pagination changes
+    setTimeout(() => {
+      const videoGrid = document.querySelector('.professional-video-grid');
+      if (videoGrid) {
+        videoGrid.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 100);
+  };
+
+  // Reset pagination to page 1 when search query changes (both context and URL)
+  useEffect(() => {
+    onPageChange(1);
+  }, [searchQuery, searchParams.get('search')]);
+
+  // Dedicated useEffect for search query change auto-scroll (same as HomePage)
+  useEffect(() => {
+    if (searchQuery !== prevSearchQueryRef.current) {
+      onPageChange(1);
+      // Scroll to top when search query changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      prevSearchQueryRef.current = searchQuery;
+    }
+  }, [searchQuery]);
   
   // Compute dynamic video counts
   const categoryCounts = useMemo(() => computeCategoryCounts(videos), []);
@@ -308,7 +342,7 @@ const CategoryHub = () => {
                   totalItems={searchResults.length}
                   itemsPerPage={VIDEOS_PER_PAGE}
                   currentPage={currentPage}
-                  onPageChange={onPageChange}
+                  onPageChange={handlePageChange}
                 />
               )}
             </section>

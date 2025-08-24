@@ -14,7 +14,10 @@ export function TopRatedPage(): React.ReactNode {
     const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
     const [isLoading, setIsLoading] = useState(false);
     const { searchQuery } = useSearch();
-
+    
+    // Track previous search query to detect changes
+    const prevSearchQueryRef = useRef(searchQuery);
+    
     // Get current page from URL params
     const currentPageNum = parseInt(searchParams.get('page') || '1', 10);
 
@@ -28,6 +31,21 @@ export function TopRatedPage(): React.ReactNode {
         }
         setSearchParams(newParams);
     };
+
+    // Reset pagination to page 1 when search query changes (both context and URL)
+    useEffect(() => {
+        onPageChange(1);
+    }, [searchQuery, searchParams.get('search')]);
+
+    // Dedicated useEffect for search query change auto-scroll (same as HomePage)
+    useEffect(() => {
+        if (searchQuery !== prevSearchQueryRef.current) {
+            onPageChange(1);
+            // Scroll to top when search query changes
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            prevSearchQueryRef.current = searchQuery;
+        }
+    }, [searchQuery]);
     // Pagination constants
     const VIDEOS_PER_PAGE = 24;
 

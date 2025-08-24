@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { categories } from '../../data/categories';
@@ -16,12 +16,41 @@ import { useSearch } from '../contexts/SearchContext';
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { searchQuery } = useSearch();
+  
+  // Track previous search query to detect changes
+  const prevSearchQueryRef = useRef(searchQuery);
   
   // Pagination constants
   const VIDEOS_PER_PAGE = 24;
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+
+  // Handle page change by updating URL params
+  const onPageChange = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newParams.delete('page');
+    } else {
+      newParams.set('page', page.toString());
+    }
+    setSearchParams(newParams);
+  };
+
+  // Reset pagination to page 1 when search query changes (both context and URL)
+  useEffect(() => {
+    onPageChange(1);
+  }, [searchQuery, searchParams.get('search')]);
+
+  // Dedicated useEffect for search query change auto-scroll (same as HomePage)
+  useEffect(() => {
+    if (searchQuery !== prevSearchQueryRef.current) {
+      onPageChange(1);
+      // Scroll to top when search query changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      prevSearchQueryRef.current = searchQuery;
+    }
+  }, [searchQuery]);
 
   // Enhanced scroll to video grid when page changes - handles all pagination scenarios
   useEffect(() => {

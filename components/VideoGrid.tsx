@@ -171,6 +171,22 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
         }
     };
 
+    // Handle pagination change with smart scrolling
+    const handlePageChange = (page: number) => {
+        onPageChange(page);
+
+        // Scroll to video grid when pagination changes
+        setTimeout(() => {
+            const videoGrid = document.querySelector('.professional-video-grid');
+            if (videoGrid) {
+                videoGrid.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, 100);
+    };
+
     return (
         <section className="container mx-auto px-4 overflow-x-hidden">
             <div className="mb-6">
@@ -229,7 +245,7 @@ export function VideoGrid({ currentPage, searchQuery, currentPageNum, onPageChan
                         totalItems={filteredVideos.length}
                         itemsPerPage={VIDEOS_PER_PAGE}
                         currentPage={currentPageNum}
-                        onPageChange={onPageChange}
+                        onPageChange={handlePageChange}
                     />
                 </>
             )}
