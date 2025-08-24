@@ -1,11 +1,14 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '../../components/Layout';
 import { VideoCard } from '../../components/VideoCard';
 import { Pagination } from '../../components/Pagination';
 import { videos } from '../../data/videos';
+import { categories } from '../../data/categories';
+import { specialtyClusters } from '../data/specialtyClusters';
 import { useSearch } from '../contexts/SearchContext';
+import { filterVideosBySearchQuery } from '../utils/searchUtils';
 
 type TimeFilter = 'all' | 'week' | 'month';
 
@@ -65,13 +68,9 @@ export function TopRatedPage(): React.ReactNode {
     const filteredVideos = useMemo(() => {
         let filtered = [...videos];
 
-        // Apply search filter if provided
+        // Apply standardized search filter if provided
         if (searchQuery.trim()) {
-            filtered = filtered.filter(video =>
-                video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                video.category.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            filtered = filterVideosBySearchQuery(filtered, searchQuery, categories, specialtyClusters);
         }
 
         // Apply time filter

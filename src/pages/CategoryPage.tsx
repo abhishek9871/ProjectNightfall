@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { categories } from '../../data/categories';
@@ -10,6 +10,7 @@ import { Layout } from '../../components/Layout';
 import { categoryContent } from '../data/categoryContent';
 import { getVideosForCluster } from '../utils/clusterAssignment';
 import { useSearch } from '../contexts/SearchContext';
+import { filterVideosBySearchQuery } from '../utils/searchUtils';
 // Removed unused Video import
 
 // Removed unused BreadcrumbItem interface
@@ -108,14 +109,9 @@ const CategoryPage = () => {
   }
 
   const allCategoryVideos = useMemo(() => {
-    // When search query is present, use global search (like HomePage/TopRated)
+    // When search query is present, use standardized global search
     if (searchQuery.trim()) {
-      return videos.filter(video =>
-        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      return filterVideosBySearchQuery(videos, searchQuery, categories, specialtyClusters);
     }
     
     // When no search query, show category-specific videos (existing behavior)

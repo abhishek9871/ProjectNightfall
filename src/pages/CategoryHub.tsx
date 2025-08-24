@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '../../components/Layout';
@@ -7,8 +7,9 @@ import { Pagination } from '../../components/Pagination';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../data/specialtyClusters';
 import { videos } from '../../data/videos';
-import { computeCategoryCounts, assignVideoToCluster } from '../utils/clusterAssignment';
+import { computeCategoryCounts } from '../utils/clusterAssignment';
 import { useSearch } from '../contexts/SearchContext';
+import { filterVideosBySearchQuery } from '../utils/searchUtils';
 
 const CategoryHub = () => {
   const { searchQuery } = useSearch();
@@ -70,46 +71,8 @@ const CategoryHub = () => {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     
-    const query = searchQuery.toLowerCase();
-    let filtered = [...videos];
-    
-    // Find if search query matches any category name
-    const allCategories = [...categories, ...specialtyClusters];
-    const matchingCategory = allCategories.find(cat => 
-      cat.name.toLowerCase().includes(query) ||
-      cat.slug.toLowerCase().includes(query) ||
-      cat.id.toLowerCase().includes(query)
-    );
-    
-    if (matchingCategory) {
-      // Category search: get all videos assigned to this category + text matches
-      const categoryVideos = filtered.filter(video => 
-        assignVideoToCluster(video) === matchingCategory.id
-      );
-      
-      const textMatchVideos = filtered.filter(video =>
-        video.title.toLowerCase().includes(query) ||
-        video.tags.some(tag => tag.toLowerCase().includes(query)) ||
-        video.category.toLowerCase().includes(query) ||
-        video.description.toLowerCase().includes(query)
-      );
-      
-      // Combine and deduplicate
-      const videoIds = new Set();
-      filtered = [...categoryVideos, ...textMatchVideos].filter(video => {
-        if (videoIds.has(video.id)) return false;
-        videoIds.add(video.id);
-        return true;
-      });
-    } else {
-      // Regular text search
-      filtered = filtered.filter(video =>
-        video.title.toLowerCase().includes(query) ||
-        video.tags.some(tag => tag.toLowerCase().includes(query)) ||
-        video.category.toLowerCase().includes(query) ||
-        video.description.toLowerCase().includes(query)
-      );
-    }
+    // Use standardized search algorithm (removes description field search)
+    const filtered = filterVideosBySearchQuery(videos, searchQuery, categories, specialtyClusters);
     
     // Sort by relevance (rating + views)
     return filtered.sort((a, b) => {
