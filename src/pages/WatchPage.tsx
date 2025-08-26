@@ -45,6 +45,13 @@ export function WatchPage() {
     }
   }, [id]);
 
+  // Smart scroll-to-top behavior when video changes
+  useEffect(() => {
+    if (id) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [id]);
+
   // Enhanced search functionality for watch page
   useEffect(() => {
     if (!searchQuery.trim()) {

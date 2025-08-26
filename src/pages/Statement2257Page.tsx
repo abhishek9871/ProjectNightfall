@@ -1,14 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '../../components/Layout';
+import { useSearch } from '../contexts/SearchContext';
+import { VideoGrid } from '../../components/VideoGrid';
+import { videos } from '../../data/videos';
 
 export default function Statement2257Page(): React.ReactNode {
+    const { searchQuery } = useSearch();
+    const [currentPageNum, setCurrentPageNum] = useState(1);
+
+    // Reset pagination when search changes
+    useEffect(() => {
+        setCurrentPageNum(1);
+    }, [searchQuery]);
+
+    // Auto-scroll to top when search query changes
+    useEffect(() => {
+        if (searchQuery.trim()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [searchQuery]);
     return (
         <Layout currentPage="home">
             <Helmet>
                 <title>18 U.S.C. 2257 Compliance Statement | Project Nightfall</title>
                 <meta name="description" content="View the 18 U.S.C. 2257 Record-Keeping Requirements Compliance Statement for all content featured on Project Nightfall." />
             </Helmet>
+            
+            {/* Search Results Section Above Legal Content */}
+            {searchQuery && (
+                <div className="p-4 sm:p-6 lg:p-8 border-b border-slate-800">
+                    <div className="mb-4">
+                        <p className="text-slate-400 text-sm">
+                            Showing search results for "{searchQuery}" • <span className="text-slate-500">2257 Statement below</span>
+                        </p>
+                    </div>
+                    <VideoGrid
+                        currentPage="home"
+                        searchQuery={searchQuery}
+                        currentPageNum={currentPageNum}
+                        onPageChange={setCurrentPageNum}
+                        totalVideos={videos.length}
+                    />
+                </div>
+            )}
+            
             <div className="container mx-auto p-4 text-white max-w-4xl">
                         <h1 className="text-3xl lg:text-4xl font-bold mb-6">18 U.S.C. 2257 Compliance Statement</h1>
                         <div className="space-y-6 text-gray-300">
