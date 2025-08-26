@@ -9,6 +9,7 @@ import { AdStrategyProvider } from './components/AdStrategyProvider';
 import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { AdEngineProvider } from './src/contexts/AdEngineContext';
 import { SearchProvider } from './src/contexts/SearchContext';
+import { FavoritesProvider } from './src/contexts/FavoritesContext';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Lazy load page components for code splitting
@@ -17,6 +18,7 @@ const CategoryHub = React.lazy(() => import('./src/pages/CategoryHub'));
 const CategoryPage = React.lazy(() => import('./src/pages/CategoryPage'));
 const TopRatedPage = React.lazy(() => import('./src/pages/TopRatedPage').then(module => ({ default: module.TopRatedPage })));
 const WatchPage = React.lazy(() => import('./src/pages/WatchPage').then(module => ({ default: module.WatchPage })));
+const FavoritesPage = React.lazy(() => import('./src/pages/FavoritesPage'));
 
 // Legal and trust pages
 const AboutUsPage = React.lazy(() => import('./src/pages/AboutUsPage'));
@@ -60,23 +62,26 @@ function AppContent(): React.ReactNode {
       <PrivacyNotice />
 
       <SearchProvider>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/categories" element={<CategoryHub />} />
-          <Route path="/top-rated" element={<TopRatedPage />} />
-          <Route path="/watch/:id" element={<WatchPage />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
-          
-          {/* Legal and trust pages */}
-          <Route path="/about-us" element={<AboutUsPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/dmca" element={<DMCAPage />} />
-          <Route path="/2257-statement" element={<Statement2257Page />} />
-        </Routes>
-        </Suspense>
+        <FavoritesProvider>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/categories" element={<CategoryHub />} />
+            <Route path="/top-rated" element={<TopRatedPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/watch/:id" element={<WatchPage />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            
+            {/* Legal and trust pages */}
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/dmca" element={<DMCAPage />} />
+            <Route path="/2257-statement" element={<Statement2257Page />} />
+          </Routes>
+          </Suspense>
+        </FavoritesProvider>
       </SearchProvider>
     </>
   );

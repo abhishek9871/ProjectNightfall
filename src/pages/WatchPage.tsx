@@ -7,6 +7,7 @@ import { assignVideoToCluster } from '../utils/clusterAssignment';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../data/specialtyClusters';
 import { useSearch } from '../contexts/SearchContext';
+import FavoriteButton from '../components/FavoriteButton';
 import { Video } from '../../types';
 
 export function WatchPage() {
@@ -435,12 +436,23 @@ export function WatchPage() {
                   <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
                     {video.category}
                   </span>
-                  <Link 
-                    to="/categories"
-                    className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
-                  >
-                    Browse All Categories →
-                  </Link>
+                  
+                  {/* Action Bar with Favorite Button */}
+                  <div className="flex items-center gap-3">
+                    <FavoriteButton
+                      videoId={String(video.id)}
+                      video={video}
+                      size="md"
+                      position="inline"
+                      showTooltip={true}
+                    />
+                    <Link 
+                      to="/categories"
+                      className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                    >
+                      Browse All Categories →
+                    </Link>
+                  </div>
                 </div>
 
                 {video.tags && video.tags.length > 0 && (
@@ -558,6 +570,15 @@ export function WatchPage() {
             </div>
           </div>
         </div>
+        
+        {/* Floating Action Button for Mobile */}
+        <FavoriteButton
+          videoId={String(video.id)}
+          video={video}
+          size="lg"
+          position="fab"
+          showTooltip={false}
+        />
       </Layout>
     </>
   );

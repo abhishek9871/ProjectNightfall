@@ -33,7 +33,7 @@ export interface AffiliateBanner {
     alt: string;
 }
 
-export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
+export type PageType = 'home' | 'trending' | 'categories' | 'top-rated' | 'favorites';
 export type LegalPageType = 'terms' | 'privacy' | 'dmca' | '2257' | 'about' | 'contact';
 
 // Global gtag function type declaration for Google Analytics

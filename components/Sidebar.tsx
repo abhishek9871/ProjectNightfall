@@ -2,8 +2,9 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { affiliateBanners } from '../data/affiliates';
 import { categories } from '../data/categories';
-import { HomeIcon, FireIcon, VideoCameraIcon, StarIcon } from './icons/NavIcons';
+import { HomeIcon, FireIcon, VideoCameraIcon, StarIcon, HeartIcon } from './icons/NavIcons';
 import { PageType } from '../App';
+import { useFavorites } from '../src/contexts/FavoritesContext';
 
 interface SidebarProps {
     currentPage: PageType;
@@ -17,10 +18,12 @@ const navigation = [
     { name: 'Trending', icon: FireIcon, page: 'trending' as PageType, path: '/?page=trending' },
     { name: 'Categories', icon: VideoCameraIcon, page: 'categories' as PageType, path: '/categories' },
     { name: 'Top Rated', icon: StarIcon, page: 'top-rated' as PageType, path: '/top-rated' },
+    { name: 'Favorites', icon: HeartIcon, page: 'favorites' as PageType, path: '/favorites' },
 ];
 
 export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose }: SidebarProps): React.ReactNode {
     const location = useLocation();
+    const { favoritesCount } = useFavorites();
     
     const handleNavClick = (page: PageType) => {
         onPageChange(page);
@@ -31,7 +34,18 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
         if (item.page === 'top-rated') {
             return location.pathname === '/top-rated';
         }
+        if (item.page === 'favorites') {
+            return location.pathname === '/favorites';
+        }
+        if (item.page === 'categories') {
+            return location.pathname === '/categories';
+        }
         return currentPage === item.page;
+    };
+
+    // Helper function to check if a category is active
+    const isCategoryActive = (categorySlug: string) => {
+        return location.pathname === `/category/${categorySlug}`;
     };
 
     return (
@@ -58,7 +72,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 <a
                                     key={item.name}
                                     href="/categories"
-                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left"
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
@@ -74,6 +90,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
+                                </Link>
+                            ) : item.name === 'Favorites' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/favorites"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                    {favoritesCount > 0 && (
+                                        <span className="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                            {favoritesCount}
+                                        </span>
+                                    )}
                                 </Link>
                             ) : (
                                 <button
@@ -98,7 +131,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 <a
                                     key={category.id}
                                     href={`/category/${category.slug}`}
-                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left"
+                                    className={`${
+                                        isCategoryActive(category.slug) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left`}
                                     onClick={onMobileClose}
                                 >
                                     <span className="mr-3 flex-shrink-0 h-2 w-2 bg-purple-500 rounded-full"></span>
@@ -162,7 +197,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 <a
                                     key={item.name}
                                     href="/categories"
-                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left"
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                     onClick={onMobileClose}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
@@ -179,6 +216,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
+                                </Link>
+                            ) : item.name === 'Favorites' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/favorites"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                    {favoritesCount > 0 && (
+                                        <span className="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                            {favoritesCount}
+                                        </span>
+                                    )}
                                 </Link>
                             ) : (
                                 <button
@@ -203,7 +257,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 <a
                                     key={category.id}
                                     href={`/category/${category.slug}`}
-                                    className="text-slate-400 hover:bg-slate-800/50 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left"
+                                    className={`${
+                                        isCategoryActive(category.slug) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left`}
                                     onClick={onMobileClose}
                                 >
                                     <span className="mr-3 flex-shrink-0 h-2 w-2 bg-purple-500 rounded-full"></span>

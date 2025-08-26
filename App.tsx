@@ -15,7 +15,7 @@ import { InterstitialAd } from './components/InterstitialAd';
 import { AdEngineProvider, useAdEngine } from './src/contexts/AdEngineContext';
 import { videos } from './data/videos';
 
-export type PageType = 'home' | 'trending' | 'categories' | 'top-rated';
+export type PageType = 'home' | 'trending' | 'categories' | 'top-rated' | 'favorites';
 
 function AppContent(): React.ReactNode {
     const [isVerified, setIsVerified] = useLocalStorage('ageVerified', false);
