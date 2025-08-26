@@ -42,6 +42,7 @@ export default function FavoritesPage(): React.ReactNode {
     const [importData, setImportData] = useState('');
     
     const prevSearchQueryRef = useRef(searchQuery);
+    const prevPageRef = useRef(currentPageNum);
     const videosPerPage = 20;
 
     // Handle navigation from favorites page to other sections
@@ -151,7 +152,24 @@ export default function FavoritesPage(): React.ReactNode {
 
     useEffect(() => {
         setCurrentPageNum(1);
+        // Add scroll to top when filters change for better UX
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [filterBy, sortBy]);
+
+    // Pagination scroll behavior - scroll to top when page changes (excluding initial load)
+    useEffect(() => {
+        // Only scroll if there was an actual page change (not initial component mount)
+        if (prevPageRef.current !== currentPageNum) {
+            const timer = setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+            
+            // Update the previous page reference
+            prevPageRef.current = currentPageNum;
+            
+            return () => clearTimeout(timer);
+        }
+    }, [currentPageNum]);
 
     // Handle video selection
     const handleVideoSelect = (videoId: string, selected: boolean) => {
