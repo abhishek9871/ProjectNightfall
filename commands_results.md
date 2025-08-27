@@ -1,3 +1,57 @@
+--
+
+PS C:\Users\VASU\Music\project-nightfall_-revenue-engine> Invoke-WebRequest -Uri "https://project-nightfall.pages.dev
+/sitemap.xml" -Method Head -Headers @{"User-Agent"="Googlebot/2.1 (+http://www.google.com/bot.html)"}
+
+                                                                                                                     
+StatusCode        : 200                                                                                              
+StatusDescription : OK                                                                                               
+Content           :                                                                                                  
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Access-Control-Allow-Origin: *
+                    Referrer-Policy: strict-origin-when-cross-origin
+                    X-Content-Type-Options: nosniff
+                    Vary: accept-encoding
+                    Report-To: {"group":"...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Access-Control-Allow-Origin, *], [Referrer-Policy,
+                    strict-origin-when-cross-origin], [X-Content-Type-Options, nosniff]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 0
+
+--
+
+
+PS C:\Users\VASU\Music\project-nightfall_-revenue-engine> Invoke-WebRequest -Uri "https://project-nightfall.pages.dev/video-sitemap.xml" -Method Head -Headers @{"User-Agent"="Googlebot/2.1 (+http://www.google.com/bot.html)"}
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           :
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Access-Control-Allow-Origin: *
+                    Referrer-Policy: strict-origin-when-cross-origin
+                    X-Content-Type-Options: nosniff
+                    Vary: accept-encoding
+                    Report-To: {"group":"...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Access-Control-Allow-Origin, *], [Referrer-Policy,
+                    strict-origin-when-cross-origin], [X-Content-Type-Options, nosniff]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 0
+
+
+--
+
+PS C:\Users\VASU\Music\project-nightfall_-revenue-engine> Invoke-WebRequest -Uri "https://project-nightfall.pages.dev/watch/1" -Headers @{"User-Agent"="Googlebot/2.1 (+http://www.google.com/bot.html)"} | Select-Object -ExpandProperty Content | Select-Object -First 60
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,15 +67,15 @@
   <meta name="keywords"
     content="adult videos, premium content, HD videos, adult entertainment, video streaming, adult site" />
   <meta name="author" content="Project Nightfall" />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />      
+  <link rel="canonical" href="https://project-nightfall.pages.dev/" />
 
-  
   <!-- Google Search Console Verification -->
   <meta name="google-site-verification" content="73I4k_kYyoJISLM2jPYz1_0MIlzlqqOOgYacuo8dpm4" />
-  
+
   <!-- Bing Webmaster Verification -->
   <meta name="msvalidate.01" content="FAD60D3EB4D6308F1F88EC94EDAC19AD" />
-  
+
   <!-- Yandex Webmaster Verification -->
   <meta name="yandex-verification" content="e970a58da1013662" />
 
@@ -55,7 +109,7 @@
   <meta name="application-name" content="Project Nightfall" />
 
   <!-- HilltopAds Website Verification -->
-  <meta name="c54d7a64c490410890e7c7cd486ea527cc378ca8" content="c54d7a64c490410890e7c7cd486ea527cc378ca8" />
+  <meta name="c54d7a64c490410890e7c7cd486ea527cc378ca8" content="c54d7a64c490410890e7c7cd486ea527cc378ca8" />        
   <!-- ExoClick Website Verification -->
   <meta name="6a97888e-site-verification" content="48a0726be9a3019f49f36c155ed37dfa">
   <title>Project Nightfall - Premium Adult Entertainment Platform</title>
@@ -65,7 +119,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="https://picsum.photos/seed/video1/400/225">
-  
+
   <!-- DNS prefetch for critical third-party domains -->
   <link rel="dns-prefetch" href="//xvideos.com">
   <link rel="dns-prefetch" href="//xvideos4.com">
@@ -127,17 +181,19 @@
       }
     }
   </style>
-  <!-- 
+  <!--
       IMPORTANT: Ad Network Scripts
       The finalized plan includes using ad networks. Their scripts, which often
       trigger pop-under ads, should be placed here, just before the closing </body> tag.
       Get the actual script from your ad network dashboard after signing up.
     -->
-</head>
+  <script type="module" crossorigin src="/assets/index-B1idmHFa.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-CkOeJvzi.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-DCGr5Sfs.css">
+<link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 
 <body>
   <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "9908b66ea9934f8aa16620561b833f87"}'></script><!-- Cloudflare Pages Analytics --></body>
 
 </html>

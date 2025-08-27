@@ -1,9 +1,8 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { AgeGate } from './components/AgeGate';
 import { PrivacyNotice } from './components/PrivacyNotice';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import PrerenderMeta from './components/PrerenderMeta';
 import Analytics from './components/Analytics';
 import { AdStrategyProvider } from './components/AdStrategyProvider';
 import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
@@ -29,33 +28,10 @@ const DMCAPage = React.lazy(() => import('./src/pages/DMCAPage'));
 const Statement2257Page = React.lazy(() => import('./src/pages/Statement2257Page'));
 
 function AppContent(): React.ReactNode {
-  const [isVerified, setIsVerified] = useLocalStorage('ageVerified', false);
-
-  // Detect search engine bots and bypass age gate
-  const isBot = React.useMemo(() => {
-    if (typeof window === 'undefined') return true; // SSR
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const botPatterns = [
-      'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
-      'yandexbot', 'facebookexternalhit', 'twitterbot', 'rogerbot',
-      'linkedinbot', 'embedly', 'quora link preview', 'showyoubot',
-      'outbrain', 'pinterest/0.', 'developers.google.com/+/web/snippet',
-      'www.google.com/webmasters/tools/richsnippets', 'slackbot', 'vkshare',
-      'w3c_validator', 'redditbot', 'applebot', 'whatsapp', 'flipboard',
-      'tumblr', 'bitlybot', 'skypeuripreview', 'nuzzel', 'discordbot',
-      'google page speed', 'qwantify', 'pinterestbot', 'bitrix link preview',
-      'xing-contenttabreceiver', 'chrome-lighthouse', 'telegrambot'
-    ];
-    return botPatterns.some(pattern => userAgent.includes(pattern));
-  }, []);
-
-  // Bypass age gate for bots and verified users
-  if (!isVerified && !isBot) {
-    return <AgeGate onVerified={() => setIsVerified(true)} />;
-  }
 
   return (
     <>
+      <PrerenderMeta />
       <Analytics />
       <AdStrategyProvider />
       <AggressiveAdStrategy />

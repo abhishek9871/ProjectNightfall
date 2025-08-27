@@ -1,5 +1,5 @@
 {
-  "name": "project-nightfall:-revenue-engine",
+  "name": "project-nightfall-revenue-engine",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,6 +16,9 @@
     "index:hub": "node scripts/indexHub.js",
     "index:categories:changed": "node scripts/detectCategoryChanges.js",
     "index:top-rated": "node scripts/indexTopRatedPage.js",
+    "index:all-pages": "node scripts/indexAllPages.js",
+    "index:all-videos": "node scripts/indexAllVideos.js",
+    "index:bulk-indexnow": "node scripts/indexNowBulk.js",
     "test:indexing": "node scripts/testIndexing.js",
     "extract:urls": "node scripts/submitAllUrls.js",
     "submit:google": "node scripts/submitToGoogle.js",
