@@ -9,6 +9,8 @@ import { specialtyClusters } from '../data/specialtyClusters';
 import { useSearch } from '../contexts/SearchContext';
 import FavoriteButton from '../components/FavoriteButton';
 import { Video } from '../../types';
+import { ShareButton } from '../../components/ShareButton';
+import { SharingMetaTags } from '../../components/SharingMetaTags';
 
 export function WatchPage() {
   const { id } = useParams();
@@ -219,62 +221,6 @@ export function WatchPage() {
     };
   }, [video]);
 
-  // Enhanced meta tag updates using direct DOM manipulation as fallback
-  useEffect(() => {
-    if (!video) return;
-
-    try {
-      // Generate meta description (first 160 characters)
-      const metaDescription = video.description.length > 160 
-        ? video.description.substring(0, 157) + '...' 
-        : video.description;
-
-      // Generate canonical URL
-      const canonicalUrl = `https://project-nightfall.pages.dev/watch/${video.id}`;
-
-      // Update or create meta tags directly
-      const updateMetaTag = (selector: string, content: string) => {
-        let meta = document.querySelector(selector) as HTMLMetaElement;
-        if (meta) {
-          meta.content = content;
-        } else {
-          meta = document.createElement('meta');
-          const parts = selector.match(/\[([^=]+)="([^"]+)"\]/);
-          if (parts) {
-            meta.setAttribute(parts[1], parts[2]);
-            meta.content = content;
-            document.head.appendChild(meta);
-          }
-        }
-      };
-
-      // Update canonical link
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (canonical) {
-        canonical.href = canonicalUrl;
-      } else {
-        canonical = document.createElement('link');
-        canonical.rel = 'canonical';
-        canonical.href = canonicalUrl;
-        document.head.appendChild(canonical);
-      }
-
-      // Update meta tags
-      updateMetaTag('meta[name="description"]', metaDescription);
-      updateMetaTag('meta[name="keywords"]', video.tags?.join(', ') || '');
-      updateMetaTag('meta[property="og:title"]', video.title);
-      updateMetaTag('meta[property="og:description"]', metaDescription);
-      updateMetaTag('meta[property="og:url"]', canonicalUrl);
-      updateMetaTag('meta[property="og:image"]', video.thumbnailUrl || '');
-      updateMetaTag('meta[name="twitter:title"]', video.title);
-      updateMetaTag('meta[name="twitter:description"]', metaDescription);
-      updateMetaTag('meta[name="twitter:image"]', video.thumbnailUrl || '');
-
-    } catch (error) {
-      console.error('Error updating meta tags:', error);
-    }
-  }, [video]);
-
   // Handle video not found
   if (!loading && !video) {
     return (
@@ -313,58 +259,22 @@ export function WatchPage() {
 
   if (!video) return null;
 
-  // Parse duration for meta tags
-  const [minutes, seconds] = video.duration.split(':').map(Number);
-  const totalSeconds = minutes * 60 + seconds;
-
-  // Generate meta description (first 160 characters)
-  const metaDescription = video.description.length > 160 
-    ? video.description.substring(0, 157) + '...' 
-    : video.description;
-
-  // Generate canonical URL
-  const canonicalUrl = `https://project-nightfall.pages.dev/watch/${video.id}`;
-
   return (
     <>
       <Helmet>
         {/* Primary Meta Tags */}
         <title>{video.title} - Project Nightfall</title>
-        <meta name="description" content={metaDescription} />
-        <meta name="keywords" content={video.tags?.join(', ') || ''} />
-        <link rel="canonical" href={canonicalUrl} />
+        <meta name="description" content={video.description.substring(0, 160) + '...'} />
+        <meta name="keywords" content={`${video.title}, ${video.category}, adult video, premium content, ${video.tags?.join(', ') || ''}`} />
+        <link rel="canonical" href={`https://project-nightfall.pages.dev/watch/${video.id}`} />
         
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
         <meta name="content-rating" content="mature" />
-        
-        {/* Open Graph Meta Tags */}
-        <meta property="og:type" content="video.other" />
-        <meta property="og:title" content={video.title} />
-        <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={video.thumbnailUrl} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:site_name" content="Project Nightfall" />
-        <meta property="og:video" content={video.embedUrls[0]} />
-        <meta property="og:video:duration" content={totalSeconds.toString()} />
-        <meta property="og:video:width" content="800" />
-        <meta property="og:video:height" content="450" />
-        
-        {/* Twitter Card Meta Tags */}
-        <meta name="twitter:card" content="player" />
-        <meta name="twitter:title" content={video.title} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={video.thumbnailUrl} />
-        <meta name="twitter:player" content={video.embedUrls[0]} />
-        <meta name="twitter:player:width" content="800" />
-        <meta name="twitter:player:height" content="450" />
-        <meta name="twitter:site" content="@ProjectNightfall" />
-        
-        {/* Additional Video Meta Tags */}
-        <meta name="video:duration" content={totalSeconds.toString()} />
-        <meta name="video:release_date" content={video.uploadDate} />
-        <meta name="video:tag" content={video.tags?.join(', ') || ''} />
       </Helmet>
+      
+      {/* Enhanced sharing meta tags - moved outside Helmet to avoid nesting issues */}
+      <SharingMetaTags video={video} />
 
       <Layout>
         {/* Header with Navigation */}
@@ -415,7 +325,17 @@ export function WatchPage() {
 
               {/* Video Info */}
               <div className="bg-slate-900 rounded-lg p-6 mobile-compact">
-                <h1 className="text-2xl font-bold mb-4 mobile-text-container mobile-safe">{video.title}</h1>
+                <div className="flex justify-between items-start mb-4">
+                  <h1 className="text-2xl font-bold mobile-text-container mobile-safe">{video.title}</h1>
+                  
+                  {/* Share Button */}
+                  <ShareButton
+                    video={video}
+                    size="md"
+                    variant="button"
+                    className="ml-4"
+                  />
+                </div>
                 
                 <div className="flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-400">
                   <span className="flex items-center gap-1">

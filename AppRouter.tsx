@@ -9,6 +9,7 @@ import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { AdEngineProvider } from './src/contexts/AdEngineContext';
 import { SearchProvider } from './src/contexts/SearchContext';
 import { FavoritesProvider } from './src/contexts/FavoritesContext';
+import { ShareProvider } from './components/ShareProvider';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Lazy load page components for code splitting
@@ -39,24 +40,26 @@ function AppContent(): React.ReactNode {
 
       <SearchProvider>
         <FavoritesProvider>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/categories" element={<CategoryHub />} />
-            <Route path="/top-rated" element={<TopRatedPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/watch/:id" element={<WatchPage />} />
-            <Route path="/category/:slug" element={<CategoryPage />} />
-            
-            {/* Legal and trust pages */}
-            <Route path="/about-us" element={<AboutUsPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/dmca" element={<DMCAPage />} />
-            <Route path="/2257-statement" element={<Statement2257Page />} />
-          </Routes>
-          </Suspense>
+          <ShareProvider>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/categories" element={<CategoryHub />} />
+              <Route path="/top-rated" element={<TopRatedPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/watch/:id" element={<WatchPage />} />
+              <Route path="/category/:slug" element={<CategoryPage />} />
+              
+              {/* Legal and trust pages */}
+              <Route path="/about-us" element={<AboutUsPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/dmca" element={<DMCAPage />} />
+              <Route path="/2257-statement" element={<Statement2257Page />} />
+            </Routes>
+            </Suspense>
+          </ShareProvider>
         </FavoritesProvider>
       </SearchProvider>
     </>
