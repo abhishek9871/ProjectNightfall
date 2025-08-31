@@ -11,6 +11,7 @@ import FavoriteButton from '../components/FavoriteButton';
 import { Video } from '../../types';
 import { ShareButton } from '../../components/ShareButton';
 import { SharingMetaTags } from '../../components/SharingMetaTags';
+import { AddToPlaylistButton } from '../../components/playlist/AddToPlaylistButton';
 
 export function WatchPage() {
   const { id } = useParams();
@@ -325,16 +326,34 @@ export function WatchPage() {
 
               {/* Video Info */}
               <div className="bg-slate-900 rounded-lg p-6 mobile-compact">
-                <div className="flex justify-between items-start mb-4">
-                  <h1 className="text-2xl font-bold mobile-text-container mobile-safe">{video.title}</h1>
+                <div className="mb-4">
+                  <h1 className="text-2xl font-bold mobile-text-container mobile-safe mb-3">{video.title}</h1>
                   
-                  {/* Share Button */}
-                  <ShareButton
-                    video={video}
-                    size="md"
-                    variant="button"
-                    className="ml-4"
-                  />
+                  {/* Action buttons row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                      <FavoriteButton
+                        videoId={String(video.id)}
+                        video={video}
+                        size="md"
+                        position="inline"
+                        showTooltip={true}
+                      />
+                      <AddToPlaylistButton
+                        video={video}
+                        size="md"
+                        variant="button"
+                        showTooltip={true}
+                        className="flex-shrink-0"
+                      />
+                    </div>
+                    
+                    <ShareButton
+                      video={video}
+                      size="md"
+                      variant="button"
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-400">
@@ -357,22 +376,12 @@ export function WatchPage() {
                     {video.category}
                   </span>
                   
-                  {/* Action Bar with Favorite Button */}
-                  <div className="flex items-center gap-3">
-                    <FavoriteButton
-                      videoId={String(video.id)}
-                      video={video}
-                      size="md"
-                      position="inline"
-                      showTooltip={true}
-                    />
-                    <Link 
-                      to="/categories"
-                      className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
-                    >
-                      Browse All Categories →
-                    </Link>
-                  </div>
+                  <Link 
+                    to="/categories"
+                    className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                  >
+                    Browse All Categories →
+                  </Link>
                 </div>
 
                 {video.tags && video.tags.length > 0 && (

@@ -8,7 +8,7 @@ import { Footer } from '../../components/Footer';
 
 import { VideoCard } from '../../components/VideoCard';
 import { Pagination } from '../../components/Pagination';
-import { PageType } from '../../App';
+import { PageType } from '../../types';
 import { videos } from '../../data/videos';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../../src/data/specialtyClusters';

@@ -7,6 +7,7 @@ import { categories } from '../data/categories';
 import { specialtyClusters } from '../src/data/specialtyClusters';
 import FavoriteButton from '../src/components/FavoriteButton';
 import { ShareButton } from './ShareButton';
+import { AddToPlaylistButton } from './playlist/AddToPlaylistButton';
 
 interface VideoCardProps {
     video: Video;
@@ -193,23 +194,40 @@ export const VideoCard = React.memo(({ video, priority = false, compact = false,
                         {videoCategory.name}
                     </div>
                     
-                    {/* Favorite button */}
-                    <FavoriteButton
-                        videoId={String(video.id)}
-                        video={video}
-                        size="md"
-                        position="absolute"
-                        showTooltip={true}
-                    />
-                    
-                    {/* Share button */}
-                    <ShareButton
-                        video={video}
-                        size="sm"
-                        variant="icon"
-                        className="absolute top-2 right-12"
-                        showTooltip={true}
-                    />
+                    {/* Action buttons - better spacing and z-index */}
+                    <div className="absolute top-2 right-2 flex items-center space-x-1 z-20">
+                        {/* Add to Playlist button - subtle, appears on hover */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <AddToPlaylistButton
+                                video={video}
+                                size="sm"
+                                variant="icon"
+                                className="bg-black/70 hover:bg-black/90 backdrop-blur-sm"
+                                showTooltip={true}
+                            />
+                        </div>
+                        
+                        {/* Share button */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <ShareButton
+                                video={video}
+                                size="sm"
+                                variant="icon"
+                                className="bg-black/70 hover:bg-black/90 backdrop-blur-sm"
+                                showTooltip={true}
+                            />
+                        </div>
+                        
+                        {/* Favorite button - always visible */}
+                        <FavoriteButton
+                            videoId={String(video.id)}
+                            video={video}
+                            size="sm"
+                            position="inline"
+                            className="bg-black/70 hover:bg-black/90 backdrop-blur-sm"
+                            showTooltip={true}
+                        />
+                    </div>
                     
                     {/* Play button overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">

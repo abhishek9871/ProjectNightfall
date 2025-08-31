@@ -9,6 +9,7 @@ import { AggressiveAdStrategy } from './src/components/AggressiveAdStrategy';
 import { AdEngineProvider } from './src/contexts/AdEngineContext';
 import { SearchProvider } from './src/contexts/SearchContext';
 import { FavoritesProvider } from './src/contexts/FavoritesContext';
+import { PlaylistProvider } from './src/contexts/PlaylistContext';
 import { ShareProvider } from './components/ShareProvider';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -19,6 +20,9 @@ const CategoryPage = React.lazy(() => import('./src/pages/CategoryPage'));
 const TopRatedPage = React.lazy(() => import('./src/pages/TopRatedPage').then(module => ({ default: module.TopRatedPage })));
 const WatchPage = React.lazy(() => import('./src/pages/WatchPage').then(module => ({ default: module.WatchPage })));
 const FavoritesPage = React.lazy(() => import('./src/pages/FavoritesPage'));
+const PlaylistsPage = React.lazy(() => import('./src/pages/PlaylistsPage'));
+const PlaylistViewPage = React.lazy(() => import('./src/pages/PlaylistViewPage'));
+const SharedPlaylistPage = React.lazy(() => import('./src/pages/SharedPlaylistPage'));
 
 // Legal and trust pages
 const AboutUsPage = React.lazy(() => import('./src/pages/AboutUsPage'));
@@ -40,12 +44,16 @@ function AppContent(): React.ReactNode {
 
       <SearchProvider>
         <FavoritesProvider>
-          <ShareProvider>
+          <PlaylistProvider>
+            <ShareProvider>
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/categories" element={<CategoryHub />} />
               <Route path="/top-rated" element={<TopRatedPage />} />
+              <Route path="/playlists" element={<PlaylistsPage />} />
+              <Route path="/playlist/:id" element={<PlaylistViewPage />} />
+              <Route path="/shared-playlist" element={<SharedPlaylistPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/watch/:id" element={<WatchPage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
@@ -59,7 +67,8 @@ function AppContent(): React.ReactNode {
               <Route path="/2257-statement" element={<Statement2257Page />} />
             </Routes>
             </Suspense>
-          </ShareProvider>
+            </ShareProvider>
+          </PlaylistProvider>
         </FavoritesProvider>
       </SearchProvider>
     </>

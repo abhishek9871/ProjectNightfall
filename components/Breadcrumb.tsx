@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageType } from '../App';
+import { PageType } from '../types';
 
 interface BreadcrumbProps {
     currentPage: PageType;

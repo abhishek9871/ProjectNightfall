@@ -134,7 +134,7 @@ class ShareService {
   
   // Check if native share is available
   canUseNativeShare(): boolean {
-    return !!(navigator.share && window.isSecureContext);
+    return !!(typeof navigator !== 'undefined' && 'share' in navigator && window.isSecureContext);
   }
   
   // Share natively using Web Share API

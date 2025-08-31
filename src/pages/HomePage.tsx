@@ -4,7 +4,7 @@ import { Header } from '../../components/Header';
 import { VideoGrid } from '../../components/VideoGrid';
 import { Footer } from '../../components/Footer';
 import { SEOHead } from '../../components/SEOHead';
-import { PageType } from '../../App';
+import { PageType } from '../../types';
 import { videos } from '../../data/videos';
 import { useSearch } from '../contexts/SearchContext';
 import '../utils/webVitals';

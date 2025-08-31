@@ -22,7 +22,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, video }
   
   // Check if native share is available
   useEffect(() => {
-    setCanUseNativeShare(!!(navigator.share && window.isSecureContext));
+    setCanUseNativeShare(!!(typeof navigator !== 'undefined' && 'share' in navigator && window.isSecureContext));
   }, []);
   
   // Close modal on escape key press
@@ -94,7 +94,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, video }
         </svg>
       ),
       color: 'bg-blue-700 hover:bg-blue-800',
-      shareUrl: (url, title) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      shareUrl: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
       isNativeSupported: false
     },
     {

@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { affiliateBanners } from '../data/affiliates';
 import { categories } from '../data/categories';
 import { HomeIcon, FireIcon, VideoCameraIcon, StarIcon, HeartIcon } from './icons/NavIcons';
-import { PageType } from '../App';
+import { PageType } from '../types';
 import { useFavorites } from '../src/contexts/FavoritesContext';
+import { usePlaylist } from '../src/contexts/PlaylistContext';
 
 interface SidebarProps {
     currentPage: PageType;
@@ -13,17 +14,26 @@ interface SidebarProps {
     onMobileClose: () => void;
 }
 
+// Playlist icon component
+const PlaylistIcon = ({ className }: { className?: string }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+    </svg>
+);
+
 const navigation = [
     { name: 'Home', icon: HomeIcon, page: 'home' as PageType, path: '/' },
     { name: 'Trending', icon: FireIcon, page: 'trending' as PageType, path: '/?page=trending' },
     { name: 'Categories', icon: VideoCameraIcon, page: 'categories' as PageType, path: '/categories' },
     { name: 'Top Rated', icon: StarIcon, page: 'top-rated' as PageType, path: '/top-rated' },
+    { name: 'Playlists', icon: PlaylistIcon, page: 'playlists' as PageType, path: '/playlists' },
     { name: 'Favorites', icon: HeartIcon, page: 'favorites' as PageType, path: '/favorites' },
 ];
 
 export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose }: SidebarProps): React.ReactNode {
     const location = useLocation();
     const { favoritesCount } = useFavorites();
+    const { playlists } = usePlaylist();
     
     const handleNavClick = (page: PageType) => {
         onPageChange(page);
@@ -39,6 +49,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
         }
         if (item.page === 'categories') {
             return location.pathname === '/categories';
+        }
+        if (item.page === 'playlists') {
+            return location.pathname === '/playlists';
         }
         return currentPage === item.page;
     };
@@ -90,6 +103,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
+                                </Link>
+                            ) : item.name === 'Playlists' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/playlists"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                    {playlists.length > 0 && (
+                                        <span className="ml-auto text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">
+                                            {playlists.length}
+                                        </span>
+                                    )}
                                 </Link>
                             ) : item.name === 'Favorites' ? (
                                 <Link
@@ -216,6 +246,23 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
+                                </Link>
+                            ) : item.name === 'Playlists' ? (
+                                <Link
+                                    key={item.name}
+                                    to="/playlists"
+                                    onClick={onMobileClose}
+                                    className={`${
+                                        isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                                    } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
+                                >
+                                    <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+                                    {item.name}
+                                    {playlists.length > 0 && (
+                                        <span className="ml-auto text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">
+                                            {playlists.length}
+                                        </span>
+                                    )}
                                 </Link>
                             ) : item.name === 'Favorites' ? (
                                 <Link

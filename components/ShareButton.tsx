@@ -31,7 +31,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   };
   
   const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    
+    // Prevent any parent navigation
+    e.nativeEvent.stopImmediatePropagation();
+    
     // Share functionality will be implemented in the modal
     const event = new CustomEvent('openShareModal', { detail: { video } });
     window.dispatchEvent(event);
