@@ -4,9 +4,12 @@ import { Video } from '../../types';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../data/specialtyClusters';
 import { assignVideoToCluster } from '../utils/clusterAssignment';
+import { videos as allVideos } from '../../data/videos';
+import LZString from 'lz-string';
+import pako from 'pako';
 
 // Playlist data schema as per PRD specification
-interface Playlist {
+export interface Playlist {
     id: string;
     name: string;
     description: string;
@@ -19,28 +22,28 @@ interface Playlist {
     videoCount: number;
 }
 
-interface PlaylistMetadata {
+export interface PlaylistMetadata {
     totalPlaylists: number;
     totalVideos: number;
     lastUpdated: string;
     categories: Record<string, number>;
 }
 
-interface PlaylistSettings {
+export interface PlaylistSettings {
     sortPreference: 'recent' | 'name' | 'videoCount' | 'category';
     displayMode: 'grid' | 'list';
     autoPlay: boolean;
     autoPlayDelay: number; // seconds
 }
 
-interface PlaylistData {
+export interface PlaylistData {
     version: string;
     playlists: Playlist[];
     metadata: PlaylistMetadata;
     settings: PlaylistSettings;
 }
 
-interface PlaylistContextType {
+export interface PlaylistContextType {
     playlists: Playlist[];
     currentPlaylist: Playlist | null;
     createPlaylist: (name: string, description?: string) => string;
@@ -398,55 +401,187 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         }
     }, [playlists, playlistData, setPlaylistData, updateMetadata]);
 
-    // Generate shareable URL with base64 encoded playlist data
+    // Generate compact, URL-safe compressed share URL (Option A: pako + base64url at /p/:slug?s=)
     const getShareableUrl = useCallback((playlistId: string): string => {
         const playlist = playlists.find(p => p.id === playlistId);
         if (!playlist) return '';
 
         try {
-            const shareData = {
-                version: '1.0.0',
-                playlist: {
-                    ...playlist,
-                    isPublic: true
+            // v2 compact schema with only necessary fields and video IDs
+            const compact = {
+                v: 2,
+                p: {
+                    id: playlist.id,
+                    name: playlist.name,
+                    desc: playlist.description,
+                    vids: playlist.videos.map(v => Number(v.id)),
+                    count: playlist.videoCount,
+                    cat: playlist.category ?? 'Mixed',
+                    thumb: playlist.thumbnail,
                 },
-                sharedAt: new Date().toISOString()
+                ts: Date.now()
             };
 
-            const jsonString = JSON.stringify(shareData);
-            const encodedData = btoa(encodeURIComponent(jsonString));
-            const baseUrl = window.location.origin;
+            const json = new TextEncoder().encode(JSON.stringify(compact));
+            const deflated: Uint8Array = pako.deflate(json, { level: 9 });
+            // base64url encode
+            const b64 = btoa(String.fromCharCode(...deflated))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/g, '');
 
-            return `${baseUrl}/shared-playlist?data=${encodedData}`;
+            const baseUrl = window.location.origin;
+            const isLocal = /^(localhost|127\.|0\.0\.0\.0)/.test(window.location.hostname);
+            if (isLocal) {
+                const slug = (playlist.name || 'playlist')
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .slice(0, 80) || 'playlist';
+                return `${baseUrl}/p/${slug}?s=${b64}`;
+            }
+            // In production, use server-side preview endpoint for rich unfurls
+            return `${baseUrl}/s/${b64}`;
         } catch (error) {
             console.error('Error generating shareable URL:', error);
             return '';
         }
     }, [playlists]);
 
-    // Load shared playlist from encoded data
+    // Load shared playlist from encoded or compressed data
     const loadSharedPlaylist = useCallback((encodedData: string): Playlist | null => {
         try {
-            const jsonString = decodeURIComponent(atob(encodedData));
-            const shareData = JSON.parse(jsonString);
-
-            if (!shareData.playlist || !shareData.version) {
-                console.error('Invalid shared playlist data');
-                return null;
+            // First try v2 pako+base64url (Option A)
+            try {
+                // base64url decode -> Uint8Array
+                const padded = encodedData.replace(/-/g, '+').replace(/_/g, '/');
+                const padLen = (4 - (padded.length % 4)) % 4;
+                const withPad = padded + '='.repeat(padLen);
+                const binary = atob(withPad);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const inflated = pako.inflate(bytes);
+                const text = new TextDecoder().decode(inflated);
+                const data = JSON.parse(text);
+                if (data && data.v === 2 && data.p && Array.isArray(data.p.vids)) {
+                    const vids: number[] = data.p.vids;
+                    const videos: Video[] = vids
+                        .map((id: number) => allVideos.find(v => Number(v.id) === Number(id)))
+                        .filter((v): v is Video => Boolean(v));
+                    const nowIso = new Date().toISOString();
+                    const playlist: Playlist = {
+                        id: data.p.id || crypto.randomUUID(),
+                        name: data.p.name || 'Shared Playlist',
+                        description: data.p.desc || '',
+                        videos,
+                        thumbnail: data.p.thumb || generateThumbnail(videos),
+                        createdAt: nowIso,
+                        updatedAt: nowIso,
+                        isPublic: true,
+                        category: data.p.cat || (videos[0]?.category ?? 'Mixed'),
+                        videoCount: typeof data.p.count === 'number' ? data.p.count : videos.length,
+                    };
+                    return playlist;
+                }
+            } catch {
+                // fall through to other formats
             }
 
-            return shareData.playlist;
+            // Then try previous v2 compressed form (lz-string)
+            let shareData: any | null = null;
+            try {
+                const decompressed = LZString.decompressFromEncodedURIComponent(encodedData);
+                if (decompressed) {
+                    shareData = JSON.parse(decompressed);
+                }
+            } catch {}
+
+            if (shareData && shareData.v === 2 && shareData.p && Array.isArray(shareData.p.vids)) {
+                const vids: number[] = shareData.p.vids;
+                const videos: Video[] = vids
+                    .map((id: number) => allVideos.find(v => Number(v.id) === Number(id)))
+                    .filter((v): v is Video => Boolean(v));
+
+                const nowIso = new Date().toISOString();
+                const playlist: Playlist = {
+                    id: shareData.p.id || crypto.randomUUID(),
+                    name: shareData.p.name || 'Shared Playlist',
+                    description: shareData.p.desc || '',
+                    videos,
+                    thumbnail: shareData.p.thumb || generateThumbnail(videos),
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    isPublic: true,
+                    category: shareData.p.cat || (videos[0]?.category ?? 'Mixed'),
+                    videoCount: typeof shareData.p.count === 'number' ? shareData.p.count : videos.length,
+                };
+                return playlist;
+            }
+
+            // Fallback: previous canonical base64 schema
+            const jsonString = decodeURIComponent(atob(encodedData));
+            const legacyShareData = JSON.parse(jsonString);
+
+            // Canonical schema: { version, playlist, sharedAt }
+            if (legacyShareData.playlist && legacyShareData.version) {
+                return legacyShareData.playlist as Playlist;
+            }
+
+            // Legacy compact schema: { v, p: { id, name, desc, videos, thumb, cat, count }, ts }
+            if (legacyShareData.p && legacyShareData.v) {
+                const legacy = legacyShareData;
+                const now = new Date().toISOString();
+
+                const videos: Video[] = Array.isArray(legacy.p.videos) ? legacy.p.videos.map((v: any) => ({
+                    id: Number(v.id),
+                    title: v.title || 'Untitled',
+                    embedUrls: [],
+                    thumbnailUrl: v.thumbnailUrl || '',
+                    validated: false,
+                    views: v.views || '0',
+                    duration: v.duration || '0:00',
+                    category: v.category || 'Unknown',
+                    rating: Number(v.rating ?? 0),
+                    uploadDate: v.uploadDate || now,
+                    tags: Array.isArray(v.tags) ? v.tags : [],
+                    description: v.description || '',
+                    sourceDescription: v.sourceDescription || '',
+                    isFamilyFriendly: v.isFamilyFriendly ?? false,
+                })) : [];
+
+                const id = legacy.p.id || crypto.randomUUID();
+                const playlist: Playlist = {
+                    id,
+                    name: legacy.p.name || 'Shared Playlist',
+                    description: legacy.p.desc || '',
+                    videos,
+                    thumbnail: legacy.p.thumb || generateThumbnail(videos),
+                    createdAt: legacy.ts ? new Date(legacy.ts).toISOString() : now,
+                    updatedAt: now,
+                    isPublic: true,
+                    category: legacy.p.cat || (videos[0]?.category ?? 'Mixed'),
+                    videoCount: typeof legacy.p.count === 'number' ? legacy.p.count : videos.length,
+                };
+
+                return playlist;
+            }
+
+            console.error('Invalid shared playlist data');
+            return null;
         } catch (error) {
             console.error('Error loading shared playlist:', error);
             return null;
         }
-    }, []);
+    }, [generateThumbnail]);
 
     // Get playlist by ID
     const getPlaylistById = useCallback((id: string): Playlist | undefined => {
         return playlists.find(p => p.id === id);
     }, [playlists]);
 
+// ...
     // Duplicate playlist
     const duplicatePlaylist = useCallback((id: string): string | null => {
         const playlist = playlists.find(p => p.id === id);
@@ -595,5 +730,3 @@ export function usePlaylist() {
     }
     return context;
 }
-
-export type { PlaylistContextType, Playlist, PlaylistMetadata, PlaylistSettings };

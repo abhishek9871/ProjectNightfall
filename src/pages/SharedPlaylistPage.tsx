@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { usePlaylist } from '../contexts/PlaylistContext';
 import { Layout } from '../../components/Layout';
@@ -10,8 +10,18 @@ import type { Playlist } from '../contexts/PlaylistContext';
 
 const VIDEOS_PER_PAGE = 24;
 
+// Safely attempt decodeURIComponent, return original on failure
+function decodeURIComponentSafe(input: string): string {
+  try {
+    return decodeURIComponent(input);
+  } catch {
+    return input;
+  }
+}
+
 export default function SharedPlaylistPage(): React.ReactNode {
   const [searchParams] = useSearchParams();
+  const params = useParams();
   const navigate = useNavigate();
   const { loadSharedPlaylist, createPlaylist, addToPlaylist, playlists } = usePlaylist();
   
@@ -21,9 +31,80 @@ export default function SharedPlaylistPage(): React.ReactNode {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Targeted fix: clear PWA SW/caches once for this tab when opening a shared link.
+  // Some SW/stale cache scenarios can lead to blank renders on subsequent tabs.
   useEffect(() => {
-    const encodedData = searchParams.get('data');
-    
+    const hasShareCode =
+      searchParams.get('s') || searchParams.get('code') || searchParams.get('c') || searchParams.get('data');
+    if (!hasShareCode) return;
+    if (typeof window === 'undefined' || !("serviceWorker" in navigator)) return;
+
+    // If early pre-React SW clear already ran, skip to avoid double reload
+    const preReactKey = 'sw-pre-react-cleared';
+    if (sessionStorage.getItem(preReactKey)) return;
+
+    const key = 'sw-cleared-for-shared-playlist';
+    const alreadyCleared = sessionStorage.getItem(key) || sessionStorage.getItem(preReactKey);
+    if (alreadyCleared) return;
+
+    (async () => {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        sessionStorage.setItem(key, '1');
+        // Reload once to ensure a fresh network response not controlled by a SW
+        window.location.replace(window.location.href);
+      } catch {
+        // ignore
+      }
+    })();
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Get data from path param (e.g., /s/:data) or query param (e.g., ?s=...)
+    let sourceKey: 's' | 'code' | 'c' | 'data' | null = null;
+    let encodedData: string | null | undefined = params.data;
+
+    if (encodedData) {
+      sourceKey = 's'; // Treat path data as the primary 's' format
+    } else {
+      const sp = searchParams;
+      encodedData = sp.get('s');
+      if (encodedData) {
+        sourceKey = 's';
+      } else {
+        encodedData = sp.get('code');
+        if (encodedData) sourceKey = 'code';
+        else {
+          encodedData = sp.get('c');
+          if (encodedData) sourceKey = 'c';
+          else {
+            encodedData = sp.get('data');
+            if (encodedData) sourceKey = 'data';
+          }
+        }
+      }
+    }
+
+    // Fragment/hash fallback (some apps move query to #)
+    if (!encodedData && typeof window !== 'undefined' && window.location.hash) {
+      try {
+        const hash = window.location.hash.replace(/^#/, '').replace(/^\?/, '');
+        const hp = new URLSearchParams(hash);
+        encodedData = hp.get('s') || hp.get('code') || hp.get('c') || hp.get('data');
+        if (encodedData) {
+          if (hp.get('s')) sourceKey = 's';
+          else if (hp.get('code')) sourceKey = 'code';
+          else if (hp.get('c')) sourceKey = 'c';
+          else if (hp.get('data')) sourceKey = 'data';
+        }
+      } catch {}
+    }
+
     if (!encodedData) {
       setError('No playlist data found in URL');
       setIsLoading(false);
@@ -31,7 +112,34 @@ export default function SharedPlaylistPage(): React.ReactNode {
     }
 
     try {
-      const playlist = loadSharedPlaylist(encodedData);
+      // Build decode candidates depending on source format
+      const candidatesRaw: string[] = [];
+      if (sourceKey === 's' || sourceKey === 'code') {
+        // base64url-safe: keep original, decoded, and sanitized variants
+        const stripped = encodedData.replace(/[^A-Za-z0-9_-]/g, '');
+        candidatesRaw.push(
+          encodedData,
+          decodeURIComponentSafe(encodedData),
+          stripped,
+          decodeURIComponentSafe(stripped)
+        );
+      } else {
+        // legacy (lz-string or canonical base64) – do NOT strip characters
+        candidatesRaw.push(
+          encodedData,
+          decodeURIComponentSafe(encodedData)
+        );
+      }
+
+      // Deduplicate, keep truthy
+      const seen = new Set<string>();
+      const candidates = candidatesRaw.filter((c) => c && !seen.has(c) && (seen.add(c), true));
+
+      let playlist = null as ReturnType<typeof loadSharedPlaylist>;
+      for (const candidate of candidates) {
+        playlist = loadSharedPlaylist(candidate);
+        if (playlist) break;
+      }
       if (playlist) {
         setSharedPlaylist(playlist);
         
@@ -52,7 +160,7 @@ export default function SharedPlaylistPage(): React.ReactNode {
     } finally {
       setIsLoading(false);
     }
-  }, [searchParams, loadSharedPlaylist]);
+  }, [searchParams, params, loadSharedPlaylist]);
 
   // Pagination logic
   const totalPages = sharedPlaylist ? Math.ceil(sharedPlaylist.videos.length / VIDEOS_PER_PAGE) : 0;

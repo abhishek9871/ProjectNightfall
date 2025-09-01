@@ -1,0 +1,19 @@
+Issue 1:
+- On the playlists page, when I click on the "+ New playlist" button and then enter the name of the playlist and the description of the playlist and try to add a category apart from the category name "Mixed" and then click on the create playlist button Then I observe that the playlist doesn't get created. I do not see the point of this category stuff while adding a playlist in the category page and I think that this shall be removed. What are your thoughts on this?
+
+
+
+Issue 2:
+- Let's say that I'm on the playlist page, and then from the sidebar I click on the homepage button, top-rated button, trending button, or favorites button in the sidebar to navigate to some other page of the website. Then what I observe is that when I scroll down on these pages and then from the sidebar I click on the playlists page, I observe that the playlist page is visible as being scrolled down instead of being scrolled up to the top of the page.
+
+
+
+Issue 3:
+- Let's say I, from the home page, add a video that is from a category named ****lesbian**** or any other category. And I add that to a playlist, and then when I navigate to the playlist page from the sidebar there, I observe that in the drop-down where the user has the option to select the category type to see the playlist and things like that, I observe that the drop-down doesn't make any sense, as what is the point of this drop-down because it is of no use, and I think it should be removed. What are your thoughts on this? Shall I remove it? Another point to notice in this is, what is the point of showing the category type on the playlist thumbnails?Because I think it is of no use, as it serves no purpose. What are your thoughts on all this? A similar point to be noticed that I notice is that in the same playlist page there is a drop-down where the user can sort the playlist by A to Z, recently updated, or things like that, and there is an option called "category" in it, and I think that option serves no purpose, and I think it should be removed. What are your thoughts on this?Shall we remove this as well?
+
+
+
+Issue 4:
+- There are two issues in the share functionality of a playlist. The first issue is that when inside a playlist on the playlist page, which I navigate to when I click on a playlist and then click on the share button, I observe that the share model that gets opened is not the same as we have implemented in the watch video pages, and it should be the same as that because it contains some things like SEO and all.But we have to, like, make sure that the SEO that gets done is tailored for playlist stuff and things like that because on the watch video page, the share button creates the text of the shared links and stuff like that with thumbnails and all.For the video, but for the playlist, we have to adjust it for the best.The thing that can happen is that users will share their playlist to social media platforms or anywhere else, so we have to think about it. Let's say in the current implementation when I click on the share button, then I copy the share link and open it in a new tab, then I observe that the share link is in a bad state and the page doesn't seem to exist and stuff like that, and this should not happen. The share link and the URL that I see as of now for a playlist are something like this:
+
+http://localhost:5173/p/watch-later?s=eNotjcsKwjAQRX-lzLo1TdJHmm9wJ-hCXKRJpIG2CWZaEfHfHcHVHQ7n3nnDDlqUkEC_ITjQMPJBDtKpSvRWVA1vbKW6XlSDrD13946b-wglrGbxZF8M2qk4GvQPgs5nS_AcnI-5eMWteJoVC4yUP2_-e3twGfSVK3krwcZtRdCcLkMJp-RtMDO-SMRpW0ZiE2LKmrEUbN6WQ5oixsyy947tv2e0xJq6ZkK08KEarfO-7TqhBJeqHT5fAqxFdA

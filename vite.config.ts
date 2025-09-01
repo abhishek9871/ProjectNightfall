@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => {
         workbox: {
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [
+            // Exclude shared playlist routes from service worker caching
+            /^\/p\//,
+            /^\/s\//,
+
+            // Exclude sitemaps and robots.txt
             /^\/sitemap\.xml$/,
             /^\/video-sitemap\.xml$/,
             /^\/category-sitemap\.xml$/,

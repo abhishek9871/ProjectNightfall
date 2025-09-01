@@ -22,7 +22,7 @@ const WatchPage = React.lazy(() => import('./src/pages/WatchPage').then(module =
 const FavoritesPage = React.lazy(() => import('./src/pages/FavoritesPage'));
 const PlaylistsPage = React.lazy(() => import('./src/pages/PlaylistsPage'));
 const PlaylistViewPage = React.lazy(() => import('./src/pages/PlaylistViewPage'));
-const SharedPlaylistPage = React.lazy(() => import('./src/pages/SharedPlaylistPage'));
+import SharedPlaylistPage from './src/pages/SharedPlaylistPage';
 
 // Legal and trust pages
 const AboutUsPage = React.lazy(() => import('./src/pages/AboutUsPage'));
@@ -47,6 +47,7 @@ function AppContent(): React.ReactNode {
           <PlaylistProvider>
             <ShareProvider>
             <Suspense fallback={<LoadingSpinner />}>
+              <ErrorBoundary>
               <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/categories" element={<CategoryHub />} />
@@ -54,6 +55,9 @@ function AppContent(): React.ReactNode {
               <Route path="/playlists" element={<PlaylistsPage />} />
               <Route path="/playlist/:id" element={<PlaylistViewPage />} />
               <Route path="/shared-playlist" element={<SharedPlaylistPage />} />
+              <Route path="/p/:slug" element={<SharedPlaylistPage />} />
+              <Route path="/p" element={<SharedPlaylistPage />} />
+              <Route path="/s/:data" element={<SharedPlaylistPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/watch/:id" element={<WatchPage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
@@ -66,6 +70,7 @@ function AppContent(): React.ReactNode {
               <Route path="/dmca" element={<DMCAPage />} />
               <Route path="/2257-statement" element={<Statement2257Page />} />
             </Routes>
+            </ErrorBoundary>
             </Suspense>
             </ShareProvider>
           </PlaylistProvider>
@@ -78,11 +83,41 @@ function AppContent(): React.ReactNode {
 export function AppRouter() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
-        <AdEngineProvider>
-          <AppContent />
-        </AdEngineProvider>
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <AdEngineProvider>
+            <AppContent />
+          </AdEngineProvider>
+        </BrowserRouter>
+      </ErrorBoundary>
     </HelmetProvider>
   );
+}
+
+// Simple Error Boundary to avoid blank screens and surface errors
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; message?: string }>{
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error: unknown) {
+    return { hasError: true, message: (error as Error)?.message };
+  }
+  componentDidCatch(error: unknown, info: unknown) {
+    // eslint-disable-next-line no-console
+    console.error('Route render error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#020617', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ maxWidth: 600, textAlign: 'center' }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Something went wrong</h1>
+            <p style={{ color: '#94a3b8' }}>The page failed to load. Please refresh or try again in a new tab.</p>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children as React.ReactElement;
+  }
 }

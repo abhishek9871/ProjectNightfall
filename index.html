@@ -137,7 +137,41 @@
 
 <body>
   <div id="root"></div>
+  <script>
+    (function () {
+      try {
+        var path = location.pathname;
+        var isSharedRoute = path === '/shared-playlist' || path === '/p' || /\/p\//.test(path);
+        var hasShareParam = /[?&]s=/.test(location.search);
+        // Only act on shared playlist routes; for '/p' require ?s= param
+        if (isSharedRoute && (path === '/p' ? hasShareParam : true)) {
+          var key = 'sw-pre-react-cleared';
+          if (!sessionStorage.getItem(key) && 'serviceWorker' in navigator) {
+            sessionStorage.setItem(key, '1');
+            (async function () {
+              try {
+                var regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(function (r) { return r.unregister(); }));
+                if (path.startsWith('/p/') || path.startsWith('/s/')) {
+                  var keys = await caches.keys();
+                  await Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                }
+              } catch (e) {
+                console.warn('Early SW clear error:', e);
+              } finally {
+                // Ensure a fresh load not controlled by a SW
+                location.reload();
+              }
+            })();
+          }
+        }
+      } catch (e) {
+        console.warn('Early SW clear failed:', e);
+      }
+    })();
+  </script>
   <script type="module" src="/index.tsx"></script>
+
 </body>
 
 </html>
