@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { PrivacyNotice } from './components/PrivacyNotice';
 import PrerenderMeta from './components/PrerenderMeta';
@@ -32,6 +32,18 @@ const PrivacyPolicyPage = React.lazy(() => import('./src/pages/PrivacyPolicyPage
 const DMCAPage = React.lazy(() => import('./src/pages/DMCAPage'));
 const Statement2257Page = React.lazy(() => import('./src/pages/Statement2257Page'));
 
+// Ensure each route navigation resets scroll to top (prevents stale scroll positions)
+function ScrollToTop() {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    // Scroll instantly to top on every route change for a fresh-page feel
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [pathname, search]);
+  return null;
+}
+
 function AppContent(): React.ReactNode {
 
   return (
@@ -46,6 +58,8 @@ function AppContent(): React.ReactNode {
         <FavoritesProvider>
           <PlaylistProvider>
             <ShareProvider>
+            {/* Reset scroll on route changes */}
+            <ScrollToTop />
             <Suspense fallback={<LoadingSpinner />}>
               <ErrorBoundary>
               <Routes>
