@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { affiliateBanners } from '../data/affiliates';
 import { categories } from '../data/categories';
@@ -32,6 +32,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
     const location = useLocation();
     const { favoritesCount } = useFavorites();
     const { playlists } = usePlaylist();
+    const mobileScrollRef = useRef<HTMLDivElement>(null);
     
     // Navigation is handled via <Link> components to ensure Router location updates and correct active highlighting
 
@@ -67,6 +68,33 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
         return location.pathname === `/category/${categorySlug}`;
     };
 
+    // Prevent background page scroll while keeping sidebar content scrollable
+    useEffect(() => {
+        if (typeof window === 'undefined' || typeof document === 'undefined') return;
+        const html = document.documentElement;
+
+        if (isMobileOpen) {
+            // Store previous values to avoid clobbering other styles
+            (document.body as any).dataset.prevOverflow = document.body.style.overflow || '';
+            (document.body as any).dataset.prevHtmlOverflow = html.style.overflow || '';
+
+            html.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        } else {
+            const prevHtml = (document.body as any).dataset.prevHtmlOverflow ?? '';
+            const prevBody = (document.body as any).dataset.prevOverflow ?? '';
+            html.style.overflow = prevHtml;
+            document.body.style.overflow = prevBody;
+        }
+
+        return () => {
+            const prevHtml = (document.body as any).dataset.prevHtmlOverflow ?? '';
+            const prevBody = (document.body as any).dataset.prevOverflow ?? '';
+            html.style.overflow = prevHtml;
+            document.body.style.overflow = prevBody;
+        };
+    }, [isMobileOpen]);
+
     return (
         <>
             {/* Mobile sidebar overlay */}
@@ -84,7 +112,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
                 <div className="flex items-center h-16 flex-shrink-0 px-6 bg-slate-950 border-b border-slate-800">
                     <h1 className="text-2xl font-black text-white tracking-tighter">Project<span className="text-purple-500">Nightfall</span></h1>
                 </div>
-                <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overscroll-contain custom-scrollbar">
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
                         {navigation.map((item) => 
                             item.name === 'Categories' ? (
@@ -214,7 +242,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
             {/* Mobile sidebar */}
             <aside className={`${
                 isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-            } fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 ease-in-out lg:hidden`}>
+            } fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 ease-in-out lg:hidden flex flex-col`}>
                 <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 bg-slate-950 border-b border-slate-800">
                     <h1 className="text-2xl font-black text-white tracking-tighter">Project<span className="text-purple-500">Nightfall</span></h1>
                     <button
@@ -227,7 +255,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
                         </svg>
                     </button>
                 </div>
-                <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                <div ref={mobileScrollRef} className="flex-1 flex flex-col min-h-0 overflow-y-auto overscroll-contain touch-pan-y custom-scrollbar">
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
                         {navigation.map((item) => 
                             item.name === 'Categories' ? (
@@ -312,7 +340,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
                                 <Link
                                     key={category.id}
                                     to={`/category/${category.slug}`}
-                                    className={`$
+                                    className={`${
                                         isCategoryActive(category.slug) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left`}
                                     onClick={onMobileClose}

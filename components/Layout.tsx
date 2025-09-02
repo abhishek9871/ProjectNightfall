@@ -15,6 +15,8 @@ export function Layout({
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const { searchQuery, setSearchQuery } = useSearch();
 
+    // Scroll lock handled centrally in Sidebar
+
     return (
         <div className="bg-slate-950 text-slate-300 min-h-screen">
             <div className="flex">
@@ -33,7 +35,6 @@ export function Layout({
                 </main>
             </div>
             <PrivacyNotice />
-
         </div>
     );
 }

@@ -49,6 +49,12 @@ body {
   background: #64748b;
 }
 
+/* Enable momentum scrolling on iOS and contain overscroll within the sidebar */
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 /* Custom Plyr theme for dark mode */
 .plyr {
   --plyr-color-main: #a855f7;
