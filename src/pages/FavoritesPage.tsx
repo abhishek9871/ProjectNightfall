@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 
@@ -8,7 +7,6 @@ import { Footer } from '../../components/Footer';
 
 import { VideoCard } from '../../components/VideoCard';
 import { Pagination } from '../../components/Pagination';
-import { PageType } from '../../types';
 import { videos } from '../../data/videos';
 import { categories } from '../../data/categories';
 import { specialtyClusters } from '../../src/data/specialtyClusters';
@@ -31,7 +29,6 @@ export default function FavoritesPage(): React.ReactNode {
         importFavorites
     } = useFavorites();
     const { searchQuery, setSearchQuery } = useSearch();
-    const navigate = useNavigate();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [currentPageNum, setCurrentPageNum] = useState(1);
     const [sortBy, setSortBy] = useState<SortOption>('recent');
@@ -44,26 +41,6 @@ export default function FavoritesPage(): React.ReactNode {
     const prevSearchQueryRef = useRef(searchQuery);
     const prevPageRef = useRef(currentPageNum);
     const videosPerPage = 20;
-
-    // Handle navigation from favorites page to other sections
-    const handleNavigation = (page: PageType) => {
-        switch (page) {
-            case 'home':
-                navigate('/');
-                break;
-            case 'trending':
-                navigate('/?page=trending');
-                break;
-            case 'categories':
-                navigate('/categories');
-                break;
-            case 'top-rated':
-                navigate('/top-rated');
-                break;
-            default:
-                navigate('/');
-        }
-    };
 
     // Get favorite video objects
     const favoriteVideos = useMemo(() => {
@@ -139,8 +116,6 @@ export default function FavoritesPage(): React.ReactNode {
         return Array.from(categorySet).sort();
     }, [favoriteVideos]);
 
-
-
     // Reset pagination when search query or filters change
     useEffect(() => {
         if (searchQuery !== prevSearchQueryRef.current) {
@@ -200,8 +175,7 @@ export default function FavoritesPage(): React.ReactNode {
         }
     };
 
-
-
+    // Handle export
     const handleExport = () => {
         const data = exportFavorites();
         const blob = new Blob([data], { type: 'application/json' });
@@ -214,6 +188,7 @@ export default function FavoritesPage(): React.ReactNode {
         setShowExportModal(false);
     };
 
+    // Handle import
     const handleImport = () => {
         if (importData.trim()) {
             const success = importFavorites(importData);
@@ -264,8 +239,6 @@ export default function FavoritesPage(): React.ReactNode {
                 
                 <div className="flex">
                     <Sidebar
-                        currentPage={'favorites' as PageType}
-                        onPageChange={handleNavigation}
                         isMobileOpen={isMobileSidebarOpen}
                         onMobileClose={() => setIsMobileSidebarOpen(false)}
                     />
@@ -317,8 +290,6 @@ export default function FavoritesPage(): React.ReactNode {
 
             <div className="flex">
                 <Sidebar
-                    currentPage={'favorites' as PageType}
-                    onPageChange={handleNavigation}
                     isMobileOpen={isMobileSidebarOpen}
                     onMobileClose={() => setIsMobileSidebarOpen(false)}
                 />

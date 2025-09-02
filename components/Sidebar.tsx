@@ -8,8 +8,6 @@ import { useFavorites } from '../src/contexts/FavoritesContext';
 import { usePlaylist } from '../src/contexts/PlaylistContext';
 
 interface SidebarProps {
-    currentPage: PageType;
-    onPageChange: (page: PageType) => void;
     isMobileOpen: boolean;
     onMobileClose: () => void;
 }
@@ -311,10 +309,10 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
                                 Categories
                             </h3>
                             {categories.map((category) => (
-                                <a
+                                <Link
                                     key={category.id}
-                                    href={`/category/${category.slug}`}
-                                    className={`${
+                                    to={`/category/${category.slug}`}
+                                    className={`$
                                         isCategoryActive(category.slug) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left`}
                                     onClick={onMobileClose}
@@ -324,7 +322,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.Re
                                     <span className="ml-auto text-xs text-slate-500">
                                         {category.videoCount}
                                     </span>
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </nav>

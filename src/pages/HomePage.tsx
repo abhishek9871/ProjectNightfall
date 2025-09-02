@@ -8,6 +8,7 @@ import { PageType } from '../../types';
 import { videos } from '../../data/videos';
 import { useSearch } from '../contexts/SearchContext';
 import '../utils/webVitals';
+import { useLocation } from 'react-router-dom';
 
 export default function HomePage(): React.ReactNode {
     const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -37,6 +38,14 @@ export default function HomePage(): React.ReactNode {
         return () => window.removeEventListener('popstate', handleUrlChange);
     }, []);
 
+    // Derive currentPage from router location for in-app navigation via <Link>
+    const location = useLocation();
+    useEffect(() => {
+        const pageParam = new URLSearchParams(location.search).get('page') as PageType | null;
+        const next = pageParam && ['home', 'trending'].includes(pageParam) ? pageParam : 'home';
+        setCurrentPage(next);
+    }, [location.search]);
+
     // Reset pagination immediately when search query changes
     useEffect(() => {
         if (searchQuery !== prevSearchQueryRef.current) {
@@ -47,15 +56,7 @@ export default function HomePage(): React.ReactNode {
         }
     }, [searchQuery]);
 
-    // Navigation handler
-    const handleNavigation = (page: PageType) => {
-        setCurrentPageNum(1);
-        // Clear search when switching between Featured/Trending pages
-        setSearchQuery('');
-        const newUrl = page === 'home' ? '/' : `/?page=${page}`;
-        window.history.pushState({}, '', newUrl);
-        setCurrentPage(page);
-    };
+    // Navigation handled via router links; currentPage is derived from URL
 
     // Scroll to top when navigating between different page types (home, trending, etc.)
     useEffect(() => {
@@ -70,8 +71,6 @@ export default function HomePage(): React.ReactNode {
             />
             <div className="flex">
                 <Sidebar
-                    currentPage={currentPage}
-                    onPageChange={handleNavigation}
                     isMobileOpen={isMobileSidebarOpen}
                     onMobileClose={() => setIsMobileSidebarOpen(false)}
                 />
