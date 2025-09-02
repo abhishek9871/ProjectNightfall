@@ -23,7 +23,7 @@ export default function SharedPlaylistPage(): React.ReactNode {
   const [searchParams] = useSearchParams();
   const params = useParams();
   const navigate = useNavigate();
-  const { loadSharedPlaylist, createPlaylist, addToPlaylist, playlists } = usePlaylist();
+  const { loadSharedPlaylist, createPlaylistWithVideos, playlists } = usePlaylist();
   
   const [sharedPlaylist, setSharedPlaylist] = useState<Playlist | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -193,15 +193,11 @@ export default function SharedPlaylistPage(): React.ReactNode {
         counter++;
       }
 
-      const newPlaylistId = createPlaylist(
+      const newPlaylistId = createPlaylistWithVideos(
         playlistName,
-        sharedPlaylist.description + (sharedPlaylist.description ? ' ' : '') + '(Shared playlist)'
+        sharedPlaylist.description + (sharedPlaylist.description ? ' ' : '') + '(Shared playlist)',
+        sharedPlaylist.videos
       );
-
-      // Add all videos to the new playlist
-      for (const video of sharedPlaylist.videos) {
-        addToPlaylist(newPlaylistId, video);
-      }
 
       // Analytics event
       if (typeof window !== 'undefined' && (window as any).gtag) {

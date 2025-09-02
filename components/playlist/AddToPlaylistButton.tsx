@@ -21,7 +21,7 @@ export const AddToPlaylistButton: React.FC<AddToPlaylistButtonProps> = ({
   const { 
     playlists, 
     addToPlaylist, 
-    createPlaylist, 
+    createPlaylistWithVideos, 
     isVideoInPlaylist,
     getPlaylistsContainingVideo 
   } = usePlaylist();
@@ -113,15 +113,11 @@ export const AddToPlaylistButton: React.FC<AddToPlaylistButtonProps> = ({
 
     setIsCreating(true);
     try {
-      const playlistId = createPlaylist(newPlaylistName.trim(), `Created for ${video.title}`);
-      // Defer until context state commits the new playlist
-      setTimeout(() => {
-        try {
-          addToPlaylist(playlistId, video);
-        } catch (err) {
-          console.error('Deferred addToPlaylist failed:', err);
-        }
-      }, 0);
+      createPlaylistWithVideos(
+        newPlaylistName.trim(),
+        `Created for ${video.title}`,
+        [video]
+      );
        
       setNewPlaylistName('');
       setShowCreateForm(false);

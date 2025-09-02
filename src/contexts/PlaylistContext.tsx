@@ -47,6 +47,7 @@ export interface PlaylistContextType {
     playlists: Playlist[];
     currentPlaylist: Playlist | null;
     createPlaylist: (name: string, description?: string) => string;
+    createPlaylistWithVideos: (name: string, description: string, videos: Video[]) => string;
     deletePlaylist: (id: string) => void;
     updatePlaylist: (id: string, updates: Partial<Playlist>) => void;
     addToPlaylist: (playlistId: string, video: Video) => void;
@@ -182,6 +183,48 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
 
         return id;
     }, [playlists, playlistData, setPlaylistData, updateMetadata]);
+
+    // Create new playlist with initial videos (atomic)
+    const createPlaylistWithVideos = useCallback((name: string, description: string = '', videos: Video[] = []): string => {
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+
+        const initialVideos = Array.isArray(videos) ? videos.filter(Boolean) : [];
+
+        const newPlaylist: Playlist = {
+            id,
+            name: name.trim(),
+            description: description.trim(),
+            videos: initialVideos,
+            thumbnail: generateThumbnail(initialVideos),
+            createdAt: now,
+            updatedAt: now,
+            isPublic: false,
+            category: detectPlaylistCategory(initialVideos),
+            videoCount: initialVideos.length
+        };
+
+        const updatedPlaylists = [...playlists, newPlaylist];
+        const updatedMetadata = updateMetadata(updatedPlaylists);
+
+        setPlaylistData({
+            ...playlistData,
+            playlists: updatedPlaylists,
+            metadata: updatedMetadata
+        });
+
+        // Analytics event
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'create_playlist', {
+                playlist_id: id,
+                playlist_name: name,
+                video_count: initialVideos.length,
+                source: 'create_with_videos'
+            });
+        }
+
+        return id;
+    }, [playlists, playlistData, setPlaylistData, updateMetadata, generateThumbnail, detectPlaylistCategory]);
 
     // Delete playlist
     const deletePlaylist = useCallback((id: string) => {
@@ -581,7 +624,6 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         return playlists.find(p => p.id === id);
     }, [playlists]);
 
-// ...
     // Duplicate playlist
     const duplicatePlaylist = useCallback((id: string): string | null => {
         const playlist = playlists.find(p => p.id === id);
@@ -696,6 +738,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         playlists,
         currentPlaylist,
         createPlaylist,
+        createPlaylistWithVideos,
         deletePlaylist,
         updatePlaylist,
         addToPlaylist,
