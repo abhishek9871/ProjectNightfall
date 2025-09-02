@@ -30,30 +30,38 @@ const navigation = [
     { name: 'Favorites', icon: HeartIcon, page: 'favorites' as PageType, path: '/favorites' },
 ];
 
-export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose }: SidebarProps): React.ReactNode {
+export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps): React.ReactNode {
     const location = useLocation();
     const { favoritesCount } = useFavorites();
     const { playlists } = usePlaylist();
     
-    const handleNavClick = (page: PageType) => {
-        onPageChange(page);
-        onMobileClose(); // Close mobile sidebar after navigation
-    };
+    // Navigation is handled via <Link> components to ensure Router location updates and correct active highlighting
 
     const isActive = (item: typeof navigation[0]) => {
-        if (item.page === 'top-rated') {
-            return location.pathname === '/top-rated';
+        const pageParam = new URLSearchParams(location.search).get('page');
+        switch (item.page) {
+            case 'home':
+                return location.pathname === '/' && (!pageParam || pageParam === 'home');
+            case 'trending':
+                return location.pathname === '/' && pageParam === 'trending';
+            case 'categories':
+                return location.pathname === '/categories';
+            case 'top-rated':
+                return location.pathname === '/top-rated';
+            case 'favorites':
+                return location.pathname === '/favorites';
+            case 'playlists':
+                return (
+                    location.pathname === '/playlists' ||
+                    location.pathname.startsWith('/playlist') ||
+                    location.pathname.startsWith('/shared-playlist') ||
+                    location.pathname === '/p' ||
+                    location.pathname.startsWith('/p/') ||
+                    location.pathname.startsWith('/s/')
+                );
+            default:
+                return false;
         }
-        if (item.page === 'favorites') {
-            return location.pathname === '/favorites';
-        }
-        if (item.page === 'categories') {
-            return location.pathname === '/categories';
-        }
-        if (item.page === 'playlists') {
-            return location.pathname === '/playlists';
-        }
-        return currentPage === item.page;
     };
 
     // Helper function to check if a category is active
@@ -82,16 +90,16 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
                         {navigation.map((item) => 
                             item.name === 'Categories' ? (
-                                <a
+                                <Link
                                     key={item.name}
-                                    href="/categories"
+                                    to="/categories"
                                     className={`${
                                         isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
-                                </a>
+                                </Link>
                             ) : item.name === 'Top Rated' ? (
                                 <Link
                                     key={item.name}
@@ -139,16 +147,17 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                     )}
                                 </Link>
                             ) : (
-                                <button
+                                <Link
                                     key={item.name}
-                                    onClick={() => handleNavClick(item.page)}
+                                    to={item.path}
+                                    onClick={onMobileClose}
                                     className={`${
                                         isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
-                                </button>
+                                </Link>
                             )
                         )}
                         
@@ -158,9 +167,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 Categories
                             </h3>
                             {categories.map((category) => (
-                                <a
+                                <Link
                                     key={category.id}
-                                    href={`/category/${category.slug}`}
+                                    to={`/category/${category.slug}`}
                                     className={`${
                                         isCategoryActive(category.slug) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all mb-1 w-full text-left`}
@@ -171,7 +180,7 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                     <span className="ml-auto text-xs text-slate-500">
                                         {category.videoCount}
                                     </span>
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </nav>
@@ -224,9 +233,9 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                     <nav className="flex-1 p-4" role="navigation" aria-label="Main Navigation">
                         {navigation.map((item) => 
                             item.name === 'Categories' ? (
-                                <a
+                                <Link
                                     key={item.name}
-                                    href="/categories"
+                                    to="/categories"
                                     className={`${
                                         isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
@@ -234,7 +243,7 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
-                                </a>
+                                </Link>
                             ) : item.name === 'Top Rated' ? (
                                 <Link
                                     key={item.name}
@@ -282,16 +291,17 @@ export function Sidebar({ currentPage, onPageChange, isMobileOpen, onMobileClose
                                     )}
                                 </Link>
                             ) : (
-                                <button
+                                <Link
                                     key={item.name}
-                                    onClick={() => handleNavClick(item.page)}
+                                    to={item.path}
+                                    onClick={onMobileClose}
                                     className={`${
                                         isActive(item) ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                     } group flex items-center px-3 py-3 text-sm font-medium rounded-md transition-all mb-2 w-full text-left`}
                                 >
                                     <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
                                     {item.name}
-                                </button>
+                                </Link>
                             )
                         )}
                         
