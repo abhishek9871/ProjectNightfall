@@ -85,6 +85,8 @@ export default function PlaylistsPage(): React.ReactNode {
     );
     if (confirmed) {
       clearAllPlaylists();
+      // Scroll to top after clearing for fresh-state UX
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
