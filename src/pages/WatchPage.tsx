@@ -281,17 +281,20 @@ export function WatchPage() {
         {/* Header with Navigation */}
         <header className="bg-slate-900 border-b border-slate-800 p-4">
           <div className="max-w-7xl mx-auto">
-            <nav className="flex items-center space-x-2 text-sm text-slate-400">
-              <Link to="/" className="hover:text-white transition-colors">Home</Link>
-              <span>/</span>
+            <nav
+              className="breadcrumb-nav flex items-center gap-1 text-sm text-slate-400 flex-nowrap overflow-hidden min-w-0"
+              aria-label="Breadcrumb"
+            >
+              <Link to="/" className="crumb hover:text-white transition-colors">Home</Link>
+              <span className="separator" aria-hidden="true">/</span>
               <Link 
                 to={`/category/${getVideoCategory(video).slug}`}
-                className="hover:text-white transition-colors"
+                className="crumb hover:text-white transition-colors"
               >
                 {getVideoCategory(video).name}
               </Link>
-              <span>/</span>
-              <span className="text-white truncate mobile-text-container mobile-safe">{video.title}</span>
+              <span className="separator" aria-hidden="true">/</span>
+              <span className="crumb-title text-white">{video.title}</span>
             </nav>
           </div>
         </header>

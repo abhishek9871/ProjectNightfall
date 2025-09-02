@@ -214,3 +214,38 @@ body {
   }
 }
 
+/* Breadcrumb - mobile-safe, no awkward wrapping */
+.breadcrumb-nav {
+  /* ensure single line and allow last item to truncate */
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.breadcrumb-nav .crumb {
+  white-space: nowrap;
+  word-break: normal;          /* override global mobile rule */
+  overflow-wrap: normal;       /* override global mobile rule */
+  hyphens: manual;             /* avoid auto splits like BB\A W */
+  flex-shrink: 0;              /* keep Home/Category intact */
+}
+
+.breadcrumb-nav .separator {
+  flex: 0 0 auto;
+  padding: 0 0.25rem;
+  color: #94a3b8; /* slate-400 */
+}
+
+.breadcrumb-nav .crumb-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;                /* allow truncation */
+  word-break: normal;          /* override global mobile rule */
+  overflow-wrap: normal;       /* override global mobile rule */
+  hyphens: manual;
+}
+
