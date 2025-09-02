@@ -4,7 +4,7 @@ import { usePlaylist } from '../contexts/PlaylistContext';
 import { PlaylistCard } from '../../components/playlist/PlaylistCard';
 import { PlaylistModal } from '../../components/playlist/PlaylistModal';
 import { Layout } from '../../components/Layout';
-import { sortPlaylists, filterPlaylistsByCategory, getPlaylistCategories, generatePlaylistStats } from '../../utils/playlistUtils';
+import { sortPlaylists, generatePlaylistStats } from '../../utils/playlistUtils';
 
 export default function PlaylistsPage(): React.ReactNode {
   const { 
@@ -21,8 +21,10 @@ export default function PlaylistsPage(): React.ReactNode {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlaylist, setEditingPlaylist] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortBy, setSortBy] = useState(getSettings().sortPreference);
+  const [sortBy, setSortBy] = useState(() => {
+    const pref = getSettings().sortPreference;
+    return pref === 'category' ? 'recent' : pref;
+  });
   const [displayMode, setDisplayMode] = useState(getSettings().displayMode);
   const [showStats, setShowStats] = useState(false);
 
@@ -35,37 +37,27 @@ export default function PlaylistsPage(): React.ReactNode {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(playlist =>
         playlist.name.toLowerCase().includes(query) ||
-        playlist.description.toLowerCase().includes(query) ||
-        playlist.category?.toLowerCase().includes(query)
+        playlist.description.toLowerCase().includes(query)
       );
     }
 
-    // Apply category filter
-    filtered = filterPlaylistsByCategory(filtered, selectedCategory);
-
     // Apply sorting
     return sortPlaylists(filtered, sortBy);
-  }, [playlists, searchQuery, selectedCategory, sortBy]);
-
-  const categories = getPlaylistCategories(playlists);
+  }, [playlists, searchQuery, sortBy]);
   const stats = generatePlaylistStats(playlists);
 
   // Handle creating new playlist
-  const handleCreatePlaylist = async (data: { name: string; description: string; category?: string }) => {
-    const playlistId = createPlaylist(data.name, data.description);
-    if (data.category && data.category !== 'Mixed') {
-      updatePlaylist(playlistId, { category: data.category });
-    }
+  const handleCreatePlaylist = async (data: { name: string; description: string }) => {
+    createPlaylist(data.name, data.description);
   };
 
   // Handle editing playlist
-  const handleEditPlaylist = async (data: { name: string; description: string; category?: string }) => {
+  const handleEditPlaylist = async (data: { name: string; description: string }) => {
     if (!editingPlaylist) return;
     
     updatePlaylist(editingPlaylist.id, {
       name: data.name,
-      description: data.description,
-      category: data.category
+      description: data.description
     });
     setEditingPlaylist(null);
   };
@@ -182,18 +174,6 @@ export default function PlaylistsPage(): React.ReactNode {
                   </div>
                 </div>
 
-                {/* Category Filter */}
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="All">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-
                 {/* Sort */}
                 <select
                   value={sortBy}
@@ -203,7 +183,6 @@ export default function PlaylistsPage(): React.ReactNode {
                   <option value="recent">Recently Updated</option>
                   <option value="name">Name A-Z</option>
                   <option value="videoCount">Video Count</option>
-                  <option value="category">Category</option>
                 </select>
 
                 {/* Display Mode */}
@@ -271,7 +250,6 @@ export default function PlaylistsPage(): React.ReactNode {
               <button
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCategory('All');
                 }}
                 className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-colors"
               >

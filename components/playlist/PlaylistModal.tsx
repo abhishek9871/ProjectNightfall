@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Playlist } from '../../src/contexts/PlaylistContext';
-import { getPlaylistCategories } from '../../utils/playlistUtils';
 
 interface PlaylistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; description: string; category?: string }) => void;
+  onSave: (data: { name: string; description: string }) => void;
   playlist?: Playlist | null; // For editing existing playlist
   existingPlaylists?: Playlist[];
 }
@@ -19,13 +18,10 @@ export function PlaylistModal({
 }: PlaylistModalProps): React.ReactNode {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!playlist;
-  const availableCategories = getPlaylistCategories(existingPlaylists);
-  const commonCategories = ['Mixed', 'Favorites', 'Watch Later', 'MILF', 'Teen', 'Amateur', 'Lesbian', 'Anal'];
 
   // Reset form when modal opens/closes or playlist changes
   useEffect(() => {
@@ -33,11 +29,9 @@ export function PlaylistModal({
       if (playlist) {
         setName(playlist.name);
         setDescription(playlist.description);
-        setCategory(playlist.category || '');
       } else {
         setName('');
         setDescription('');
-        setCategory('Mixed');
       }
       setErrors({});
     }
@@ -81,8 +75,7 @@ export function PlaylistModal({
     try {
       await onSave({
         name: name.trim(),
-        description: description.trim(),
-        category: category || 'Mixed'
+        description: description.trim()
       });
       onClose();
     } catch (error) {
@@ -192,33 +185,6 @@ export function PlaylistModal({
               )}
               <p className="mt-1 text-xs text-slate-400">
                 {description.length}/200 characters
-              </p>
-            </div>
-
-            {/* Category Field */}
-            <div>
-              <label htmlFor="playlist-category" className="block text-sm font-medium text-white mb-2">
-                Category
-              </label>
-              <select
-                id="playlist-category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
-                disabled={isSaving}
-              >
-                {commonCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-                {availableCategories
-                  .filter(cat => !commonCategories.includes(cat))
-                  .map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))
-                }
-              </select>
-              <p className="mt-1 text-xs text-slate-400">
-                Category will be auto-detected based on videos added
               </p>
             </div>
 

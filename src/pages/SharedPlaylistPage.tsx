@@ -351,11 +351,6 @@ export default function SharedPlaylistPage(): React.ReactNode {
                           {duration}
                         </span>
                       )}
-                      {sharedPlaylist.category && (
-                        <span className="px-2 py-1 bg-purple-600/20 text-purple-400 rounded-md text-xs">
-                          {sharedPlaylist.category}
-                        </span>
-                      )}
                       <span>Created {createdDate}</span>
                     </div>
                   </div>

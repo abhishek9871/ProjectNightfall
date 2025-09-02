@@ -253,11 +253,6 @@ export default function PlaylistViewPage(): React.ReactNode {
                               {duration}
                             </span>
                           )}
-                          {playlist.category && (
-                            <span className="px-2 py-1 bg-purple-600/20 text-purple-400 rounded-md text-xs">
-                              {playlist.category}
-                            </span>
-                          )}
                           <span>Created {createdDate}</span>
                           {updatedDate !== createdDate && (
                             <span>Updated {updatedDate}</span>

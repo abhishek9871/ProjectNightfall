@@ -91,13 +91,6 @@ export function PlaylistCard({
               {playlist.videoCount}
             </div>
 
-            {/* Category badge */}
-            {playlist.category && (
-              <div className="absolute top-2 left-2 bg-purple-600/95 text-white text-xs px-2 py-0.5 rounded-md font-medium">
-                {playlist.category}
-              </div>
-            )}
-
             {/* Play button overlay */}
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200">
               <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
