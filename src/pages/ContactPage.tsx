@@ -22,7 +22,7 @@ export default function ContactPage(): React.ReactNode {
     }, [searchQuery]);
 
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>Contact Us | Project Nightfall Support</title>
                 <meta name="description" content="Get in touch with the Project Nightfall team. For support, inquiries, or feedback, please reach out to us via email." />

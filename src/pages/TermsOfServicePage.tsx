@@ -21,7 +21,7 @@ export default function TermsOfServicePage(): React.ReactNode {
         }
     }, [searchQuery]);
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>Terms of Service | Project Nightfall</title>
                 <meta name="description" content="Please read the Terms of Service for Project Nightfall. Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms." />

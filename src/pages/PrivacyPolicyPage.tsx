@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage(): React.ReactNode {
         }
     }, [searchQuery]);
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>Privacy Policy | Project Nightfall</title>
                 <meta name="description" content="Your privacy is important to us. Our Privacy Policy explains how Project Nightfall collects, uses, and protects your personal information." />

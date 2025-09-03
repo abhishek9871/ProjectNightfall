@@ -221,7 +221,7 @@ const CategoryHub = () => {
         </script>
       </Helmet>
 
-      <Layout currentPage="categories">
+      <Layout>
         <div className="p-4 sm:p-6 lg:p-8">
           {/* Breadcrumb */}
           <nav className="flex mb-4" aria-label="Breadcrumb">

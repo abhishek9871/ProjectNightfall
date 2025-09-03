@@ -22,7 +22,7 @@ export default function AboutUsPage(): React.ReactNode {
     }, [searchQuery]);
 
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>About Us | Our Mission at Project Nightfall</title>
                 <meta name="description" content="Discover the mission behind Project Nightfall. We're dedicated to providing a premium, curated library of high-quality adult entertainment on a fast, modern, and user-friendly platform." />

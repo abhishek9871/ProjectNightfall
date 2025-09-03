@@ -21,7 +21,7 @@ export default function Statement2257Page(): React.ReactNode {
         }
     }, [searchQuery]);
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>18 U.S.C. 2257 Compliance Statement | Project Nightfall</title>
                 <meta name="description" content="View the 18 U.S.C. 2257 Record-Keeping Requirements Compliance Statement for all content featured on Project Nightfall." />

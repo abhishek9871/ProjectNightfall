@@ -21,7 +21,7 @@ export default function DMCAPage(): React.ReactNode {
         }
     }, [searchQuery]);
     return (
-        <Layout currentPage="home">
+        <Layout>
             <Helmet>
                 <title>DMCA Takedown Policy | Project Nightfall</title>
                 <meta name="description" content="Project Nightfall respects intellectual property rights. Find out how to submit a DMCA takedown notice and learn about our compliance procedures." />
