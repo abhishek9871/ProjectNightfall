@@ -20,6 +20,7 @@ export function WatchPage() {
   const [loading, setLoading] = useState(true);
   const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
   const [searchResults, setSearchResults] = useState<Video[]>([]);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Get the correct category info for a video (handles cluster assignment)
   const getVideoCategory = (video: Video) => {
@@ -310,94 +311,218 @@ export function WatchPage() {
               </div>
 
               {/* Video Info */}
-              <div className="bg-slate-900 rounded-lg p-6 mobile-compact">
-                <div className="mb-4">
-                  <h1 className="text-2xl font-bold mobile-text-container mobile-safe mb-3">{video.title}</h1>
-                  
-                  {/* Action buttons row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <FavoriteButton
-                        videoId={String(video.id)}
-                        video={video}
-                        size="md"
-                        position="inline"
-                        showTooltip={true}
-                      />
-                      <AddToPlaylistButton
-                        video={video}
-                        size="md"
-                        variant="button"
-                        showTooltip={true}
-                        className="flex-shrink-0"
-                      />
+              <div className="bg-slate-900 rounded-lg overflow-hidden mobile-compact">
+                {/* Video Title */}
+                <div className="p-6 pb-0">
+                  <h1 className="text-2xl md:text-3xl font-bold mobile-text-container mobile-safe mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                    {video.title}
+                  </h1>
+                </div>
+
+                {/* Engagement Actions - Prominent Cards */}
+                <div className="px-6 pb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                    {/* Favorite Action Card */}
+                    <div className="bg-gradient-to-br from-pink-600/20 to-red-600/20 border border-pink-500/30 rounded-xl p-4 hover:from-pink-600/30 hover:to-red-600/30 transition-all duration-300 group">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-pink-400 text-sm font-medium mb-1">Add to Favorites</p>
+                          <p className="text-slate-300 text-xs">Save for later</p>
+                        </div>
+                        <FavoriteButton
+                          videoId={String(video.id)}
+                          video={video}
+                          size="md"
+                          position="inline"
+                          showTooltip={true}
+                        />
+                      </div>
                     </div>
-                    
-                    <ShareButton
-                      video={video}
-                      size="md"
-                      variant="button"
-                    />
+
+                    {/* Playlist Action Card */}
+                    <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl p-4 hover:from-blue-600/30 hover:to-purple-600/30 transition-all duration-300 group">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-blue-400 text-sm font-medium mb-1">Add to Playlist</p>
+                          <p className="text-slate-300 text-xs">Organize content</p>
+                        </div>
+                        <AddToPlaylistButton
+                          video={video}
+                          size="md"
+                          variant="button"
+                          showTooltip={true}
+                          className="flex-shrink-0"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Share Action Card */}
+                    <div className="bg-gradient-to-br from-green-600/20 to-teal-600/20 border border-green-500/30 rounded-xl p-4 hover:from-green-600/30 hover:to-teal-600/30 transition-all duration-300 group">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-400 text-sm font-medium mb-1">Share Video</p>
+                          <p className="text-slate-300 text-xs">Tell others</p>
+                        </div>
+                        <ShareButton
+                          video={video}
+                          size="md"
+                          variant="button"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-400">
-                  <span className="flex items-center gap-1">
-                    👁️ {video.views}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    ⭐ {video.rating}/5
-                  </span>
-                  <span className="flex items-center gap-1">
-                    ⏱️ {video.duration}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    📅 {new Date(video.uploadDate).toLocaleDateString()}
-                  </span>
+
+                {/* Video Statistics - Enhanced Cards */}
+                <div className="px-6 pb-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                    {/* Views Card */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 text-center hover:bg-slate-800/70 transition-colors">
+                      <div className="text-2xl mb-1">👁️</div>
+                      <div className="text-white font-bold text-lg">{video.views}</div>
+                      <div className="text-slate-400 text-xs">Views</div>
+                    </div>
+
+                    {/* Rating Card */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 text-center hover:bg-slate-800/70 transition-colors">
+                      <div className="text-2xl mb-1">⭐</div>
+                      <div className="text-white font-bold text-lg">{video.rating}/5</div>
+                      <div className="text-slate-400 text-xs">Rating</div>
+                    </div>
+
+                    {/* Duration Card */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 text-center hover:bg-slate-800/70 transition-colors">
+                      <div className="text-2xl mb-1">⏱️</div>
+                      <div className="text-white font-bold text-lg">{video.duration}</div>
+                      <div className="text-slate-400 text-xs">Duration</div>
+                    </div>
+
+                    {/* Upload Date Card */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 text-center hover:bg-slate-800/70 transition-colors">
+                      <div className="text-2xl mb-1">📅</div>
+                      <div className="text-white font-bold text-sm">{new Date(video.uploadDate).toLocaleDateString()}</div>
+                      <div className="text-slate-400 text-xs">Uploaded</div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                    {video.category}
-                  </span>
-                  
-                  <Link 
-                    to="/categories"
-                    className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
-                  >
-                    Browse All Categories →
-                  </Link>
-                </div>
-
-                {video.tags && video.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {video.tags.map((tag, index) => (
-                      <span 
-                        key={index}
-                        className="bg-slate-800 text-slate-300 px-2 py-1 rounded text-sm"
+                {/* Category & Browse Section - Mobile Optimized */}
+                <div className="px-6 pb-6">
+                  <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border border-slate-600/50 rounded-xl p-4">
+                    {/* Mobile Layout: Stack vertically */}
+                    <div className="block sm:hidden space-y-4">
+                      <div className="flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg text-base font-medium shadow-lg">
+                          {video.category}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-slate-300 text-sm font-medium mb-1">Category</p>
+                        <p className="text-slate-500 text-xs mb-3">Explore similar content</p>
+                      </div>
+                      <Link 
+                        to="/categories"
+                        className="block w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg text-center"
                       >
-                        {tag}
-                      </span>
-                    ))}
+                        Browse All Categories →
+                      </Link>
+                    </div>
+                    
+                    {/* Desktop Layout: Side by side */}
+                    <div className="hidden sm:flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg">
+                          {video.category}
+                        </span>
+                        <div>
+                          <p className="text-slate-300 text-sm font-medium">Category</p>
+                          <p className="text-slate-500 text-xs">Explore similar content</p>
+                        </div>
+                      </div>
+                      
+                      <Link 
+                        to="/categories"
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        Browse All Categories →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags Section */}
+                {video.tags && video.tags.length > 0 && (
+                  <div className="px-6 pb-6">
+                    <h3 className="text-lg font-semibold text-white mb-3">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {video.tags.map((tag, index) => (
+                        <span 
+                          key={index}
+                          className="bg-gradient-to-r from-slate-700 to-slate-800 border border-slate-600/50 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:border-slate-500/50 cursor-pointer"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                <div className="text-slate-300 leading-relaxed mobile-text-container mobile-safe">
-                  {video.description}
+                {/* Description Section - Mobile Optimized */}
+                <div className="px-6 pb-6">
+                  <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                      <span className="w-1 h-6 bg-gradient-to-b from-red-500 to-pink-500 rounded-full mr-3"></span>
+                      Description
+                    </h3>
+                    {/* Mobile: Show truncated text with expand option */}
+                    <div className="sm:hidden">
+                      {video.description.length > 150 ? (
+                        <>
+                          <div className="text-slate-300 leading-relaxed mb-3">
+                            {showFullDescription 
+                              ? video.description 
+                              : `${video.description.substring(0, 150)}...`
+                            }
+                          </div>
+                          <button 
+                            onClick={() => setShowFullDescription(!showFullDescription)}
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg"
+                          >
+                            {showFullDescription ? 'Show Less' : 'Show More'}
+                          </button>
+                        </>
+                      ) : (
+                        <div className="text-slate-300 leading-relaxed">
+                          {video.description}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Desktop: Show full text */}
+                    <div className="hidden sm:block text-slate-300 leading-relaxed">
+                      {video.description}
+                    </div>
+                  </div>
                 </div>
 
+                {/* Performers Section */}
                 {video.actors && video.actors.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-slate-800">
-                    <h3 className="text-lg font-semibold mb-2">Performers</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {video.actors.map((actor, index) => (
-                        <span 
-                          key={index}
-                          className="bg-slate-800 text-slate-300 px-3 py-1 rounded"
-                        >
-                          {actor}
-                        </span>
-                      ))}
+                  <div className="px-6 pb-6">
+                    <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <span className="w-1 h-6 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full mr-3"></span>
+                        Performers
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {video.actors.map((actor, index) => (
+                          <span 
+                            key={index}
+                            className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 text-purple-300 hover:text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:border-purple-400/50 cursor-pointer"
+                          >
+                            {actor}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
