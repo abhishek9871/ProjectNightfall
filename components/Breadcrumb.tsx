@@ -1,5 +1,6 @@
 import React from 'react';
 import { PageType } from '../types';
+import { Helmet } from 'react-helmet-async';
 
 interface BreadcrumbProps {
     currentPage: PageType;
@@ -53,10 +54,11 @@ export function Breadcrumb({ currentPage, categoryName, searchQuery }: Breadcrum
 
     return (
         <>
-            <script 
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-            />
+            <Helmet>
+                <script type="application/ld+json">
+                    {JSON.stringify(breadcrumbSchema)}
+                </script>
+            </Helmet>
             <nav className="flex mb-4" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 md:space-x-3">
                     {breadcrumbItems.map((item, index) => (

@@ -157,120 +157,83 @@ const CategoryPage = () => {
   const prevUrl = currentPage > 2 ? `${baseUrl}?page=${currentPage - 1}` : (currentPage === 2 ? baseUrl : null);
   const nextUrl = currentPage < totalPages ? `${baseUrl}?page=${currentPage + 1}` : null;
 
-  // Generate comprehensive JSON-LD schema
-  useEffect(() => {
-    if (!category || !content) return;
-
-    // Clean up existing schemas
-    const existingSchemas = document.querySelectorAll('script[data-category-schema]');
-    existingSchemas.forEach(script => script.remove());
-
-    try {
-      // 1. WebPage Schema
-      const webPageSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": pageTitle,
-        "description": metaDescription,
-        "url": canonicalUrl,
-        "mainEntity": {
-          "@type": "ItemList",
-          "name": `${category.name} Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
-          "description": content.intro,
-          "numberOfItems": allCategoryVideos.length,
-          "itemListElement": paginatedVideos.slice(0, 10).map((video, index) => ({
-            "@type": "VideoObject",
-            "position": startIndex + index + 1,
-            "name": video.title,
-            "description": video.description,
-            "thumbnailUrl": video.thumbnailUrl,
-            "uploadDate": video.uploadDate,
-            "duration": `PT${video.duration.replace(':', 'M')}S`,
-            "contentUrl": video.embedUrls[0],
-            "embedUrl": video.embedUrls[0],
-            "genre": video.category,
-            "isFamilyFriendly": false,
-            "contentRating": "adult"
-          }))
+  // Prepare JSON-LD schemas for Helmet
+  const webPageSchema = content && category ? {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": pageTitle,
+    "description": metaDescription,
+    "url": canonicalUrl,
+    "mainEntity": {
+      "@type": "ItemList",
+      "name": `${category.name} Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
+      "description": content.intro,
+      "numberOfItems": allCategoryVideos.length,
+      "itemListElement": paginatedVideos.slice(0, 10).map((video, index) => ({
+        "@type": "VideoObject",
+        "position": startIndex + index + 1,
+        "name": video.title,
+        "description": video.description,
+        "thumbnailUrl": video.thumbnailUrl,
+        "uploadDate": video.uploadDate,
+        "duration": `PT${video.duration.replace(':', 'M')}S`,
+        "contentUrl": video.embedUrls[0],
+        "embedUrl": video.embedUrls[0],
+        "genre": video.category,
+        "isFamilyFriendly": false,
+        "contentRating": "adult"
+      }))
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://project-nightfall.pages.dev"
         },
-        "breadcrumb": {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Home",
-              "item": "https://project-nightfall.pages.dev"
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": category.name,
-              "item": baseUrl
-            }
-          ]
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": category.name,
+          "item": baseUrl
         }
-      };
-
-      // 2. FAQ Schema - Only on page 1 where FAQ is visible
-      const schemas: any[] = [webPageSchema];
-      
-      if (currentPage === 1 && content.faqs && content.faqs.length > 0) {
-        const faqSchema = {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": content.faqs.map((faq: any) => ({
-            "@type": "Question",
-            "name": faq.q,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": faq.a
-            }
-          }))
-        };
-        schemas.push(faqSchema);
-      }
-
-      // 3. CollectionPage Schema
-      const collectionSchema = {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": `${category.name} Porn Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
-        "description": content.intro,
-        "url": canonicalUrl,
-        "mainEntity": {
-          "@type": "VideoGallery",
-          "name": `${category.name} Video Collection`,
-          "description": content.intro,
-          "numberOfItems": allCategoryVideos.length
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Project Nightfall",
-          "url": "https://project-nightfall.pages.dev"
-        }
-      };
-      schemas.push(collectionSchema);
-
-      // Inject schemas
-      schemas.forEach((schema, index) => {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.setAttribute('data-category-schema', `schema-${index}`);
-        script.textContent = JSON.stringify(schema);
-        document.head.appendChild(script);
-      });
-
-    } catch (error) {
-      console.error('Error injecting category schemas:', error);
+      ]
     }
+  } : null;
 
-    // Cleanup function
-    return () => {
-      const schemas = document.querySelectorAll('script[data-category-schema]');
-      schemas.forEach(script => script.remove());
-    };
-  }, [category, content, paginatedVideos, pageTitle, metaDescription, canonicalUrl, currentPage, startIndex, allCategoryVideos.length, baseUrl]);
+  const faqSchema = (currentPage === 1 && content?.faqs && content.faqs.length > 0) ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": content.faqs.map((faq: any) => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  } : null;
+
+  const collectionSchema = content && category ? {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `${category.name} Porn Videos${currentPage > 1 ? ` - Page ${currentPage}` : ''}`,
+    "description": content.intro,
+    "url": canonicalUrl,
+    "mainEntity": {
+      "@type": "VideoGallery",
+      "name": `${category.name} Video Collection`,
+      "description": content.intro,
+      "numberOfItems": allCategoryVideos.length
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Project Nightfall",
+      "url": "https://project-nightfall.pages.dev"
+    }
+  } : null;
 
   // Video click handler removed - now handled by Link in VideoCard
 
@@ -308,9 +271,26 @@ const CategoryPage = () => {
         <meta name="googlebot" content="index, follow" />
         <meta name="author" content="Project Nightfall" />
         <meta name="publisher" content="Project Nightfall" />
+
+        {/* JSON-LD Structured Data */}
+        {webPageSchema && (
+          <script type="application/ld+json">
+            {JSON.stringify(webPageSchema)}
+          </script>
+        )}
+        {faqSchema && (
+          <script type="application/ld+json">
+            {JSON.stringify(faqSchema)}
+          </script>
+        )}
+        {collectionSchema && (
+          <script type="application/ld+json">
+            {JSON.stringify(collectionSchema)}
+          </script>
+        )}
       </Helmet>
 
-      <Layout currentPage="categories">
+      <Layout>
         <div className="p-4 sm:p-6 lg:p-8">
             {/* Simple breadcrumb for now */}
             <nav className="flex mb-4" aria-label="Breadcrumb">

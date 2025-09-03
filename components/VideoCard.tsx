@@ -131,46 +131,11 @@ export const VideoCard = React.memo(({ video, priority = false, compact = false,
         return stars;
     };
 
-    // Generate enhanced VideoObject schema for SEO
-    const videoSchema = {
-        "@context": "https://schema.org",
-        "@type": "VideoObject",
-        "name": fullTitle,
-        "description": video.description.substring(0, 200) + "...",
-        "thumbnailUrl": thumbnailUrl,
-        "uploadDate": video.uploadDate || new Date().toISOString(),
-        "duration": `PT${video.duration.replace(':', 'M')}S`,
-        "contentUrl": `https://project-nightfall.pages.dev/video/${video.id}`,
-        "embedUrl": `https://project-nightfall.pages.dev/video/${video.id}`,
-        "genre": video.category,
-        "keywords": video.tags.join(', '),
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": video.rating,
-            "bestRating": 5,
-            "worstRating": 1,
-            "ratingCount": Math.floor(Math.random() * 1000) + 100
-        },
-        "interactionStatistic": {
-            "@type": "InteractionCounter",
-            "interactionType": { "@type": "WatchAction" },
-            "userInteractionCount": parseInt(video.views.replace('M', '000000').replace('K', '000').replace(',', ''))
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Project Nightfall",
-            "url": "https://project-nightfall.pages.dev"
-        },
-        "isFamilyFriendly": false,
-        "contentRating": "adult"
-    };
+    // JSON-LD schema injection removed from card to avoid duplication on listing pages.
 
     return (
         <>
-            <script 
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-            />
+            {/* Schema is injected at page level (e.g., WatchPage) via react-helmet-async */}
             <Link 
                 to={`/watch/${video.id}`}
                 className={`video-card-container group rounded-lg overflow-hidden bg-slate-900/95 border border-slate-800/50 shadow-md transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 hover:bg-slate-900 cursor-pointer block h-full ${compact ? 'compact-card' : ''}`}

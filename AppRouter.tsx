@@ -22,7 +22,7 @@ const WatchPage = React.lazy(() => import('./src/pages/WatchPage').then(module =
 const FavoritesPage = React.lazy(() => import('./src/pages/FavoritesPage'));
 const PlaylistsPage = React.lazy(() => import('./src/pages/PlaylistsPage'));
 const PlaylistViewPage = React.lazy(() => import('./src/pages/PlaylistViewPage'));
-import SharedPlaylistPage from './src/pages/SharedPlaylistPage';
+const SharedPlaylistPage = React.lazy(() => import('./src/pages/SharedPlaylistPage'));
 
 // Legal and trust pages
 const AboutUsPage = React.lazy(() => import('./src/pages/AboutUsPage'));

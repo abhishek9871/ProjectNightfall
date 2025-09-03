@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { PageType } from '../types';
 
 interface SEOHeadProps {
@@ -134,86 +135,33 @@ export function SEOHead({
 
     const breadcrumbSchema = getBreadcrumbSchema();
 
-    React.useEffect(() => {
-        // Update document title
-        document.title = pageMeta.title;
-        
-        // Update meta description
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-            metaDescription.setAttribute('content', pageMeta.description);
-        }
-
-        // Update canonical URL
-        let canonical = document.querySelector('link[rel="canonical"]');
-        if (!canonical) {
-            canonical = document.createElement('link');
-            canonical.setAttribute('rel', 'canonical');
-            document.head.appendChild(canonical);
-        }
-        canonical.setAttribute('href', pageMeta.url);
-
-        // Update Open Graph tags
-        const updateOGTag = (property: string, content: string) => {
-            let tag = document.querySelector(`meta[property="${property}"]`);
-            if (!tag) {
-                tag = document.createElement('meta');
-                tag.setAttribute('property', property);
-                document.head.appendChild(tag);
-            }
-            tag.setAttribute('content', content);
-        };
-
-        updateOGTag('og:title', pageMeta.title);
-        updateOGTag('og:description', pageMeta.description);
-        updateOGTag('og:url', pageMeta.url);
-
-        // Update Twitter Card tags
-        const updateTwitterTag = (name: string, content: string) => {
-            let tag = document.querySelector(`meta[name="${name}"]`);
-            if (!tag) {
-                tag = document.createElement('meta');
-                tag.setAttribute('name', name);
-                document.head.appendChild(tag);
-            }
-            tag.setAttribute('content', content);
-        };
-
-        updateTwitterTag('twitter:title', pageMeta.title);
-        updateTwitterTag('twitter:description', pageMeta.description);
-        
-        // Add adult content rating meta tag (Google requirement)
-        let ratingTag = document.querySelector('meta[name="rating"]');
-        if (!ratingTag) {
-            ratingTag = document.createElement('meta');
-            ratingTag.setAttribute('name', 'rating');
-            ratingTag.setAttribute('content', 'adult');
-            document.head.appendChild(ratingTag);
-        }
-
-    }, [currentPage, searchQuery, categoryName]);
-
     return (
-        <>
-            {/* Organization Schema */}
-            <script 
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-            />
-            
-            {/* Website Schema */}
-            <script 
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-            />
-            
-            {/* Breadcrumb Schema */}
+        <Helmet>
+            <title>{pageMeta.title}</title>
+            <link rel="canonical" href={pageMeta.url} />
+            <meta name="description" content={pageMeta.description} />
+
+            {/* Open Graph */}
+            <meta property="og:type" content="website" />
+            <meta property="og:site_name" content="Project Nightfall" />
+            <meta property="og:title" content={pageMeta.title} />
+            <meta property="og:description" content={pageMeta.description} />
+            <meta property="og:url" content={pageMeta.url} />
+
+            {/* Twitter */}
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={pageMeta.title} />
+            <meta name="twitter:description" content={pageMeta.description} />
+
+            {/* Adult content meta */}
+            <meta name="rating" content="adult" />
+
+            {/* JSON-LD Schemas */}
+            <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>
+            <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
             {breadcrumbSchema && (
-                <script 
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-                />
+                <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
             )}
-        </>
+        </Helmet>
     );
 }

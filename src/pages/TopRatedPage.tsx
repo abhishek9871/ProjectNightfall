@@ -177,134 +177,111 @@ export function TopRatedPage(): React.ReactNode {
         });
     }, []);
 
-    // Schema markup for the page
-    const schemaMarkup = useMemo(() => ({
-        "@context": "https://schema.org",
-        "@type": ["CollectionPage", "WebPage"],
-        "name": "Top Rated Videos",
-        "description": "The highest-rated videos on Project Nightfall, ranked by our community of users",
-        "url": `https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`,
-        "mainEntity": {
-            "@type": "ItemList",
-            "numberOfItems": filteredVideos.length,
-            "itemListElement": paginatedVideos.slice(0, 10).map((video, index) => ({
-                "@type": "VideoObject",
-                "name": video.title,
-                "thumbnailUrl": video.thumbnailUrl,
-                "description": video.description,
-                "duration": video.duration,
-                "uploadDate": video.uploadDate,
-                "aggregateRating": {
-                    "@type": "AggregateRating",
-                    "ratingValue": video.rating.toString(),
-                    "bestRating": "5",
-                    "ratingCount": Math.floor(parseInt(video.views.replace(/[^\d]/g, '')) / 100).toString()
-                },
-                "url": `https://project-nightfall.pages.dev/watch/${video.id}`,
-                "position": ((currentPageNum - 1) * VIDEOS_PER_PAGE) + index + 1
-            }))
-        },
-        "breadcrumb": {
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-                {
-                    "@type": "ListItem",
-                    "position": 1,
-                    "name": "Home",
-                    "item": "https://project-nightfall.pages.dev"
-                },
-                {
-                    "@type": "ListItem",
-                    "position": 2,
-                    "name": "Top Rated Videos"
-                }
-            ]
-        }
-    }), [filteredVideos.length, paginatedVideos, currentPageNum]);
-
-    // Inject schema markup
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.textContent = JSON.stringify(schemaMarkup);
-        script.id = 'top-rated-schema';
-
-        // Remove existing schema
-        const existing = document.getElementById('top-rated-schema');
-        if (existing) {
-            existing.remove();
-        }
-
-        document.head.appendChild(script);
-
-        return () => {
-            const scriptToRemove = document.getElementById('top-rated-schema');
-            if (scriptToRemove) {
-                scriptToRemove.remove();
+// Schema markup for the page
+const schemaMarkup = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": ["CollectionPage", "WebPage"],
+    "name": "Top Rated Videos",
+    "description": "The highest-rated videos on Project Nightfall, ranked by our community of users",
+    "url": `https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`,
+    "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": filteredVideos.length,
+        "itemListElement": paginatedVideos.slice(0, 10).map((video, index) => ({
+            "@type": "VideoObject",
+            "name": video.title,
+            "thumbnailUrl": video.thumbnailUrl,
+            "description": video.description,
+            "duration": video.duration,
+            "uploadDate": video.uploadDate,
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": video.rating.toString(),
+                "bestRating": "5",
+                "ratingCount": Math.floor(parseInt(video.views.replace(/[^\d]/g, '')) / 100).toString()
+            },
+            "url": `https://project-nightfall.pages.dev/watch/${video.id}`,
+            "position": ((currentPageNum - 1) * VIDEOS_PER_PAGE) + index + 1
+        }))
+    },
+    "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://project-nightfall.pages.dev"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Top Rated Videos"
             }
-        };
-    }, [schemaMarkup]);
+        ]
+    }
+}), [filteredVideos.length, paginatedVideos, currentPageNum]);
 
-    // Scroll to top when component first mounts (Issue 1 fix)
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []); // Empty dependency array means this runs only on mount
+    // JSON-LD is injected via Helmet below
+
+// Scroll to top when component first mounts (Issue 1 fix)
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, []); // Empty dependency array means this runs only on mount
 
 
 
-    return (
-        <Layout>
-            <Helmet>
-                <title>{searchQuery.trim() ? `Search "${searchQuery}" in Top Rated | Project Nightfall` : `Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`}</title>
-                <meta
-                    name="description"
-                    content={searchQuery.trim() ? `Top rated search results for "${searchQuery}". Discover premium quality content from our curated collection.` : `Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly. Page ${currentPageNum} of ${Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE)}.`}
-                />
-                <link
-                    rel="canonical"
-                    href={`https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`}
-                />
-                <meta property="og:title" content={`Top Rated Videos | Project Nightfall`} />
-                <meta property="og:description" content="Discover the highest-rated videos on Project Nightfall, ranked by our community." />
-                <meta property="og:url" content={`https://project-nightfall.pages.dev/top-rated`} />
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-                />
-            </Helmet>
+return (
+    <Layout>
+        <Helmet>
+            <title>{searchQuery.trim() ? `Search "${searchQuery}" in Top Rated | Project Nightfall` : `Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`}</title>
+            <meta
+                name="description"
+                content={searchQuery.trim() ? `Top rated search results for "${searchQuery}". Discover premium quality content from our curated collection.` : `Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly. Page ${currentPageNum} of ${Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE)}.`}
+            />
+            <link
+                rel="canonical"
+                href={`https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`}
+            />
+            <meta property="og:title" content={`Top Rated Videos | Project Nightfall`} />
+            <meta property="og:description" content="Discover the highest-rated videos on Project Nightfall, ranked by our community." />
+            <meta property="og:url" content={`https://project-nightfall.pages.dev/top-rated`} />
+            <script type="application/ld+json">
+                {JSON.stringify(schemaMarkup)}
+            </script>
+        </Helmet>
 
-            <main className="container mx-auto px-4 py-6">
+        <main className="container mx-auto px-4 py-6">
 
-                {/* Hero Section */}
-                <div className="mb-8">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-                        <div>
-                            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                                {searchQuery.trim() ? `Search "${searchQuery}" in Top Rated` : 'Top Rated Videos'}
-                            </h1>
-                            {searchQuery.trim() && (
-                                <p className="text-slate-400 mb-4">
-                                    Found {filteredVideos.length} top-rated results for "{searchQuery}"
-                                </p>
-                            )}
-                            <p className="text-lg text-slate-400 mb-4 max-w-3xl">
-                                {searchQuery.trim() 
-                                    ? `Top-rated videos matching "${searchQuery}" from our curated collection.`
-                                    : 'Discover the highest-rated videos across our entire library, ranked by our community of users. These are the videos that consistently deliver exceptional quality and viewer satisfaction.'
-                                }
+            {/* Hero Section */}
+            <div className="mb-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                            {searchQuery.trim() ? `Search "${searchQuery}" in Top Rated` : 'Top Rated Videos'}
+                        </h1>
+                        {searchQuery.trim() && (
+                            <p className="text-slate-400 mb-4">
+                                Found {filteredVideos.length} top-rated results for "{searchQuery}"
                             </p>
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                                <span>Updated: {lastUpdated}</span>
-                                <span>•</span>
-                                <span>Based on {totalRatings.toLocaleString()} user ratings</span>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                    <svg className="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                    Verified Content
-                                </span>
-                            </div>
+                        )}
+                        <p className="text-lg text-slate-400 mb-4 max-w-3xl">
+                            {searchQuery.trim() 
+                                ? `Top-rated videos matching "${searchQuery}" from our curated collection.`
+                                : 'Discover the highest-rated videos across our entire library, ranked by our community of users. These are the videos that consistently deliver exceptional quality and viewer satisfaction.'
+                            }
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                            <span>Updated: {lastUpdated}</span>
+                            <span>•</span>
+                            <span>Based on {totalRatings.toLocaleString()} user ratings</span>
+                            <span>•</span>
+                            <span className="flex items-center">
+                                <svg className="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                Verified Content
+                            </span>
                         </div>
 
                         {/* Performance indicator */}
@@ -409,6 +386,8 @@ export function TopRatedPage(): React.ReactNode {
                             )}
                         </>
                     )}
+                </div>
+
                 </div>
 
                 {/* Trust Signals Footer */}

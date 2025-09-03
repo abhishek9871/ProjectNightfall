@@ -124,103 +124,7 @@ export function WatchPage() {
     
     setSearchResults(sortedResults);
   }, [searchQuery, video]);
-
-  // Enhanced JSON-LD Schema injection using direct DOM manipulation
-  useEffect(() => {
-    if (!video) return;
-
-    // Clean up existing schemas first
-    const existingSchemas = document.querySelectorAll('script[data-schema-type]');
-    existingSchemas.forEach(script => script.remove());
-
-    try {
-      // Parse views number for schema
-      const viewsNumber = parseInt(video.views.replace(/[^\d]/g, '')) * 1000;
-      
-      // Parse duration for schema
-      const [minutes, seconds] = video.duration.split(':').map(Number);
-      const totalSeconds = minutes * 60 + seconds;
-
-      // Generate VideoObject schema
-      const videoSchema = {
-        "@context": "https://schema.org",
-        "@type": "VideoObject",
-        "name": video.title,
-        "description": video.description,
-        "thumbnailUrl": video.thumbnailUrl,
-        "uploadDate": video.uploadDate,
-        "duration": `PT${Math.floor(totalSeconds / 60)}M${totalSeconds % 60}S`,
-        "embedUrl": video.embedUrls[0],
-        "contentUrl": video.embedUrls[0],
-        "interactionCount": viewsNumber,
-        "genre": video.category,
-        "keywords": video.tags?.join(', ') || '',
-        "isFamilyFriendly": false,
-        "contentRating": "adult",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": video.rating,
-          "ratingCount": Math.floor(viewsNumber / 100),
-          "bestRating": 5,
-          "worstRating": 1
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Project Nightfall",
-          "url": "https://project-nightfall.pages.dev"
-        }
-      };
-
-      // Generate BreadcrumbList schema with correct category
-      const videoCategory = getVideoCategory(video);
-      const breadcrumbSchema = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://project-nightfall.pages.dev"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": videoCategory.name,
-            "item": `https://project-nightfall.pages.dev/category/${videoCategory.slug}`
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": video.title
-          }
-        ]
-      };
-
-      // Inject VideoObject schema
-      const videoScript = document.createElement('script');
-      videoScript.type = 'application/ld+json';
-      videoScript.setAttribute('data-schema-type', 'video');
-      videoScript.textContent = JSON.stringify(videoSchema);
-      document.head.appendChild(videoScript);
-
-      // Inject BreadcrumbList schema
-      const breadcrumbScript = document.createElement('script');
-      breadcrumbScript.type = 'application/ld+json';
-      breadcrumbScript.setAttribute('data-schema-type', 'breadcrumb');
-      breadcrumbScript.textContent = JSON.stringify(breadcrumbSchema);
-      document.head.appendChild(breadcrumbScript);
-
-    } catch (error) {
-      console.error('Error injecting JSON-LD schemas:', error);
-    }
-
-    // Cleanup function
-    return () => {
-      const schemas = document.querySelectorAll('script[data-schema-type]');
-      schemas.forEach(script => script.remove());
-    };
-  }, [video]);
+  // JSON-LD moved to Helmet-managed <script> tags
 
   // Handle video not found
   if (!loading && !video) {
@@ -260,6 +164,76 @@ export function WatchPage() {
 
   if (!video) return null;
 
+  // Prepare JSON-LD data for Helmet
+  const parseViews = (v: string): number => {
+    const clean = v.toUpperCase().replace(/VIEWS?/g, '').trim();
+    const match = clean.match(/([\d.,]+)\s*([KM]?)/);
+    if (!match) {
+      const digits = clean.replace(/[^\d]/g, '');
+      return digits ? parseInt(digits, 10) : 0;
+    }
+    let num = parseFloat(match[1].replace(/,/g, ''));
+    const unit = match[2];
+    if (unit === 'M') num *= 1_000_000;
+    else if (unit === 'K') num *= 1_000;
+    return Math.round(num);
+  };
+  const viewsNumber = parseViews(video.views);
+  const [durMin, durSec] = video.duration.split(':').map(Number);
+  const totalSeconds = durMin * 60 + durSec;
+  const videoSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: video.title,
+    description: video.description,
+    thumbnailUrl: video.thumbnailUrl,
+    uploadDate: video.uploadDate,
+    duration: `PT${Math.floor(totalSeconds / 60)}M${totalSeconds % 60}S`,
+    embedUrl: video.embedUrls[0],
+    contentUrl: video.embedUrls[0],
+    interactionCount: viewsNumber,
+    genre: video.category,
+    keywords: video.tags?.join(', ') || '',
+    isFamilyFriendly: false,
+    contentRating: 'adult',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: video.rating,
+      ratingCount: Math.floor(viewsNumber / 100),
+      bestRating: 5,
+      worstRating: 1
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Project Nightfall',
+      url: 'https://project-nightfall.pages.dev'
+    }
+  };
+  const videoCategory = getVideoCategory(video);
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://project-nightfall.pages.dev'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: videoCategory.name,
+        item: `https://project-nightfall.pages.dev/category/${videoCategory.slug}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: video.title
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
@@ -272,6 +246,14 @@ export function WatchPage() {
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
         <meta name="content-rating" content="mature" />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(videoSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       </Helmet>
       
       {/* Enhanced sharing meta tags - moved outside Helmet to avoid nesting issues */}
