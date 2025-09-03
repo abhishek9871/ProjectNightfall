@@ -176,7 +176,17 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
 
       {/* Success message for FAB */}
       {position === 'fab' && showSuccess && (
-        <div className="absolute bottom-full right-0 mb-4 px-3 py-2 bg-green-500 text-white text-sm rounded-lg shadow-lg animate-pulse">
+        <div
+          className="
+            fixed z-[60]
+            bottom-28 left-1/2 -translate-x-1/2
+            md:bottom-24 md:left-auto md:right-6 md:translate-x-0
+            px-4 py-2 bg-green-600 text-white text-sm font-medium
+            rounded-full shadow-xl whitespace-nowrap pointer-events-none
+          "
+          role="status"
+          aria-live="polite"
+        >
           Added to favorites!
         </div>
       )}
