@@ -26,6 +26,32 @@ export default function AboutUsPage(): React.ReactNode {
             <Helmet>
                 <title>About Us | Our Mission at Project Nightfall</title>
                 <meta name="description" content="Discover the mission behind Project Nightfall. We're dedicated to providing a premium, curated library of high-quality adult entertainment on a fast, modern, and user-friendly platform." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/about-us" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="About Us | Our Mission at Project Nightfall" />
+                <meta property="og:description" content="Discover the mission behind Project Nightfall. We're dedicated to providing a premium, curated library of high-quality adult entertainment." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/about-us" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="About Us | Our Mission at Project Nightfall" />
+                <meta name="twitter:description" content="Discover the mission behind Project Nightfall. Premium adult entertainment platform." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

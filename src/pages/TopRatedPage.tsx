@@ -239,13 +239,34 @@ return (
                 name="description"
                 content={searchQuery.trim() ? `Top rated search results for "${searchQuery}". Discover premium quality content from our curated collection.` : `Discover the highest-rated videos on Project Nightfall, ranked by our community. Explore premium quality content from our curated collection, updated regularly. Page ${currentPageNum} of ${Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE)}.`}
             />
+            
+            {/* Canonical URL - MUST point to this specific page */}
             <link
                 rel="canonical"
                 href={`https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`}
             />
-            <meta property="og:title" content={`Top Rated Videos | Project Nightfall`} />
+            
+            {/* Robots */}
+            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+            
+            {/* Open Graph */}
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content={`Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`} />
             <meta property="og:description" content="Discover the highest-rated videos on Project Nightfall, ranked by our community." />
-            <meta property="og:url" content={`https://project-nightfall.pages.dev/top-rated`} />
+            <meta property="og:url" content={`https://project-nightfall.pages.dev/top-rated${currentPageNum > 1 ? `?page=${currentPageNum}` : ''}`} />
+            <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            
+            {/* Twitter Card */}
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={`Top Rated Videos${currentPageNum > 1 ? ` - Page ${currentPageNum}` : ''} | Project Nightfall`} />
+            <meta name="twitter:description" content="Discover the highest-rated videos on Project Nightfall, ranked by our community." />
+            <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+            
+            {/* Adult content meta */}
+            <meta name="rating" content="adult" />
+            <meta name="content-rating" content="mature" />
             <script type="application/ld+json">
                 {JSON.stringify(schemaMarkup)}
             </script>

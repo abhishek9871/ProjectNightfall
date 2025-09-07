@@ -25,6 +25,32 @@ export default function TermsOfServicePage(): React.ReactNode {
             <Helmet>
                 <title>Terms of Service | Project Nightfall</title>
                 <meta name="description" content="Please read the Terms of Service for Project Nightfall. Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/terms-of-service" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Terms of Service | Project Nightfall" />
+                <meta property="og:description" content="Terms of Service for Project Nightfall. Your use of the Service is conditioned on acceptance of these Terms." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/terms-of-service" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Terms of Service | Project Nightfall" />
+                <meta name="twitter:description" content="Terms of Service for Project Nightfall adult entertainment platform." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

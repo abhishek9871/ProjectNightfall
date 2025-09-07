@@ -26,6 +26,32 @@ export default function ContactPage(): React.ReactNode {
             <Helmet>
                 <title>Contact Us | Project Nightfall Support</title>
                 <meta name="description" content="Get in touch with the Project Nightfall team. For support, inquiries, or feedback, please reach out to us via email." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/contact" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Contact Us | Project Nightfall Support" />
+                <meta property="og:description" content="Get in touch with the Project Nightfall team. For support, inquiries, or feedback, please reach out to us." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/contact" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Contact Us | Project Nightfall Support" />
+                <meta name="twitter:description" content="Get in touch with the Project Nightfall team for support and inquiries." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

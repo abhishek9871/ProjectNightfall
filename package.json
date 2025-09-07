@@ -64,6 +64,7 @@
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vite-plugin-compression": "^0.5.1",
+    "vite-prerender-plugin": "^0.5.12",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-sitemap": "^0.6.1",
     "wrangler": "^4.26.0"

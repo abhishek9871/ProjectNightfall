@@ -10,7 +10,6 @@ import { useSearch } from '../contexts/SearchContext';
 import FavoriteButton from '../components/FavoriteButton';
 import { Video } from '../../types';
 import { ShareButton } from '../../components/ShareButton';
-import { SharingMetaTags } from '../../components/SharingMetaTags';
 import { AddToPlaylistButton } from '../../components/playlist/AddToPlaylistButton';
 
 export function WatchPage() {
@@ -181,7 +180,6 @@ export function WatchPage() {
   };
   const viewsNumber = parseViews(video.views);
   const [durMin, durSec] = video.duration.split(':').map(Number);
-  const totalSeconds = durMin * 60 + durSec;
   const videoSchema = {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
@@ -189,12 +187,12 @@ export function WatchPage() {
     description: video.description,
     thumbnailUrl: video.thumbnailUrl,
     uploadDate: video.uploadDate,
-    duration: `PT${Math.floor(totalSeconds / 60)}M${totalSeconds % 60}S`,
+    duration: `PT${durMin}M${durSec}S`,
     embedUrl: video.embedUrls[0],
     contentUrl: video.embedUrls[0],
     interactionCount: viewsNumber,
     genre: video.category,
-    keywords: video.tags?.join(', ') || '',
+    keywords: video.tags?.join(', ') || 'adult, video',
     isFamilyFriendly: false,
     contentRating: 'adult',
     aggregateRating: {
@@ -242,11 +240,38 @@ export function WatchPage() {
         <title>{video.title} - Project Nightfall</title>
         <meta name="description" content={video.description.substring(0, 160) + '...'} />
         <meta name="keywords" content={`${video.title}, ${video.category}, adult video, premium content, ${video.tags?.join(', ') || ''}`} />
+        
+        {/* Canonical URL - MUST point to this specific watch page */}
         <link rel="canonical" href={`https://project-nightfall.pages.dev/watch/${video.id}`} />
         
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
         <meta name="content-rating" content="mature" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        
+        {/* Open Graph Video Tags */}
+        <meta property="og:type" content="video.other" />
+        <meta property="og:title" content={video.title} />
+        <meta property="og:description" content={video.description.substring(0, 160) + '...'} />
+        <meta property="og:url" content={`https://project-nightfall.pages.dev/watch/${video.id}`} />
+        <meta property="og:site_name" content="Project Nightfall" />
+        <meta property="og:image" content={video.thumbnailUrl || 'https://project-nightfall.pages.dev/og-image.jpg'} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:video" content={video.embedUrls[0]} />
+        <meta property="og:video:secure_url" content={video.embedUrls[0].replace('http://', 'https://')} />
+        <meta property="og:video:type" content="text/html" />
+        <meta property="og:video:width" content="1280" />
+        <meta property="og:video:height" content="720" />
+        
+        {/* Twitter Player Card */}
+        <meta name="twitter:card" content="player" />
+        <meta name="twitter:title" content={video.title} />
+        <meta name="twitter:description" content={video.description.substring(0, 160) + '...'} />
+        <meta name="twitter:image" content={video.thumbnailUrl || 'https://project-nightfall.pages.dev/og-image.jpg'} />
+        <meta name="twitter:player" content={`https://project-nightfall.pages.dev/watch/${video.id}`} />
+        <meta name="twitter:player:width" content="1280" />
+        <meta name="twitter:player:height" content="720" />
 
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">
@@ -257,9 +282,6 @@ export function WatchPage() {
         </script>
       </Helmet>
       
-      {/* Enhanced sharing meta tags - moved outside Helmet to avoid nesting issues */}
-      <SharingMetaTags video={video} />
-
       <Layout>
         {/* Header with Navigation */}
         <header className="bg-slate-900 border-b border-slate-800 p-4">
@@ -294,7 +316,7 @@ export function WatchPage() {
                     className="w-full h-full"
                     title={video.title}
                     referrerPolicy="no-referrer-when-downgrade"
-                    sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-presentation allow-fullscreen"
+                    sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-presentation"
                     allowFullScreen
                     frameBorder="0"
                     loading="eager"

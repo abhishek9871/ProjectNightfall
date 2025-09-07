@@ -25,6 +25,32 @@ export default function DMCAPage(): React.ReactNode {
             <Helmet>
                 <title>DMCA Takedown Policy | Project Nightfall</title>
                 <meta name="description" content="Project Nightfall respects intellectual property rights. Find out how to submit a DMCA takedown notice and learn about our compliance procedures." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/dmca" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="DMCA Takedown Policy | Project Nightfall" />
+                <meta property="og:description" content="DMCA compliance and takedown procedures for Project Nightfall. We respect intellectual property rights." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/dmca" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="DMCA Takedown Policy | Project Nightfall" />
+                <meta name="twitter:description" content="DMCA compliance and takedown procedures for Project Nightfall." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

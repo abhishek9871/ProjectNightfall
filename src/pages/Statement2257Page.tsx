@@ -25,6 +25,32 @@ export default function Statement2257Page(): React.ReactNode {
             <Helmet>
                 <title>18 U.S.C. 2257 Compliance Statement | Project Nightfall</title>
                 <meta name="description" content="View the 18 U.S.C. 2257 Record-Keeping Requirements Compliance Statement for all content featured on Project Nightfall." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/2257-statement" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="18 U.S.C. 2257 Compliance Statement | Project Nightfall" />
+                <meta property="og:description" content="18 U.S.C. 2257 Record-Keeping Requirements Compliance Statement for Project Nightfall." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/2257-statement" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="18 U.S.C. 2257 Compliance Statement" />
+                <meta name="twitter:description" content="Legal compliance statement for Project Nightfall." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

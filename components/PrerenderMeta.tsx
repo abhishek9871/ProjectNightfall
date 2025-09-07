@@ -15,32 +15,9 @@ export const PrerenderMeta: React.FC<PrerenderMetaProps> = ({
 }) => {
   const location = useLocation();
   
-  // Skip on pages that manage their own meta tags to avoid duplication
-  const path = location.pathname;
-  const skipPrefixes = [
-    '/',
-    '/watch',
-    '/category',
-    '/categories',
-    '/top-rated',
-    '/favorites',
-    '/playlists',
-    '/playlist',
-    '/shared-playlist',
-    '/p',
-    '/s',
-    // Legal and trust pages
-    '/about-us',
-    '/contact',
-    '/terms-of-service',
-    '/privacy-policy',
-    '/dmca',
-    '/2257-statement'
-  ];
-  const shouldSkip = skipPrefixes.some(prefix => path === prefix || path.startsWith(prefix + '/'));
-  if (shouldSkip) {
-    return null;
-  }
+  // Skip PrerenderMeta completely on all pages to avoid duplication
+  // Each page will manage its own meta tags through Helmet
+  return null;
 
   // Generate canonical URL based on current route
   const baseUrl = 'https://project-nightfall.pages.dev';

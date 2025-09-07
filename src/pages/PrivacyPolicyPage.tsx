@@ -25,6 +25,32 @@ export default function PrivacyPolicyPage(): React.ReactNode {
             <Helmet>
                 <title>Privacy Policy | Project Nightfall</title>
                 <meta name="description" content="Your privacy is important to us. Our Privacy Policy explains how Project Nightfall collects, uses, and protects your personal information." />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://project-nightfall.pages.dev/privacy-policy" />
+                
+                {/* Robots */}
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Privacy Policy | Project Nightfall" />
+                <meta property="og:description" content="Privacy Policy for Project Nightfall. Learn how we collect, use, and protect your personal information." />
+                <meta property="og:url" content="https://project-nightfall.pages.dev/privacy-policy" />
+                <meta property="og:site_name" content="Project Nightfall" />
+                <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Privacy Policy | Project Nightfall" />
+                <meta name="twitter:description" content="Privacy Policy for Project Nightfall adult entertainment platform." />
+                <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+                
+                {/* Adult content meta */}
+                <meta name="rating" content="adult" />
+                <meta name="content-rating" content="mature" />
             </Helmet>
             
             {/* Search Results Section Above Legal Content */}

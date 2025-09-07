@@ -33,7 +33,6 @@ export const SharingMetaTags: React.FC<SharingMetaTagsProps> = ({ video }) => {
       <meta property="og:image:secure_url" content={thumbnailUrl} />
       <meta property="og:image:alt" content={video.title} />
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:site_name" content="Project Nightfall" />
       <meta property="og:video" content={secureEmbedUrl} />
       <meta property="og:video:secure_url" content={secureEmbedUrl} />
       <meta property="og:video:duration" content={totalSeconds.toString()} />

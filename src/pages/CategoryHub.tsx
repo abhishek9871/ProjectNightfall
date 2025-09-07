@@ -156,6 +156,9 @@ const CategoryHub = () => {
         <meta name="description" content="Browse all video categories, including 8 premium pillars and specialty collections. Updated frequently with new content across all categories." />
         <link rel="canonical" href="https://project-nightfall.pages.dev/categories" />
         
+        {/* Robots */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
         <meta name="content-rating" content="mature" />
@@ -165,6 +168,16 @@ const CategoryHub = () => {
         <meta property="og:description" content="Browse all video categories, including 8 premium pillars and specialty collections. Updated frequently." />
         <meta property="og:url" content="https://project-nightfall.pages.dev/categories" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Project Nightfall" />
+        <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        
+        {/* Twitter Card Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="All Video Categories | Project Nightfall" />
+        <meta name="twitter:description" content="Browse all video categories on Project Nightfall" />
+        <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
         
         {/* Performance Hints */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

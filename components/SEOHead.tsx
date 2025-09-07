@@ -138,20 +138,30 @@ export function SEOHead({
     return (
         <Helmet>
             <title>{pageMeta.title}</title>
-            <link rel="canonical" href={pageMeta.url} />
             <meta name="description" content={pageMeta.description} />
+            <meta name="keywords" content={pageMeta.keywords} />
+            
+            {/* Canonical URL - MUST point to the actual page */}
+            <link rel="canonical" href={pageMeta.url} />
+            
+            {/* Robots */}
+            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
             {/* Open Graph */}
             <meta property="og:type" content="website" />
-            <meta property="og:site_name" content="Project Nightfall" />
             <meta property="og:title" content={pageMeta.title} />
             <meta property="og:description" content={pageMeta.description} />
             <meta property="og:url" content={pageMeta.url} />
+            <meta property="og:site_name" content="Project Nightfall" />
+            <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
 
             {/* Twitter */}
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={pageMeta.title} />
             <meta name="twitter:description" content={pageMeta.description} />
+            <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
 
             {/* Adult content meta */}
             <meta name="rating" content="adult" />

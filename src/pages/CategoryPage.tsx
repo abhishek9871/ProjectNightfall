@@ -243,6 +243,8 @@ const CategoryPage = () => {
         <title>{pageTitle}</title>
         <meta name="description" content={metaDescription} />
         <meta name="keywords" content={`${category.name.toLowerCase()}, ${category.name.toLowerCase()} porn, ${category.name.toLowerCase()} videos, ${category.name.toLowerCase()} sex, adult videos, porn videos, HD porn`} />
+        
+        {/* Canonical URL - MUST point to this specific category page */}
         <link rel="canonical" href={canonicalUrl} />
         
         {/* Pagination Meta Tags */}
@@ -252,6 +254,7 @@ const CategoryPage = () => {
         {/* Adult Content Rating */}
         <meta name="rating" content="adult" />
         <meta name="content-rating" content="mature" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         
         {/* Open Graph Meta Tags */}
         <meta property="og:title" content={pageTitle} />
@@ -259,15 +262,16 @@ const CategoryPage = () => {
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Project Nightfall" />
+        <meta property="og:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:site" content="@ProjectNightfall" />
-        
-        {/* Additional SEO Meta Tags */}
-        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="twitter:image" content="https://project-nightfall.pages.dev/og-image.jpg" />
         <meta name="googlebot" content="index, follow" />
         <meta name="author" content="Project Nightfall" />
         <meta name="publisher" content="Project Nightfall" />
