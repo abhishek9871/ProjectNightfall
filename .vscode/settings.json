@@ -1,5 +1,6 @@
 {
   "files.associations": {
     "public/_headers": "plaintext"
-  }
+  },
+  "Codegeex.Chat.fontSize": 10
 }
